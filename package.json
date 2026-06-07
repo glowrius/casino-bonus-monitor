@@ -5,7 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "build": "pkg index.js --targets node18-win-x64 --output CasinoBot.exe"
+    "build": "npx @yao-pkg/pkg -t node22-win-x64 index.js -o CasinoBot.exe && node -e \"const{execSync}=require('child_process');execSync('\\\"'+require('path').join(process.env.APPDATA,'npm/node_modules/rcedit/bin/rcedit-x64.exe')+'\\\" CasinoBot.exe --set-icon icon.ico --set-version-string FileDescription \\\"Casino Bonus Monitor\\\" --set-version-string ProductName \\\"Casino Bonus Monitor\\\" --set-version-string LegalCopyright \\\"(c) glowrius\\\"',{stdio:'inherit'})\""
+  },
+  "pkg": {
+    "assets": [
+      "data/**/*"
+    ]
   },
   "dependencies": {
     "dotenv": "^16.4.5",
@@ -13,6 +18,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@yao-pkg/pkg": "^6.20.0",
     "pkg": "^5.8.1"
   }
 }
