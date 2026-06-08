@@ -20,6 +20,7 @@ const redditMonitor = require('./reddit_monitor');
 const autoClaim = require('./auto_claim');
 const streamerSniper = require('./streamer_sniper');
 const hellofresh = require('./modules/hellofresh');
+const cookieClaim = require('./modules/cookie_claim');
 
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_SECONDS || '10', 10);
 const enabledClaimCount = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'claim_profiles.json'), 'utf8')).filter(p => p.enabled).length; } catch { return 0; } })();
@@ -37,8 +38,10 @@ console.log(`  Updater:        enabled (auto-checks daily)`);
 console.log('');
 console.log('── Discord ──────────────────────────────');
 console.log(`  Bot Token:  ${process.env.DISCORD_BOT_TOKEN ? 'configured' : 'NOT SET'}`);
-console.log(`  Monitor Channel: <#${process.env.MONITOR_CHANNEL_ID || 'not set'}>`);
-console.log(`  CMD Channel:     <#${process.env.CMD_CHANNEL_ID || 'not set'}>`);
+console.log(`  Monitor Channel:     <#${process.env.MONITOR_CHANNEL_ID || 'not set'}>`);
+console.log(`  CMD Channel:         <#${process.env.CMD_CHANNEL_ID || 'not set'}>`);
+console.log(`  Streamer Channel:    <#${process.env.STREAMER_CHANNEL_ID || 'not set'}>`);
+console.log(`  Daily Claims Channel: <#${process.env.DAILY_CLAIMS_CHANNEL_ID || 'not set'}>`);
 console.log('');
 
 async function main() {
@@ -73,6 +76,17 @@ async function main() {
       await interaction.editReply({ content: `✅ Claim run complete: ${ok}/${results.length} successful` });
     } catch (e) {
       await interaction.editReply({ content: `❌ Claim run failed: ${e.message}` });
+    }
+  });
+
+  bot.onCommand('setcookie', async (interaction) => {
+    const casino = interaction.options.getString('casino');
+    const cookie = interaction.options.getString('cookie');
+    try {
+      cookieClaim.saveCookies(casino, cookie);
+      await interaction.reply({ content: `✅ Cookies saved for **${casino}**`, ephemeral: true });
+    } catch (e) {
+      await interaction.reply({ content: `❌ Failed to save cookies: ${e.message}`, ephemeral: true });
     }
   });
 
@@ -129,7 +143,104 @@ async function main() {
     }
   });
 
-  console.log('[Bot] Command handlers registered (status, claim, hellofresh_create, hellofresh_list)');
+  console.log('[Bot] Command handlers registered (status, claim, setcookie, hellofresh_create, hellofresh_list)');
+
+  // Button handlers
+  bot.onButton('scan_dailies', async (interaction) => {
+    await interaction.deferReply({ ephemeral: true });
+    try {
+      const results = await cookieClaim.scanAll();
+      if (results.length === 0) {
+        await interaction.editReply({ content: 'No enabled casinos with cookies found. Use `/setcookie` first.' });
+        return;
+      }
+      const available = results.filter(r => r.available);
+      const lines = results.map(r => {
+        if (r.error) return `❌ **${r.casino}** — ${r.error}`;
+        if (r.available) return `✅ **${r.casino}** — Bonus available!`;
+        if (r.alreadyClaimed) return `⏳ **${r.casino}** — Already claimed today`;
+        return `❓ **${r.casino}** — No bonus detected`;
+      });
+      await interaction.editReply({
+        embeds: [{
+          title: '🔍 Daily Scan Results',
+          color: available.length > 0 ? 0x57F287 : 0xFFAA00,
+          description: lines.join('\n'),
+          fields: available.length > 0 ? [{ name: '💰 Available', value: `${available.length} / ${results.length} casinos have bonuses ready` }] : [],
+          timestamp: new Date().toISOString()
+        }]
+      });
+    } catch (e) {
+      await interaction.editReply({ content: `❌ Scan failed: ${e.message}` });
+    }
+  });
+
+  bot.onButton('change_license_key', async (interaction) => {
+    const modal = new ModalBuilder()
+      .setCustomId('license_key_modal').setTitle('Change License Key')
+      .addComponents(
+        new ActionRowBuilder().addComponents(
+          new TextInputBuilder().setCustomId('license_key_input').setLabel('Enter your license key').setStyle(TextInputStyle.Short).setPlaceholder('e.g. CC-ADMIN-2024').setRequired(true)
+        )
+      );
+    await interaction.showModal(modal);
+  });
+
+  bot.onButton('claim_dailies', async (interaction) => {
+    await interaction.deferReply({ ephemeral: true });
+    try {
+      const results = await cookieClaim.claimAll();
+      if (results.length === 0) {
+        await interaction.editReply({ content: 'No enabled casinos with cookies found. Use `/setcookie` first.' });
+        return;
+      }
+      const ok = results.filter(r => r.success).length;
+      const lines = results.map(r => `${r.success ? '✅' : '❌'} **${r.casino}** — ${r.success ? 'Claimed' : r.error || 'Failed'}`);
+      await interaction.editReply({
+        embeds: [{
+          title: '💰 Daily Claim Results',
+          color: ok > 0 ? 0x57F287 : 0xFF4444,
+          description: lines.join('\n'),
+          fields: [{ name: 'Summary', value: `${ok} / ${results.length} successful` }],
+          timestamp: new Date().toISOString()
+        }]
+      });
+    } catch (e) {
+      await interaction.editReply({ content: `❌ Claim run failed: ${e.message}` });
+    }
+  });
+
+  // Modal handler
+  bot.onModal('license_key_modal', async (interaction) => {
+    const key = interaction.fields.getTextInputValue('license_key_input');
+    if (bot.validateLicenseKey(key)) {
+      const settings = db.getSettings();
+      settings.licenseKey = key;
+      db.saveSettings(settings);
+      await interaction.reply({ content: `✅ License key **${key}** is valid and has been saved!`, ephemeral: true });
+    } else {
+      await interaction.reply({ content: `❌ Invalid license key: \`${key}\`. Check your key and try again.`, ephemeral: true });
+    }
+  });
+
+  // Post daily-claims panel + guide announcement
+  setTimeout(async () => {
+    await bot.sendDailyClaimsPanel();
+    await bot.sendToChannel('1493303855532867725', {
+      embeds: [{
+        title: '📖 User Guide Available',
+        color: 0x57F287,
+        description: 'A full user guide is now available online covering all casino features:\n\n' +
+          '• Command reference (`/status`, `/claim`, `/setcookie`)\n' +
+          '• Cookie-based claiming setup\n' +
+          '• Streamer alerts configuration\n' +
+          '• Auto-claim schedule & history\n' +
+          '• FAQ & troubleshooting\n\n' +
+          '**Read the guide:** https://glowrius.github.io/casino-bonus-monitor/guide/',
+        timestamp: new Date().toISOString()
+      }]
+    });
+  }, 5000);
 
   bot.onCommand('hellofresh_list', async (interaction) => {
     await interaction.deferReply({ ephemeral: true });

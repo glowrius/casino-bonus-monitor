@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { Client, GatewayIntentBits, EmbedBuilder, REST, Routes, SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ModalBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
 
 function decodeEntities(str) {
@@ -59,6 +61,8 @@ class DiscordBot {
     this._resolveReady = null;
     this.startTime = null;
     this.commandHandlers = {};
+    this.buttonHandlers = {};
+    this.modalHandlers = {};
     this.claimRunner = null;
   }
 
@@ -164,12 +168,19 @@ class DiscordBot {
 
   onCommand(name, handler) { this.commandHandlers[name] = handler; }
 
+  onButton(customId, handler) { this.buttonHandlers[customId] = handler; }
+
+  onModal(customId, handler) { this.modalHandlers[customId] = handler; }
+
   setClaimRunner(fn) { this.claimRunner = fn; }
 
   async _registerCommands() {
     const commands = [
       new SlashCommandBuilder().setName('status').setDescription('Show bot status and module information'),
       new SlashCommandBuilder().setName('claim').setDescription('Trigger an immediate daily claim run'),
+      new SlashCommandBuilder().setName('setcookie').setDescription('Save session cookies for a casino')
+        .addStringOption(opt => opt.setName('casino').setDescription('Casino name').setRequired(true))
+        .addStringOption(opt => opt.setName('cookie').setDescription('Full cookie string from browser').setRequired(true)),
       new SlashCommandBuilder().setName('hellofresh').setDescription('HelloFresh account management')
         .addSubcommand(sub => sub.setName('create').setDescription('Create HelloFresh accounts')
           .addIntegerOption(opt => opt.setName('amount').setDescription('Number of accounts to create').setRequired(true).setMinValue(1).setMaxValue(10)))
@@ -246,6 +257,38 @@ class DiscordBot {
       .setColor(0x57F287).setFooter({ text: '◎ Casino Bonus Monitor™' }).setTimestamp(pubDate);
     if (logoUrl) embed.setThumbnail(logoUrl);
     return embed;
+  }
+
+  validateLicenseKey(key) {
+    try {
+      const keys = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'license_keys.json'), 'utf8'));
+      return keys.includes(key);
+    } catch { return false; }
+  }
+
+  async sendDailyClaimsPanel() {
+    if (!this.dailyClaimsChannel) return;
+    const row = new ActionRowBuilder().addComponents(
+      new ButtonBuilder().setCustomId('scan_dailies').setLabel('Scan for Dailies').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('change_license_key').setLabel('Change License Key').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('claim_dailies').setLabel('Claim Available Daily SC').setStyle(ButtonStyle.Success),
+    );
+    const embed = new EmbedBuilder()
+      .setTitle('🎰 Daily Claims Panel').setColor(0x57F287).setTimestamp()
+      .setDescription('Use the buttons below to scan for available daily bonuses, manage your license key, or claim available Sweepscash.')
+      .addFields(
+        { name: '🔍 Scan for Dailies', value: 'Checks each casino with saved cookies and reports available bonuses', inline: true },
+        { name: '🔑 Change License Key', value: 'Opens a form to enter or update your license key', inline: true },
+        { name: '💰 Claim Available Daily SC', value: 'Claims bonuses for all casinos flagged as available', inline: true },
+      );
+    await this.dailyClaimsChannel.send({ embeds: [embed], components: [row] }).catch(() => {});
+  }
+
+  async sendToChannel(channelId, content) {
+    try {
+      const ch = await this.client.channels.fetch(channelId);
+      if (ch) await ch.send(content);
+    } catch {}
   }
 
   stop() {

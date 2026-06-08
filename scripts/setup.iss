@@ -45,6 +45,8 @@ Name: "installcert"; Description: "Install code signing certificate (stops Windo
 Source: "..\build\CasinoBot.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
 Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
+Source: "..\src\data\license_keys.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
+Source: "..\src\data\seen_posts.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
 Source: "..\scripts\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\.env.example"; DestDir: "{app}"; DestName: ".env.example"; Flags: ignoreversion
 
@@ -82,10 +84,14 @@ begin
   ConfigPage.Add('Bot Token:', False);
   ConfigPage.Add('Monitor Channel ID (#monitor-posts):', False);
   ConfigPage.Add('CMD Channel ID (#cmd):', False);
+  ConfigPage.Add('Streamer Channel ID (#streamer-chat):', False);
+  ConfigPage.Add('Daily Claims Channel ID (#daily-claims):', False);
 
   ConfigPage.Values[0] := GetPreviousData('BotToken', '');
   ConfigPage.Values[1] := GetPreviousData('MonitorChannelId', '');
   ConfigPage.Values[2] := GetPreviousData('CmdChannelId', '');
+  ConfigPage.Values[3] := GetPreviousData('StreamerChannelId', '');
+  ConfigPage.Values[4] := GetPreviousData('DailyClaimsChannelId', '');
 end;
 
 procedure RegisterPreviousData(PreviousDataKey: Integer);
@@ -93,11 +99,13 @@ begin
   SetPreviousData(PreviousDataKey, 'BotToken', ConfigPage.Values[0]);
   SetPreviousData(PreviousDataKey, 'MonitorChannelId', ConfigPage.Values[1]);
   SetPreviousData(PreviousDataKey, 'CmdChannelId', ConfigPage.Values[2]);
+  SetPreviousData(PreviousDataKey, 'StreamerChannelId', ConfigPage.Values[3]);
+  SetPreviousData(PreviousDataKey, 'DailyClaimsChannelId', ConfigPage.Values[4]);
 end;
 
 function ShouldWriteEnv: Boolean;
 begin
-  Result := (ConfigPage.Values[0] <> '') or (ConfigPage.Values[1] <> '') or (ConfigPage.Values[2] <> '');
+  Result := (ConfigPage.Values[0] <> '') or (ConfigPage.Values[1] <> '') or (ConfigPage.Values[2] <> '') or (ConfigPage.Values[3] <> '') or (ConfigPage.Values[4] <> '');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
@@ -111,13 +119,15 @@ begin
     begin
       EnvFile := ExpandConstant('{app}\.env');
 
-      SetArrayLength(Lines, 6);
+      SetArrayLength(Lines, 8);
       Lines[0] := '# Casino Bonus Monitor Configuration';
       Lines[1] := 'DISCORD_BOT_TOKEN=' + ConfigPage.Values[0];
       Lines[2] := 'MONITOR_CHANNEL_ID=' + ConfigPage.Values[1];
       Lines[3] := 'CMD_CHANNEL_ID=' + ConfigPage.Values[2];
-      Lines[4] := 'REDDIT_RSS_URLS=https://www.reddit.com/r/sweepstakesidehustle/.rss';
-      Lines[5] := 'POLL_INTERVAL_SECONDS=10';
+      Lines[4] := 'STREAMER_CHANNEL_ID=' + ConfigPage.Values[3];
+      Lines[5] := 'DAILY_CLAIMS_CHANNEL_ID=' + ConfigPage.Values[4];
+      Lines[6] := 'REDDIT_RSS_URLS=https://www.reddit.com/r/sweepstakesidehustle/.rss';
+      Lines[7] := 'POLL_INTERVAL_SECONDS=10';
 
       if not SaveStringsToFile(EnvFile, Lines, False) then
       begin
