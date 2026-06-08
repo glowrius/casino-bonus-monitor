@@ -33,6 +33,16 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build Dashboard (PyInstaller)
+        run: |
+          pip install customtkinter requests pyinstaller
+          pyinstaller --onefile --windowed --name CasinoDashboard --distpath build src/ui/main.py
+
       - name: Build Installer
         shell: pwsh
         run: |
@@ -45,6 +55,7 @@ jobs:
         run: |
           gh release create $env:GITHUB_REF_NAME `
             build/CasinoBot.exe `
+            build/CasinoDashboard.exe `
             build/CasinoBot-Setup-*.exe `
             --title $env:GITHUB_REF_NAME `
             --notes "Auto-built from commit $env:GITHUB_SHA"

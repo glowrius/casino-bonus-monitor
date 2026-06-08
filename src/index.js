@@ -21,6 +21,7 @@ const autoClaim = require('./auto_claim');
 const streamerSniper = require('./streamer_sniper');
 const hellofresh = require('./modules/hellofresh');
 const cookieClaim = require('./modules/cookie_claim');
+const api = require('./api');
 
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_SECONDS || '10', 10);
 const enabledClaimCount = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'claim_profiles.json'), 'utf8')).filter(p => p.enabled).length; } catch { return 0; } })();
@@ -47,6 +48,7 @@ console.log('');
 async function main() {
   await bot.init();
   await bot.waitForReady();
+  api.start(bot);
 
   bot.onCommand('status', async (interaction) => {
     const uptime = Math.floor((Date.now() - bot.startTime) / 1000);

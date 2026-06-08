@@ -37,25 +37,32 @@ DisableFinishedPage=no
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Components]
+Name: "bot"; Description: "CasinoBot main program"; Types: full custom compact; Flags: fixed
+Name: "dashboard"; Description: "Claim City Dashboard (Python GUI for license/cookies/claims)"; Types: full custom
+
 [Tasks]
 Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription: "Additional icons:"; Flags: checkedonce
 Name: "installcert"; Description: "Install code signing certificate (stops Windows security warnings)"; GroupDescription: "Security:"; Flags: checkedonce
 
 [Files]
-Source: "..\build\CasinoBot.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
-Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
-Source: "..\src\data\license_keys.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
-Source: "..\scripts\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\src\.env.example"; DestDir: "{app}"; DestName: ".env.example"; Flags: ignoreversion
+Source: "..\build\CasinoBot.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: bot
+Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion; Components: bot
+Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion; Components: bot
+Source: "..\src\data\license_keys.json"; DestDir: "{app}\src\data"; Flags: ignoreversion; Components: bot
+Source: "..\scripts\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion; Components: bot
+Source: "..\src\.env.example"; DestDir: "{app}"; DestName: ".env.example"; Flags: ignoreversion; Components: bot
+Source: "..\build\CasinoDashboard.exe"; DestDir: "{app}"; Flags: ignoreversion; Components: dashboard
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Components: bot
+Name: "{group}\Claim City Dashboard"; Filename: "{app}\CasinoDashboard.exe"; WorkingDir: "{app}"; Components: dashboard
 Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon; Components: bot
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: postinstall nowait skipifsilent unchecked
+Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: postinstall nowait skipifsilent unchecked; Components: bot
+Filename: "{app}\CasinoDashboard.exe"; Description: "Launch Claim City Dashboard"; Flags: postinstall nowait skipifsilent unchecked; Components: dashboard
 Filename: "certutil"; Parameters: "-addstore TrustedPublisher ""{app}\CasinoBot.cer"""; Description: "Install certificate"; Flags: runhidden postinstall skipifsilent; Tasks: installcert
 
 [UninstallRun]
