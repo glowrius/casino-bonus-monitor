@@ -54,7 +54,7 @@ async function main() {
     const secs = uptime % 60;
     await interaction.reply({
       embeds: [{
-        title: '📊 Casino Bonus Monitor Status',
+        title: '📊 Claim City 2026 Status',
         color: 0x57F287,
         fields: [
           { name: 'Uptime', value: `${mins}m ${secs}s`, inline: true },
@@ -62,6 +62,36 @@ async function main() {
           { name: 'Auto-Claim', value: `${enabledClaimCount} casinos`, inline: true },
           { name: 'Streamer Sniper', value: 'loaded', inline: true },
         ],
+        timestamp: new Date().toISOString()
+      }],
+      ephemeral: true
+    });
+  });
+
+  bot.onCommand('commands', async (interaction) => {
+    await interaction.reply({
+      embeds: [{
+        title: '⌨️ Commands',
+        color: 0xFFD700,
+        description: 'All available bot commands grouped by category.\n' +
+          'Use `/command` to run any of the following:',
+        fields: [
+          {
+            name: '🎰 Casino',
+            value: '`/status` — Bot uptime, modules, enabled features\n' +
+              '`/commands` — Show this command list\n' +
+              '`/claim` — Trigger daily claim run\n' +
+              '`/setcookie <casino> <cookie>` — Save session cookies',
+            inline: false
+          },
+          {
+            name: '🥗 HelloFresh',
+            value: '`/hellofresh create <amount>` — Generate referral links (1–10)\n' +
+              '`/hellofresh list` — View saved accounts',
+            inline: false
+          }
+        ],
+        footer: { text: 'Claim City 2026 ©' },
         timestamp: new Date().toISOString()
       }],
       ephemeral: true
@@ -237,7 +267,7 @@ async function main() {
           '• Auto-claim schedule & history\n' +
           '• FAQ & troubleshooting\n\n' +
           '**Read the guide:** https://glowrius.github.io/casino-bonus-monitor/guide/',
-        footer: { text: 'Casino Bonus Monitor™' }
+        footer: { text: 'Claim City 2026 ©' }
       }]
     });
   }, 5000);

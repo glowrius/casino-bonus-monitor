@@ -177,6 +177,7 @@ class DiscordBot {
   async _registerCommands() {
     const commands = [
       new SlashCommandBuilder().setName('status').setDescription('Show bot status and module information'),
+      new SlashCommandBuilder().setName('commands').setDescription('Show all available bot commands'),
       new SlashCommandBuilder().setName('claim').setDescription('Trigger an immediate daily claim run'),
       new SlashCommandBuilder().setName('setcookie').setDescription('Save session cookies for a casino')
         .addStringOption(opt => opt.setName('casino').setDescription('Casino name').setRequired(true))
@@ -217,7 +218,7 @@ class DiscordBot {
     const embed = new EmbedBuilder()
       .setTitle(`🎯 ${name}`).setURL(url).setColor(0x57F287)
       .setDescription(`◎ ${sender} dropped a link`)
-      .setFooter({ text: '◎ Casino Bonus Monitor™' }).setTimestamp();
+      .setFooter({ text: 'Claim City 2026 ©' }).setTimestamp();
     await this.streamerChannel.send({ embeds: [embed] }).catch(() => {});
   }
 
@@ -254,7 +255,7 @@ class DiscordBot {
       : '';
     const embed = new EmbedBuilder()
       .setTitle(offer).setURL(claimLink || post.link).setDescription(description)
-      .setColor(0x57F287).setFooter({ text: '◎ Casino Bonus Monitor™' }).setTimestamp(pubDate);
+      .setColor(0x57F287).setFooter({ text: 'Claim City 2026 ©' }).setTimestamp(pubDate);
     if (logoUrl) embed.setAuthor({ name: casino, iconURL: logoUrl });
     else embed.setAuthor({ name: casino });
     return embed;
