@@ -228,7 +228,7 @@ async function main() {
     await bot.sendDailyClaimsPanel();
     await bot.sendToChannel('1493303855532867725', {
       embeds: [{
-        title: '📖 User Guide Available',
+        title: '📖 │ User Guide Available',
         color: 0x57F287,
         description: 'A full user guide is now available online covering all casino features:\n\n' +
           '• Command reference (`/status`, `/claim`, `/setcookie`)\n' +
@@ -237,7 +237,7 @@ async function main() {
           '• Auto-claim schedule & history\n' +
           '• FAQ & troubleshooting\n\n' +
           '**Read the guide:** https://glowrius.github.io/casino-bonus-monitor/guide/',
-        timestamp: new Date().toISOString()
+        footer: { text: 'Casino Bonus Monitor™' }
       }]
     });
   }, 5000);

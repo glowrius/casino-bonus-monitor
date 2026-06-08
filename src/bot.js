@@ -250,12 +250,13 @@ class DiscordBot {
     const logoUrl = getCasinoLogo(casino);
     const pubDate = post.pubDate ? new Date(post.pubDate) : new Date();
     const description = claimLink && claimLink !== post.link
-      ? `◎ ${casino}\n**[Claim Here](${claimLink})**`
-      : `◎ ${casino}`;
+      ? `**[Claim Here](${claimLink})**`
+      : '';
     const embed = new EmbedBuilder()
-      .setTitle(offer).setURL(claimLink).setDescription(description)
+      .setTitle(offer).setURL(claimLink || post.link).setDescription(description)
       .setColor(0x57F287).setFooter({ text: '◎ Casino Bonus Monitor™' }).setTimestamp(pubDate);
-    if (logoUrl) embed.setThumbnail(logoUrl);
+    if (logoUrl) embed.setAuthor({ name: casino, iconURL: logoUrl });
+    else embed.setAuthor({ name: casino });
     return embed;
   }
 
