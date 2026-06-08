@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casino Bonus Monitor</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0f0f11;
+      color: #e8e6e3;
+      line-height: 1.6;
+    }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+      background: linear-gradient(180deg, #1a1a1e 0%, #0f0f11 100%);
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #ff8c00, #ffb347);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: #9a9a9e;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: #1e1e22;
+      border: 1px solid #333;
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-size: 0.85rem;
+      color: #ffb347;
+      margin-bottom: 24px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all .2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ff8c00, #ffb347);
+      color: #0f0f11;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,140,0,0.3); }
+    .btn-secondary {
+      background: transparent;
+      color: #e8e6e3;
+      border: 1px solid #444;
+      margin-left: 12px;
+    }
+    .btn-secondary:hover { border-color: #ff8c00; color: #ff8c00; }
+
+    /* Features */
+    .features {
+      padding: 80px 0;
+    }
+    .features h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 48px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: #1a1a1e;
+      border: 1px solid #2a2a2e;
+      border-radius: 14px;
+      padding: 32px;
+      transition: all .2s;
+    }
+    .feature-card:hover { border-color: #ff8c00; transform: translateY(-4px); }
+    .feature-card .icon { font-size: 2rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .feature-card p { color: #9a9a9e; font-size: 0.95rem; }
+    .feature-card .channel-tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 12px;
+      background: #25252a;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #ffb347;
+      font-family: monospace;
+    }
+
+    /* FAQ Embed Preview */
+    .embed-preview {
+      background: #1a1a1e;
+      border: 1px solid #2a2a2e;
+      border-radius: 14px;
+      padding: 32px;
+      margin: 60px auto;
+      max-width: 600px;
+    }
+    .embed-preview h2 { text-align: center; margin-bottom: 24px; font-size: 1.3rem; }
+    .embed-preview .line {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #25252a;
+    }
+    .embed-preview .line:last-child { border-bottom: none; }
+    .embed-preview .line .emoji { font-size: 1.2rem; margin-right: 12px; flex-shrink: 0; }
+    .embed-preview .line .label { color: #e8e6e3; font-weight: 500; }
+    .embed-preview .line .channel {
+      margin-left: auto;
+      color: #4d7cff;
+      font-family: monospace;
+      font-size: 0.85rem;
+    }
+
+    /* Download */
+    .download {
+      padding: 60px 0;
+      text-align: center;
+      background: linear-gradient(180deg, #0f0f11 0%, #1a1a1e 100%);
+    }
+    .download h2 { font-size: 2rem; margin-bottom: 12px; }
+    .download p { color: #9a9a9e; margin-bottom: 32px; }
+    .download .version { color: #ffb347; font-size: 0.9rem; margin-top: 12px; }
+    .download .md5 { color: #666; font-size: 0.8rem; margin-top: 4px; }
+
+    /* Channels */
+    .channels {
+      padding: 60px 0;
+    }
+    .channels h2 { text-align: center; font-size: 2rem; margin-bottom: 16px; }
+    .channels > p { text-align: center; color: #9a9a9e; margin-bottom: 40px; }
+    .channel-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .channel-item {
+      background: #1a1a1e;
+      border: 1px solid #2a2a2e;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .channel-item .emoji { font-size: 1.5rem; }
+    .channel-item .name { color: #e8e6e3; font-weight: 500; margin-top: 8px; }
+    .channel-item .desc { color: #9a9a9e; font-size: 0.85rem; margin-top: 4px; }
+
+    /* Footer */
+    footer {
+      padding: 32px 0;
+      text-align: center;
+      color: #666;
+      font-size: 0.85rem;
+      border-top: 1px solid #1a1a1e;
+    }
+    footer a { color: #ffb347; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="container">
+    <span class="hero-badge">v2.0.0 - Standalone EXE</span>
+    <h1>Casino Bonus Monitor</h1>
+    <p>One program. Every free SC opportunity. Real-time Discord delivery.</p>
+    <a href="#download" class="btn btn-primary">Download EXE</a>
+    <a href="https://github.com/glowrius/casino-bonus-monitor" class="btn btn-secondary">View on GitHub</a>
+  </div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2>What it does</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="icon">🎰</div>
+        <h3>Auto-Claim Daily SC</h3>
+        <p>Automatically collects 24-hour free Sweepscash from all social casinos. Set it and forget it.</p>
+        <span class="channel-tag">#🗓️ daily-sc-claims</span>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🔗</div>
+        <h3>Free Spins &amp; SC Monitors</h3>
+        <p>Scans Reddit sources in real-time for no-deposit bonuses, promo codes, and free spins.</p>
+        <span class="channel-tag">#📬 monitor-posts</span>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🎯</div>
+        <h3>Streamer Link Sniping</h3>
+        <p>Watches Kick.com streamer chats for dropped links &mdash; giveaways, limited codes, bonus URLs.</p>
+        <span class="channel-tag">#🎥 streamer-chattool</span>
+      </div>
+    </div>
+
+    <div class="embed-preview">
+      <h2>📋 Quick Start</h2>
+      <div class="line">
+        <span class="emoji">1️⃣</span>
+        <span class="label">Set webhook URLs in <code>.env</code></span>
+      </div>
+      <div class="line">
+        <span class="emoji">2️⃣</span>
+        <span class="label">Run <code>CasinoBot.exe</code></span>
+      </div>
+      <div class="line">
+        <span class="emoji">3️⃣</span>
+        <span class="label">Watch the posts roll in</span>
+      </div>
+      <div class="line">
+        <span class="emoji">🚀</span>
+        <span class="label">Startup flood → #cmd (last 24h)</span>
+      </div>
+      <div class="line">
+        <span class="emoji">⚡</span>
+        <span class="label">New posts → #monitor-posts (every 10s)</span>
+      </div>
+      <div class="line">
+        <span class="emoji">📦</span>
+        <span class="label">One EXE, no separate scripts</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="channels">
+  <div class="container">
+    <h2>Discord Channels</h2>
+    <p>Every feature maps to its own channel for clean organization</p>
+    <div class="channel-list">
+      <div class="channel-item">
+        <div class="emoji">🗓️</div>
+        <div class="name">#daily-sc-claims</div>
+        <div class="desc">24h auto-claim flood</div>
+      </div>
+      <div class="channel-item">
+        <div class="emoji">📬</div>
+        <div class="name">#monitor-posts</div>
+        <div class="desc">Real-time link alerts</div>
+      </div>
+      <div class="channel-item">
+        <div class="emoji">🎥</div>
+        <div class="name">#streamer-chattool</div>
+        <div class="desc">Kick link sniping</div>
+      </div>
+      <div class="channel-item">
+        <div class="emoji">🎫</div>
+        <div class="name">#File-A-Claim</div>
+        <div class="desc">Track manual claims</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="download" id="download">
+  <div class="container">
+    <h2>Download</h2>
+    <p>Standalone Windows executable &mdash; no Node.js or Python required.</p>
+    <a href="https://github.com/glowrius/casino-bonus-monitor/releases" class="btn btn-primary">Download CasinoBot.exe</a>
+    <div class="version">Latest: v2.0.0 (58 MB) · Windows 64-bit</div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><a href="https://github.com/glowrius/casino-bonus-monitor">GitHub</a> · Built with Node.js · &copy; glowrius</p>
+  </div>
+</footer>
+
+</body>
+</html>
