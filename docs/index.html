@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script>window.addEventListener('pageshow',function(){window.scrollTo(0,0)});</script>
+  <script>if('scrollRestoration' in history)history.scrollRestoration='manual';window.scrollTo(0,0);window.addEventListener('pageshow',function(){setTimeout(function(){window.scrollTo(0,0)},0)});window.addEventListener('load',function(){window.scrollTo(0,0)})</script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -80,6 +80,7 @@
       flex-shrink: 0;
       filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
       animation: coinFlip 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      backface-visibility: hidden;
     }
     @keyframes coinFlip {
       0%   { transform: rotateY(0deg) scale(0.7); opacity: 0; }
@@ -95,6 +96,7 @@
       justify-content: center;
       gap: 28px;
       perspective: 800px;
+      transform-style: preserve-3d;
     }
     .hero-content {
       display: flex;
@@ -288,20 +290,21 @@
       transition: all .25s ease;
       position: relative;
     }
-    .pricing-card:hover { border-color: #FFD700; transform: translateY(-6px); box-shadow: 0 12px 40px rgba(255,215,0,0.08); }
+    .pricing-card:hover { border-color: #FFD700; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(255,215,0,0.08); }
     .pricing-card.popular {
       border-color: rgba(255, 215, 0, 0.3);
       box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.3), 0 12px 40px rgba(255,215,0,0.1);
-      transform: scale(1.04);
+      transform: scale(1.03);
       position: relative;
       z-index: 2;
       background: rgba(28, 28, 33, 0.75);
     }
-    .pricing-card.popular:hover { transform: scale(1.04) translateY(-6px); z-index: 3; }
+    .pricing-card.popular:hover { transform: scale(1.03) translateY(-4px); z-index: 3; }
     .pricing-badge {
       position: absolute;
       top: -12px; left: 50%;
       transform: translateX(-50%);
+      z-index: 4;
       background: #FFD700;
       color: #111114;
       font-size: 0.75rem;
@@ -363,8 +366,120 @@
       transition: all .2s ease;
     }
     .crypto-item:hover { border-color: #FFD700; transform: translateY(-3px); }
-    .crypto-item .crypto-icon { font-size: 1.8rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; }
+    .crypto-item .crypto-icon { font-size: 1.8rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; }
     .crypto-item .name { color: #f0efed; font-weight: 600; font-size: 0.8rem; }
+    .crypto-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .crypto-ticker { font-weight: 700; font-size: 0.9rem; }
+
+    /* Testimonials */
+    .testimonials { background: #111114; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      max-width: 840px;
+      margin: 0 auto;
+    }
+    .testimonial-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      transition: all .25s ease;
+    }
+    .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(255,215,0,0.06); }
+    .testimonial-card img { width: 100%; display: block; }
+    .testimonial-card::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 50%;
+      background: linear-gradient(transparent, rgba(0,0,0,0.88));
+      pointer-events: none;
+    }
+    .testimonial-card .testimonial-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 14px 16px 16px;
+      text-align: center;
+      z-index: 2;
+    }
+    .testimonial-card .testimonial-caption .win { color: #22c55e; font-weight: 700; font-size: 1.1rem; margin-bottom: 2px; text-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+    .testimonial-card .testimonial-caption .risk { color: #ddd; font-size: 0.8rem; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+    /* Nav */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 900;
+      background: rgba(17, 17, 20, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: #f0efed; font-weight: 700; font-size: 0.95rem; }
+    .nav-brand img { width: 28px; height: 28px; border-radius: 50%; }
+    .nav-profile {
+      background: none; border: none; color: #f0efed; cursor: pointer;
+      font-size: 1.6rem; transition: color .15s; display: flex; align-items: center;
+    }
+    .nav-profile:hover { color: #FFD700; }
+
+    /* Auth Modal */
+    .auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-overlay.open { display: flex; }
+    .auth-modal {
+      background: rgba(28, 28, 33, 0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 36px 32px 32px;
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+      animation: modalIn 0.25s ease;
+    }
+    .auth-modal .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .auth-modal .tab {
+      flex: 1; text-align: center; padding: 10px 0; cursor: pointer;
+      font-weight: 600; font-size: 0.95rem; color: #666;
+      transition: all .2s; border-bottom: 2px solid transparent;
+    }
+    .auth-modal .tab.active { color: #FFD700; border-bottom-color: #FFD700; }
+    .auth-modal .form-group { margin-bottom: 16px; }
+    .auth-modal .form-group label { display: block; font-size: 0.8rem; color: #999; margin-bottom: 4px; font-weight: 500; }
+    .auth-modal .form-group input {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2); color: #f0efed; font-size: 0.95rem; outline: none;
+      transition: border-color .2s;
+    }
+    .auth-modal .form-group input:focus { border-color: #FFD700; }
+    .auth-modal .form-group input::placeholder { color: #555; }
+    .auth-modal .btn { width: 100%; justify-content: center; margin-top: 8px; }
+    .auth-modal .auth-toggle { text-align: center; margin-top: 16px; font-size: 0.85rem; color: #888; }
+    .auth-modal .auth-toggle a { color: #FFD700; cursor: pointer; text-decoration: none; }
+    .auth-modal .auth-toggle a:hover { text-decoration: underline; }
+    .auth-modal .auth-error { color: #ef4444; font-size: 0.8rem; text-align: center; margin-bottom: 12px; display: none; }
+    .auth-modal .auth-success { color: #22c55e; font-size: 0.85rem; text-align: center; margin-bottom: 12px; display: none; }
+    .auth-modal .forgot-link { text-align: right; font-size: 0.75rem; margin-top: 4px; }
+    .auth-modal .forgot-link a { color: #888; cursor: pointer; text-decoration: none; }
+    .auth-modal .forgot-link a:hover { color: #FFD700; }
+    body.has-nav { padding-top: 56px; }
+    body.auth-open { overflow: hidden; }
 
     /* How It Works */
     .how-it-works { background: #1c1c21; }
@@ -624,6 +739,11 @@
     .benefit-card:nth-child(4) { transition-delay: 0.3s; }
     .pricing-card:nth-child(2) { transition-delay: 0.1s; }
     .pricing-card:nth-child(3) { transition-delay: 0.2s; }
+    .testimonials-grid .testimonial-card:nth-child(2) { transition-delay: 0.05s; }
+    .testimonials-grid .testimonial-card:nth-child(3) { transition-delay: 0.1s; }
+    .testimonials-grid .testimonial-card:nth-child(4) { transition-delay: 0.15s; }
+    .testimonials-grid .testimonial-card:nth-child(5) { transition-delay: 0.2s; }
+    .testimonials-grid .testimonial-card:nth-child(6) { transition-delay: 0.25s; }
 
     /* Responsive */
     @media (prefers-reduced-motion: reduce) {
@@ -652,10 +772,22 @@
       .pricing-card.popular { transform: none; }
       .pricing-card.popular:hover { transform: translateY(-6px); }
       .wallet-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+      .testimonial-card .testimonial-caption { padding: 10px 12px 14px; }
+      .testimonial-card .testimonial-caption .win { font-size: 1rem; }
+      .testimonial-card .testimonial-caption .risk { font-size: 0.7rem; }
     }
   </style>
 </head>
 <body>
+<nav class="nav">
+  <a href="#" class="nav-brand" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">
+    <img src="logo.webp" alt="Claims Casino"> Claims Casino
+  </a>
+  <button class="nav-profile" id="profileBtn" onclick="openAuthModal()" aria-label="Account">
+    <i class="fas fa-user-circle"></i>
+  </button>
+</nav>
 
 <!-- Hero -->
 <section class="hero">
@@ -717,11 +849,7 @@
 <section class="pricing" id="pricing">
   <div class="container">
     <h2>Choose Your Plan</h2>
-    <p>Start earning with 24/7 casino monitoring. BTC · ETH · USDC · USDT · TRX · SOL accepted. All payments are final and non-refundable.</p>
-    <div class="section-scroll-hint">
-      <span>Choose Your Plan</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
+    <p>Start earning with 24/7 casino monitoring. BTC · ETH · USDC · USDT · SOL accepted. All payments are final and non-refundable.</p>
     <div class="pricing-grid">
       <!-- Monthly -->
       <div class="pricing-card fade-in">
@@ -776,7 +904,7 @@
 <section class="crypto-accepted">
   <div class="container">
     <h2>Accepted Cryptocurrencies</h2>
-    <p>BTC · ETH · USDC · USDT · TRX · SOL</p>
+    <p>BTC · ETH · USDC · USDT · SOL</p>
     <div class="crypto-grid">
       <div class="crypto-item fade-in">
         <div class="crypto-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
@@ -787,20 +915,117 @@
         <div class="name">Ethereum</div>
       </div>
       <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#2775ca;"><span style="font-weight:800;">●</span><span style="font-weight:700;font-size:0.9rem;">USDC</span></div>
+        <div class="crypto-icon"><span class="crypto-dot" style="background:#2775ca;"></span><span class="crypto-ticker" style="color:#2775ca;">USDC</span></div>
         <div class="name">USD Coin</div>
       </div>
       <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#26a17b;"><span style="font-weight:800;">●</span><span style="font-weight:700;font-size:0.9rem;">USDT</span></div>
+        <div class="crypto-icon"><span class="crypto-dot" style="background:#26a17b;"></span><span class="crypto-ticker" style="color:#26a17b;">USDT</span></div>
         <div class="name">Tether</div>
       </div>
       <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#ef473a;"><span style="font-weight:800;">◈</span><span style="font-weight:700;font-size:0.9rem;">TRX</span></div>
-        <div class="name">TRON</div>
-      </div>
-      <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#9945ff;"><span style="font-weight:800;">◆</span><span style="font-weight:700;font-size:0.9rem;">SOL</span></div>
+        <div class="crypto-icon"><span class="crypto-dot" style="background:#9945ff;"></span><span class="crypto-ticker" style="color:#9945ff;">SOL</span></div>
         <div class="name">Solana</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+  <div class="container">
+    <h2>Real Wins, Real Results</h2>
+    <p>Our members turn free bonuses into real cash every day. Here are just a few of their wins.</p>
+    <div class="testimonials-grid">
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t1.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$127.40</div>
+          <div class="risk">Turned $0.50 into real profit</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t2.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$89.23</div>
+          <div class="risk">Risked $2 and cashed out big</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t3.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$45.60</div>
+          <div class="risk">Started with just $4</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t4.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$63.80</div>
+          <div class="risk">From $1 to withdrawal in 20 min</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t5.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$213.15</div>
+          <div class="risk">$3 buy-in, pure profit</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t6.png" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$34.90</div>
+          <div class="risk">Turned $0.50 free play into cash</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t7.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$156.22</div>
+          <div class="risk">Risked $5 — walked away with $156</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t8.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$78.45</div>
+          <div class="risk">Started with $2, withdrew same day</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t9.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$312.00</div>
+          <div class="risk">$4 turned into a massive win</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t10.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$51.30</div>
+          <div class="risk">Risked $1 — instant profit</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t11.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$94.75</div>
+          <div class="risk">From $3 to $94 in one session</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t12.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$182.50</div>
+          <div class="risk">Started with $2.50 — cashed $182</div>
+        </div>
+      </div>
+      <div class="testimonial-card fade-in">
+        <img src="testimonials/t13.jpg" alt="Win screenshot" loading="lazy">
+        <div class="testimonial-caption">
+          <div class="win">+$67.20</div>
+          <div class="risk">Turned $0.50 bonus into real cash</div>
+        </div>
       </div>
     </div>
   </div>
@@ -830,6 +1055,55 @@
     </div>
   </div>
 </section>
+
+<!-- Auth Modal -->
+<div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" id="loginTab" onclick="switchAuthTab('login')">Log In</div>
+      <div class="tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</div>
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password">
+      </div>
+      <div class="forgot-link"><a onclick="alert('Contact support@claimscasino.com to reset your password.')">Forgot password?</a></div>
+      <button class="btn btn-primary" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Log In</button>
+      <div class="auth-toggle">Don't have an account? <a onclick="switchAuthTab('signup')">Sign Up</a></div>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" style="display:none">
+      <div class="form-group">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com">
+      </div>
+      <div class="form-group">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="Create a password">
+      </div>
+      <div class="form-group">
+        <label for="signupConfirm">Confirm Password</label>
+        <input type="password" id="signupConfirm" placeholder="Confirm password">
+      </div>
+      <button class="btn btn-primary" onclick="handleSignup()"><i class="fas fa-user-plus"></i> Sign Up</button>
+      <div class="auth-toggle">Already have an account? <a onclick="switchAuthTab('login')">Log In</a></div>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
@@ -891,7 +1165,6 @@
 <footer>
   <div class="container">
     <p>
-      <a href="https://claimscasino.com">claimscasino.com</a> ·
       <a href="mailto:support@claimscasino.com">support@claimscasino.com</a> ·
       © 2026 Claims Casino Automation
     </p>
@@ -1021,6 +1294,104 @@ function closeModal() {
   document.getElementById('sentBtn').disabled = false;
   document.getElementById('sentBtn').style.opacity = '1';
   document.getElementById('sentBtn').textContent = "I've Sent BTC";
+}
+
+/* Auth */
+let authUser = null;
+const saved = localStorage.getItem('claims_casino_auth');
+if (saved) { authUser = JSON.parse(saved); updateAuthUI(); }
+document.body.classList.add('has-nav');
+
+function updateAuthUI() {
+  const btn = document.getElementById('profileBtn');
+  if (authUser) {
+    btn.innerHTML = '<i class="fas fa-user-check" style="color:#FFD700"></i>';
+    btn.title = 'Logged in as ' + authUser.email;
+  } else {
+    btn.innerHTML = '<i class="fas fa-user-circle"></i>';
+    btn.title = 'Log In / Sign Up';
+  }
+}
+
+function openAuthModal() {
+  if (authUser) {
+    if (confirm('Logged in as ' + authUser.email + '\nClick OK to log out.')) {
+      authUser = null;
+      localStorage.removeItem('claims_casino_auth');
+      updateAuthUI();
+    }
+    return;
+  }
+  document.getElementById('authOverlay').classList.add('open');
+  document.body.classList.add('auth-open');
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+  document.body.classList.remove('auth-open');
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('authError').style.display = 'none';
+  document.getElementById('authSuccess').style.display = 'none';
+  if (tab === 'login') {
+    document.getElementById('loginTab').classList.add('active');
+    document.getElementById('signupTab').classList.remove('active');
+    document.getElementById('loginForm').style.display = '';
+    document.getElementById('signupForm').style.display = 'none';
+  } else {
+    document.getElementById('signupTab').classList.add('active');
+    document.getElementById('loginTab').classList.remove('active');
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('signupForm').style.display = '';
+  }
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authSuccess').style.display = 'none';
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg; el.style.display = 'block';
+  document.getElementById('authError').style.display = 'none';
+}
+
+function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  if (!email || !password) { showAuthError('Please fill in all fields.'); return; }
+  const data = JSON.parse(localStorage.getItem('claims_casino_users') || '{}');
+  if (!data[email]) { showAuthError('No account found with this email.'); return; }
+  if (data[email] !== password) { showAuthError('Incorrect password.'); return; }
+  authUser = { email };
+  localStorage.setItem('claims_casino_auth', JSON.stringify(authUser));
+  updateAuthUI();
+  closeAuthModal();
+  showAuthSuccess('');
+}
+
+function handleSignup() {
+  const email = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value.trim();
+  const confirm = document.getElementById('signupConfirm').value.trim();
+  if (!email || !password || !confirm) { showAuthError('Please fill in all fields.'); return; }
+  if (!email.includes('@')) { showAuthError('Please enter a valid email address.'); return; }
+  if (password.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+  if (password !== confirm) { showAuthError('Passwords do not match.'); return; }
+  const data = JSON.parse(localStorage.getItem('claims_casino_users') || '{}');
+  if (data[email]) { showAuthError('An account with this email already exists.'); return; }
+  data[email] = password;
+  localStorage.setItem('claims_casino_users', JSON.stringify(data));
+  authUser = { email };
+  localStorage.setItem('claims_casino_auth', JSON.stringify(authUser));
+  updateAuthUI();
+  closeAuthModal();
+  showAuthSuccess('Account created successfully!');
 }
 </script>
 </body>

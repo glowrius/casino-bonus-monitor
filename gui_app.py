@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-CasinoBot — Claims Casino Automation Desktop App
+Casino Automation Suite Desktop App
 License-activated GUI for auto-claiming daily free SC from 80+ casinos,
 Reddit sweepstakes monitoring, and Discord alert integration.
 """
 
-import sys, os, json, time, threading, hashlib, webbrowser
+import sys, os, json, time, threading, hashlib, webbrowser, subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -24,6 +24,9 @@ combined.SCRIPT_DIR = BASE_DIR
 combined.SITES_FILE = BASE_DIR / "sites.json"
 combined.ACCOUNTS_FILE = BASE_DIR / "accounts.json"
 combined.LICENSE_KEYS_FILE = BASE_DIR / "license_keys.json"
+meipass_keys = Path(getattr(sys, "_MEIPASS", ".")) / "license_keys.json"
+if meipass_keys.exists() and not combined.LICENSE_KEYS_FILE.exists():
+    combined.LICENSE_KEYS_FILE = meipass_keys
 combined.CLAIM_SCHEDULE_FILE = BASE_DIR / "claim_schedule.json"
 combined.APPROVED_USERS_FILE = BASE_DIR / "approved_users.json"
 combined.ADMIN_USERS_FILE = BASE_DIR / "admin_users.json"
@@ -37,7 +40,7 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QTabWidget, QTableWidget,
     QTableWidgetItem, QHeaderView, QDialog, QMessageBox, QTextEdit,
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
-    QSystemTrayIcon, QMenu, QFrame
+    QSystemTrayIcon, QMenu, QFrame, QListWidget, QStackedWidget, QProgressDialog
 )
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
 from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
@@ -47,7 +50,23 @@ from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
 # ═══════════════════════════════════════════════════════════════
 
 DARK_SS = """
-QMainWindow, QDialog, QWidget { background: #111114; color: #e0e0e8; }
+QListWidget {
+    background: #1a1a1e; border: none; border-right: 1px solid #2a2a2e;
+    color: #888; font-size: 14px; font-weight: 600; outline: none;
+    padding: 8px 0; min-width: 200px; max-width: 200px;
+    border-bottom-left-radius: 12px;
+}
+QListWidget::item {
+    padding: 14px 20px; border-left: 3px solid transparent;
+}
+QListWidget::item:selected {
+    background: #1f1f24; color: #FFD700; border-left: 3px solid #FFD700;
+}
+QListWidget::item:hover:!selected {
+    background: #222228; color: #ccc; border-left: 3px solid #3a3a3e;
+}
+QMainWindow, QDialog { background: #111114; color: #e0e0e8; border: 1px solid #3a3a3e; border-radius: 12px; }
+QWidget { background: #111114; color: #e0e0e8; }
 QTabWidget::pane { border: 1px solid #2a2a2e; background: #111114; }
 QTabBar::tab {
     background: #1c1c21; color: #888; padding: 10px 24px;
@@ -59,7 +78,7 @@ QTabBar::tab:selected { background: #111114; color: #FFD700; border-bottom: 2px 
 QTabBar::tab:hover:!selected { color: #ccc; }
 QPushButton {
     background: #2a2a2e; color: #e0e0e8; border: 1px solid #3a3a3e;
-    border-radius: 8px; padding: 10px 24px; font-size: 13px; font-weight: 600;
+    border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 600;
 }
 QPushButton:hover { background: #3a3a3e; border-color: #FFD700; }
 QPushButton:pressed { background: #222; }
@@ -71,12 +90,12 @@ QPushButton#success { background: #22c55e; color: #fff; border-color: #22c55e; }
 QPushButton:disabled { background: #1a1a1e; color: #555; border-color: #2a2a2e; }
 QLineEdit {
     background: #1c1c21; color: #e0e0e8; border: 1px solid #2a2a2e;
-    border-radius: 8px; padding: 10px 14px; font-size: 14px;
+    border-radius: 10px; padding: 10px 14px; font-size: 14px;
 }
 QLineEdit:focus { border-color: #FFD700; }
 QTableWidget {
     background: #1c1c21; color: #e0e0e8; border: 1px solid #2a2a2e;
-    border-radius: 8px; gridline-color: #2a2a2e; font-size: 13px;
+    border-radius: 10px; gridline-color: #2a2a2e; font-size: 13px;
 }
 QTableWidget::item { padding: 8px; }
 QTableWidget::item:selected { background: #2a2a2e; color: #FFD700; }
@@ -116,7 +135,7 @@ class StatCard(QFrame):
         lo.setSpacing(4)
         self.v = QLabel(initial)
         self.v.setObjectName("statv")
-        self.v.setStyleSheet(f"font-size:28px;font-weight:800;color:{color};")
+        self.v.setStyleSheet(f"font-size:34px;font-weight:800;color:{color};")
         lo.addWidget(self.v)
         l = QLabel(label)
         l.setObjectName("statl")
@@ -131,16 +150,16 @@ class StatCard(QFrame):
 class LicenseDialog(QDialog):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CasinoBot — License Activation")
-        self.setFixedSize(480, 340)
+        self.setWindowTitle("Claims Casino - Automation Suite")
+        self.setFixedSize(600, 480)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Dialog)
         lo = QVBoxLayout()
         lo.setContentsMargins(40, 40, 40, 40)
         lo.setSpacing(16)
 
-        t = QLabel("CASINOBOT")
+        t = QLabel("CLAIMS CASINO")
         t.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        t.setStyleSheet("font-size:32px;font-weight:800;color:#FFD700;letter-spacing:4px;")
+        t.setStyleSheet("font-size:42px;font-weight:800;color:#FFD700;letter-spacing:4px;")
         lo.addWidget(t)
 
         s = QLabel("License Activation Required")
@@ -152,7 +171,7 @@ class LicenseDialog(QDialog):
         self.k = QLineEdit()
         self.k.setPlaceholderText("Enter license key (XXXX-XXXX-XXXX-XXXX)")
         self.k.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.k.setStyleSheet("font-size:18px;font-weight:700;letter-spacing:2px;padding:14px;border-radius:10px;")
+        self.k.setStyleSheet("font-size:22px;font-weight:700;letter-spacing:2px;padding:16px;border-radius:10px;")
         lo.addWidget(self.k)
 
         self.st = QLabel("")
@@ -162,7 +181,7 @@ class LicenseDialog(QDialog):
 
         b = QPushButton("ACTIVATE LICENSE")
         b.setObjectName("gold")
-        b.setStyleSheet("font-size:15px;font-weight:700;padding:14px;border-radius:10px;letter-spacing:2px;")
+        b.setStyleSheet("font-size:18px;font-weight:700;padding:16px;border-radius:10px;letter-spacing:2px;")
         b.clicked.connect(self.go)
         lo.addWidget(b)
         lo.addStretch()
@@ -173,6 +192,21 @@ class LicenseDialog(QDialog):
         lo.addWidget(i)
         self.setLayout(lo)
         self.k.returnPressed.connect(self.go)
+        self.dragPos = None
+
+    def mousePressEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton:
+            self.dragPos = e.globalPosition().toPoint()
+            e.accept()
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() == Qt.MouseButton.LeftButton and self.dragPos is not None:
+            self.move(self.pos() + e.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = e.globalPosition().toPoint()
+            e.accept()
+
+    def mouseReleaseEvent(self, e):
+        self.dragPos = None
 
     def go(self):
         key = self.k.text().strip()
@@ -564,7 +598,7 @@ class SettingsTab(QWidget):
 
         ag = QGroupBox("About")
         al = QVBoxLayout()
-        al.addWidget(QLabel("CasinoBot v1.0.0 — Claims Casino Automation"))
+        al.addWidget(QLabel("Casino - Automation Suite v1.0.0"))
         al.addWidget(QLabel("© 2026 Claims Casino"))
         ag.setLayout(al); lo.addWidget(ag)
         lo.addStretch(); self.setLayout(lo)
@@ -584,27 +618,32 @@ class SettingsTab(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CasinoBot — Claims Casino Automation")
-        self.setMinimumSize(1100, 720)
-        scr = QApplication.primaryScreen().availableGeometry()
-        self.resize(int(scr.width()*0.6), int(scr.height()*0.75))
-        self.move((scr.width()-self.width())//2,(scr.height()-self.height())//2)
+        self.setWindowTitle("Claims Casino - Automation Suite")
+        self.setFixedSize(1200, 780)
 
         c = QWidget(); self.setCentralWidget(c)
-        ml = QVBoxLayout(c); ml.setContentsMargins(0,0,0,0); ml.setSpacing(0)
+        ml = QHBoxLayout(c); ml.setContentsMargins(0,0,0,0); ml.setSpacing(0)
 
-        self.tabs = QTabWidget(); self.tabs.setDocumentMode(True)
+        self.sidebar = QListWidget()
+        self.sidebar.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        for item in ["\U0001f4ca  Dashboard", "\U0001f464  Accounts", "\U0001f50d  Monitor", "\U0001f4c5  Schedule", "\u2699  Settings"]:
+            self.sidebar.addItem(item)
+        ml.addWidget(self.sidebar)
+
+        self.stack = QStackedWidget()
         self.mt = MonitorTab()
         self.dt = DashboardTab(self.mt.log)
         self.at = AccountsTab(self.mt.log)
         self.st = ScheduleTab()
         self.ste = SettingsTab()
-        self.tabs.addTab(self.dt, "Dashboard")
-        self.tabs.addTab(self.at, "Accounts")
-        self.tabs.addTab(self.mt, "Monitor")
-        self.tabs.addTab(self.st, "Schedule")
-        self.tabs.addTab(self.ste, "Settings")
-        ml.addWidget(self.tabs)
+        self.stack.addWidget(self.dt)
+        self.stack.addWidget(self.at)
+        self.stack.addWidget(self.mt)
+        self.stack.addWidget(self.st)
+        self.stack.addWidget(self.ste)
+        ml.addWidget(self.stack)
+        self.sidebar.setCurrentRow(0)
+        self.sidebar.currentRowChanged.connect(self.stack.setCurrentIndex)
 
         sb = QStatusBar(); self.setStatusBar(sb)
         self.sl = QLabel("● OFFLINE")
@@ -635,7 +674,7 @@ class MainWindow(QMainWindow):
         tm.addSeparator()
         tm.addAction("Exit", QApplication.quit)
         self.tray.setContextMenu(tm)
-        self.tray.setToolTip("CasinoBot")
+        self.tray.setToolTip("Claims Casino")
         self.tray.activated.connect(lambda r: self.show() if r==QSystemTrayIcon.ActivationReason.DoubleClick else None)
 
         self.status_timer = QTimer()
@@ -656,9 +695,23 @@ class MainWindow(QMainWindow):
         self.cl.setText(f"Claims: {s.get('claimed',0)}")
         self.stl.setText(f"SC: ${s.get('sc_total',0):.2f}")
 
+    def mousePressEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton and e.position().y() <= 44:
+            self.dragPos = e.globalPosition().toPoint()
+            e.accept()
+
+    def mouseMoveEvent(self, e):
+        if e.buttons() == Qt.MouseButton.LeftButton and self.dragPos is not None:
+            self.move(self.pos() + e.globalPosition().toPoint() - self.dragPos)
+            self.dragPos = e.globalPosition().toPoint()
+            e.accept()
+
+    def mouseReleaseEvent(self, e):
+        self.dragPos = None
+
     def hide_to_tray(self):
         self.hide(); self.tray.show()
-        self.tray.showMessage("CasinoBot","Minimized to tray.",QSystemTrayIcon.MessageIcon.Information,2000)
+        self.tray.showMessage("Claims Casino","Minimized to tray.",QSystemTrayIcon.MessageIcon.Information,2000)
 
     def closeEvent(self, e):
         if self.tray.isVisible(): self.hide_to_tray(); e.ignore()
@@ -668,13 +721,58 @@ class MainWindow(QMainWindow):
         try:
             r = combined.requests.get(
                 "https://api.github.com/repos/glowrius/casino-bonus-monitor/releases/latest", timeout=5)
-            if r.status_code==200:
-                tag = r.json().get("tag_name","v0.0.0")
-                if tag > "v1.0.0" and QMessageBox.question(self,"Update",
-                    f"CasinoBot {tag} available!\nDownload?",
-                    QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No)==QMessageBox.StandardButton.Yes:
-                    webbrowser.open(r.json().get("html_url",""))
+            if r.status_code != 200: return
+            data = r.json()
+            tag = data.get("tag_name", "v0.0.0")
+            if tag <= "v1.0.0": return
+            assets = data.get("assets", [])
+            exe_asset = None
+            for a in assets:
+                if a.get("name", "").endswith(".exe"):
+                    exe_asset = a
+                    break
+            if not exe_asset: return
+            mb = exe_asset.get("size", 0) / 1048576
+            if QMessageBox.question(self, "Update Available",
+                f"Claims Casino {tag} available ({mb:.1f} MB).\nDownload and install now?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
+                return
+            self.download_update(exe_asset["browser_download_url"], tag)
         except: pass
+
+    def download_update(self, url, tag):
+        pd = QProgressDialog(f"Downloading {tag}...", "Cancel", 0, 0, self)
+        pd.setWindowTitle("Update"); pd.setCancelButton(None)
+        pd.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
+        pd.setFixedSize(360, 100); pd.show()
+        tmp = BASE_DIR / f"CasinoBot_{tag}.exe"
+        try:
+            r = combined.requests.get(url, stream=True, timeout=60)
+            total = int(r.headers.get("content-length", 0))
+            downloaded = 0
+            chunk_size = 65536
+            with open(tmp, "wb") as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total:
+                            pd.setValue(int(downloaded / total * 100))
+                            pd.setLabelText(f"Downloading {tag}... {downloaded*100//total}%")
+            pd.close()
+            exe = sys.executable
+            ps = (
+                f'Start-Sleep -Seconds 2; '
+                f'Copy-Item -Path "{tmp}" -Destination "{exe}" -Force; '
+                f'Start-Process -FilePath "{exe}"; '
+                f'Remove-Item -Path "{tmp}" -Force'
+            )
+            subprocess.Popen(["powershell", "-Command", ps], creationflags=subprocess.CREATE_NO_WINDOW)
+            QApplication.quit()
+        except Exception as e:
+            pd.close()
+            if tmp.exists(): tmp.unlink()
+            QMessageBox.warning(self, "Update Failed", f"Download failed:\n{e}")
 
 # ═══════════════════════════════════════════════════════════════
 # ENTRY POINT
