@@ -19,7 +19,7 @@
       font-size: 17px;
     }
     .container { max-width: 960px; margin: 0 auto; padding: 0 32px; width: 100%; }
-    .hero .container { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .hero .container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
     /* Hero */
     .hero {
@@ -80,7 +80,6 @@
       perspective: 800px;
     }
     .hero-content {
-      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -88,7 +87,6 @@
       width: 100%;
     }
     .hero-actions {
-      flex-shrink: 0;
       display: flex;
       gap: 16px;
       justify-content: center;
@@ -282,7 +280,18 @@
       align-items: center;
       gap: 10px;
     }
-    .pricing-card .features li i { color: #22c55e; font-size: 0.8rem; width: 16px; }
+    .pricing-card .features li i {
+      background: #22c55e;
+      color: #fff;
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      flex-shrink: 0;
+    }
     .pricing-card .btn { width: 100%; justify-content: center; }
 
     /* Crypto Accepted */
@@ -407,6 +416,140 @@
     footer a { color: #FFD700; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #1c1c21;
+      border: 1px solid #2a2a2e;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 480px;
+      width: 100%;
+      position: relative;
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 14px; right: 18px;
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color .15s;
+    }
+    .modal-close:hover { color: #f0efed; }
+    .modal h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 6px;
+    }
+    .modal .modal-plan { color: #FFD700; font-weight: 600; margin-bottom: 20px; }
+    .modal .modal-desc { color: #d0d0d8; font-size: 0.9rem; margin-bottom: 24px; line-height: 1.6; }
+    .modal .modal-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .modal .modal-actions .btn { min-width: 140px; justify-content: center; }
+    .modal .invoice-id {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #FFD700;
+      background: #0a0a0c;
+      border: 1px solid #2a2a2e;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .modal .invoice-id .label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .modal .payment-amount {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #FFD700;
+      margin-bottom: 4px;
+    }
+    .modal .payment-usd {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+    }
+    .modal .modal-qr {
+      width: 140px; height: 140px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 10px;
+      margin: 0 auto 16px;
+    }
+    .modal .modal-qr canvas, .modal .modal-qr img { width: 100% !important; height: 100% !important; }
+    .modal .wallet-address {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: #0a0a0c;
+      border: 1px solid #2a2a2e;
+      border-radius: 8px;
+      padding: 10px 12px;
+      word-break: break-all;
+      color: #d0d0d8;
+      margin-bottom: 16px;
+      user-select: all;
+    }
+    .modal .wallet-address .label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .modal .pending-status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      color: #FFD700;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .modal .pending-status i { animation: spin 1.2s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal .success-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 1.6rem;
+      color: #22c55e;
+    }
+    .modal .success-msg { color: #22c55e; font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .modal .success-desc { color: #d0d0d8; font-size: 0.85rem; margin-bottom: 24px; line-height: 1.6; }
+
     /* Scroll Animations */
     .fade-in {
       opacity: 0;
@@ -442,6 +585,7 @@
       section { padding: 48px 0; }
       .pricing-card { padding: 32px 24px; }
       .pricing-card .price { font-size: 2.2rem; }
+      .pricing-card .features li { padding: 6px 0; }
       section > .container > p { margin-bottom: 28px; }
       section h2 { font-size: 1.7rem; margin-bottom: 14px; }
       .hero-actions { flex-direction: column; align-items: stretch; padding: 0 0 16px 0; }
@@ -529,7 +673,7 @@
           <li><i class="fas fa-check"></i> 80+ casinos supported</li>
           <li><i class="fas fa-check"></i> Monthly renewal</li>
         </ul>
-        <a href="#payment" class="btn btn-primary">Buy Now</a>
+        <a href="#payment" class="btn btn-primary" onclick="event.preventDefault();openConfirmModal('Monthly', '299.99')">Buy Now</a>
       </div>
 
       <!-- Lifetime -->
@@ -545,7 +689,7 @@
           <li><i class="fas fa-check"></i> Priority Discord support</li>
           <li><i class="fas fa-check"></i> All future updates</li>
         </ul>
-        <a href="#payment" class="btn btn-primary">Buy Now</a>
+        <a href="#payment" class="btn btn-primary" onclick="event.preventDefault();openConfirmModal('Lifetime', '4999.99')">Buy Now</a>
       </div>
 
       <!-- Elite -->
@@ -560,7 +704,7 @@
           <li><i class="fas fa-check"></i> Direct line to support</li>
           <li><i class="fas fa-check"></i> Early access to new features</li>
         </ul>
-        <a href="#payment" class="btn btn-primary">Buy Now</a>
+        <a href="#payment" class="btn btn-primary" onclick="event.preventDefault();openConfirmModal('Elite', '349.99')">Buy Now</a>
       </div>
     </div>
   </div>
@@ -630,6 +774,63 @@
   </div>
 </section>
 
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+
+    <!-- Confirm View -->
+    <div id="confirmView">
+      <h3 id="confirmPlan">Confirm Purchase</h3>
+      <p class="modal-plan" id="confirmPlanName"></p>
+      <p class="modal-desc">You are about to purchase this membership plan. Do you wish to proceed?</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmPayment()">Yes, Proceed</button>
+      </div>
+    </div>
+
+    <!-- Payment View -->
+    <div id="paymentView" style="display:none">
+      <h3>Complete Payment</h3>
+      <p class="modal-plan" id="paymentPlanName"></p>
+      <div class="invoice-id">
+        <span class="label">Invoice ID</span>
+        <span id="invoiceId"></span>
+      </div>
+      <div class="payment-amount" id="btcAmount"></div>
+      <div class="payment-usd" id="usdAmount"></div>
+      <div class="modal-qr" id="paymentQr"></div>
+      <div class="wallet-address">
+        <span class="label">BTC Address</span>
+        bc1qndy36lk0pvkggnp2jgrkgkqzsp6lne60azwc9j
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="copyModalAddress()"><i class="fas fa-copy"></i> Copy Address</button>
+        <button class="btn btn-primary" id="sentBtn" onclick="startPolling()"><i class="fas fa-check"></i> I've Sent BTC</button>
+      </div>
+      <div id="pendingStatus" class="pending-status" style="display:none">
+        <i class="fas fa-spinner"></i> Waiting for 1 blockchain confirmation...
+      </div>
+      <div class="copied-msg" id="modalCopied" style="margin-top:12px">Copied!</div>
+    </div>
+
+    <!-- Success View -->
+    <div id="successView" style="display:none">
+      <div class="success-icon"><i class="fas fa-check"></i></div>
+      <div class="success-msg">Payment Confirmed!</div>
+      <p class="success-desc">Your transaction has received 1 blockchain confirmation. Please join our Discord and open a ticket with your Invoice ID to activate your membership.</p>
+      <div class="invoice-id">
+        <span class="label">Invoice ID</span>
+        <span id="successInvoice"></span>
+      </div>
+      <div class="modal-actions">
+        <a href="https://discord.gg/YOUR_INVITE" class="btn btn-primary" target="_blank"><i class="fab fa-discord"></i> Join Discord</a>
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer>
   <div class="container">
     <p>
@@ -669,6 +870,98 @@ function toggleQr(id) {
   qrEl.innerHTML = '';
   new QRCode(qrEl, { text: addr, width: 120, height: 120, colorDark: '#000000', colorLight: '#ffffff' });
   qrEl.classList.add('show');
+}
+
+const BTC_ADDRESS = 'bc1qndy36lk0pvkggnp2jgrkgkqzsp6lne60azwc9j';
+let currentPlan = '';
+let currentPrice = 0;
+let pollingInterval = null;
+
+function openConfirmModal(plan, price) {
+  currentPlan = plan;
+  currentPrice = price;
+  document.getElementById('confirmPlanName').textContent = plan + ' — $' + price;
+  document.getElementById('confirmView').style.display = '';
+  document.getElementById('paymentView').style.display = 'none';
+  document.getElementById('successView').style.display = 'none';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function confirmPayment() {
+  document.getElementById('confirmView').style.display = 'none';
+  document.getElementById('paymentView').style.display = '';
+  document.getElementById('paymentPlanName').textContent = currentPlan;
+
+  const invoiceId = 'INV-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
+  document.getElementById('invoiceId').textContent = invoiceId;
+
+  document.getElementById('paymentQr').innerHTML = '';
+  new QRCode(document.getElementById('paymentQr'), { text: BTC_ADDRESS, width: 140, height: 140, colorDark: '#000000', colorLight: '#ffffff' });
+
+  fetchBtcPrice();
+}
+
+function fetchBtcPrice() {
+  document.getElementById('btcAmount').textContent = 'Fetching BTC price...';
+  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+    .then(r => r.json())
+    .then(data => {
+      const usdPrice = parseFloat(currentPrice.replace(/,/g,''));
+      const btcRate = data.bitcoin.usd;
+      const btcAmount = usdPrice / btcRate;
+      document.getElementById('btcAmount').textContent = btcAmount.toFixed(8) + ' BTC';
+      document.getElementById('usdAmount').textContent = '≈ $' + usdPrice.toFixed(2) + ' USD';
+    })
+    .catch(() => {
+      document.getElementById('btcAmount').textContent = '~' + (parseFloat(currentPrice.replace(/,/g,'')) / 67000).toFixed(8) + ' BTC';
+      document.getElementById('usdAmount').textContent = '≈ $' + currentPrice + ' USD';
+    });
+}
+
+function copyModalAddress() {
+  navigator.clipboard.writeText(BTC_ADDRESS).then(() => {
+    const msg = document.getElementById('modalCopied');
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 2000);
+  });
+}
+
+function startPolling() {
+  document.getElementById('sentBtn').disabled = true;
+  document.getElementById('sentBtn').style.opacity = '0.5';
+  document.getElementById('pendingStatus').style.display = 'flex';
+  document.getElementById('sentBtn').textContent = 'Waiting...';
+  checkMempool();
+  pollingInterval = setInterval(checkMempool, 15000);
+}
+
+function checkMempool() {
+  const since = Math.floor(Date.now() / 1000) - 7200;
+  fetch('https://mempool.space/api/address/' + BTC_ADDRESS + '/txs')
+    .then(r => r.json())
+    .then(txs => {
+      const confirmed = txs.filter(tx => tx.status.confirmed);
+      if (confirmed.length > 0) {
+        clearInterval(pollingInterval);
+        onPaymentConfirmed();
+      }
+    })
+    .catch(() => {});
+}
+
+function onPaymentConfirmed() {
+  document.getElementById('paymentView').style.display = 'none';
+  document.getElementById('successView').style.display = '';
+  document.getElementById('successInvoice').textContent = document.getElementById('invoiceId').textContent;
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  if (pollingInterval) clearInterval(pollingInterval);
+  document.getElementById('pendingStatus').style.display = 'none';
+  document.getElementById('sentBtn').disabled = false;
+  document.getElementById('sentBtn').style.opacity = '1';
+  document.getElementById('sentBtn').textContent = "I've Sent BTC";
 }
 </script>
 </body>
