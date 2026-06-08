@@ -415,13 +415,13 @@
 <section class="pricing" id="pricing">
   <div class="container">
     <h2>Choose Your Plan</h2>
-    <p>One-time payment. Lifetime access. No recurring subscriptions.</p>
+    <p>Bitcoin (BTC) only. All payments are final and non-refundable.</p>
     <div class="pricing-grid">
       <!-- Monthly -->
       <div class="pricing-card fade-in">
         <h3>Monthly</h3>
-        <div class="price"><!-- EDIT: Price -->TBD</div>
-        <div class="price-sub">USDT per month</div>
+        <div class="price">$299.99</div>
+        <div class="price-sub">BTC per month</div>
         <ul class="features">
           <li><i class="fas fa-check"></i> Real-time Discord alerts</li>
           <li><i class="fas fa-check"></i> Auto daily claims</li>
@@ -436,14 +436,14 @@
       <div class="pricing-card popular fade-in">
         <span class="pricing-badge">Best Value</span>
         <h3>Lifetime</h3>
-        <div class="price"><!-- EDIT: Price -->TBD</div>
-        <div class="price-sub">USDT · one-time</div>
+        <div class="price">$5,000</div>
+        <div class="price-sub">BTC · one-time</div>
         <ul class="features">
           <li><i class="fas fa-check"></i> Everything in Monthly</li>
           <li><i class="fas fa-check"></i> Lifetime access</li>
+          <li><i class="fas fa-check"></i> Access to other paid communities</li>
           <li><i class="fas fa-check"></i> Priority Discord support</li>
           <li><i class="fas fa-check"></i> All future updates</li>
-          <li><i class="fas fa-check"></i> No recurring fees</li>
         </ul>
         <a href="#payment" class="btn btn-primary">Buy Now</a>
       </div>
@@ -451,14 +451,14 @@
       <!-- Elite -->
       <div class="pricing-card fade-in">
         <h3>Elite</h3>
-        <div class="price"><!-- EDIT: Price -->TBD</div>
-        <div class="price-sub">USDT · one-time</div>
+        <div class="price">$349.99</div>
+        <div class="price-sub">BTC per month</div>
         <ul class="features">
           <li><i class="fas fa-check"></i> Everything in Lifetime</li>
+          <li><i class="fas fa-check"></i> Access to other paid communities</li>
           <li><i class="fas fa-check"></i> VIP Discord role</li>
           <li><i class="fas fa-check"></i> Direct line to support</li>
           <li><i class="fas fa-check"></i> Early access to new features</li>
-          <li><i class="fas fa-check"></i> Custom integrations</li>
         </ul>
         <a href="#payment" class="btn btn-primary">Buy Now</a>
       </div>
@@ -470,27 +470,11 @@
 <section class="crypto-accepted">
   <div class="container">
     <h2>Accepted Cryptocurrencies</h2>
-    <p>Pay with your preferred crypto. All payments are final and non-refundable.</p>
+    <p>Bitcoin (BTC) only.</p>
     <div class="crypto-grid">
       <div class="crypto-item fade-in">
         <div class="crypto-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
         <div class="name">Bitcoin</div>
-      </div>
-      <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#627eea;"><i class="fab fa-ethereum"></i></div>
-        <div class="name">Ethereum</div>
-      </div>
-      <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#26a17b;"><i class="fas fa-circle"></i></div>
-        <div class="name">USDT ERC20</div>
-      </div>
-      <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#ef0027;"><i class="fas fa-bolt"></i></div>
-        <div class="name">USDT TRC20</div>
-      </div>
-      <div class="crypto-item fade-in">
-        <div class="crypto-icon" style="color:#9945ff;"><i class="fas fa-circle"></i></div>
-        <div class="name">Solana</div>
       </div>
     </div>
   </div>
@@ -510,7 +494,7 @@
       <div class="step fade-in">
         <div class="step-num">2</div>
         <h3>Send Crypto</h3>
-        <p>Copy the wallet address for your preferred crypto and send the exact amount.</p>
+        <p>Copy the BTC wallet address below and send the exact amount.</p>
       </div>
       <div class="step fade-in">
         <div class="step-num">3</div>
@@ -525,16 +509,15 @@
 <section class="payment-details" id="payment">
   <div class="container">
     <h2>Payment Details</h2>
-    <p>Send the exact amount to the address below. After payment, join our Discord and open a ticket.</p>
+    <p>Bitcoin (BTC) only. Send the exact BTC equivalent of your chosen plan to the address below.</p>
     <div class="wallet-grid">
-      <!-- Bitcoin -->
       <div class="wallet-card fade-in">
         <div class="wallet-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
         <h3>Bitcoin</h3>
-        <div class="price-label">Send exact USDT equivalent</div>
+        <div class="price-label">Send exact BTC equivalent</div>
         <div class="wallet-address">
           <span class="label">BTC Address</span>
-          <!-- EDIT: BTC wallet address -->bc1qndy36lk0pvkggnp2jgrkgkqzsp6lne60azwc9j
+          bc1qndy36lk0pvkggnp2jgrkgkqzsp6lne60azwc9j
         </div>
         <div class="wallet-actions">
           <button class="btn btn-secondary" onclick="copyAddress(this, 'btc')"><i class="fas fa-copy"></i> Copy</button>
@@ -542,57 +525,6 @@
         </div>
         <div class="copied-msg" id="copied-btc">Copied!</div>
         <div class="wallet-qr" id="qr-btc"></div>
-      </div>
-
-      <!-- Ethereum -->
-      <div class="wallet-card fade-in">
-        <div class="wallet-icon" style="color:#627eea;"><i class="fab fa-ethereum"></i></div>
-        <h3>Ethereum (USDT ERC20)</h3>
-        <div class="price-label">Send exact USDT equivalent</div>
-        <div class="wallet-address">
-          <span class="label">ETH/USDT Address</span>
-          <!-- EDIT: ETH/USDT ERC20 wallet address -->0x25063e358Db401B39B846399e07D7b74675c3Fb1
-        </div>
-        <div class="wallet-actions">
-          <button class="btn btn-secondary" onclick="copyAddress(this, 'eth')"><i class="fas fa-copy"></i> Copy</button>
-          <button class="btn btn-secondary" onclick="toggleQr('eth')"><i class="fas fa-qrcode"></i> QR</button>
-        </div>
-        <div class="copied-msg" id="copied-eth">Copied!</div>
-        <div class="wallet-qr" id="qr-eth"></div>
-      </div>
-
-      <!-- USDT TRC20 -->
-      <div class="wallet-card fade-in">
-        <div class="wallet-icon" style="color:#ef0027;"><i class="fas fa-bolt"></i></div>
-        <h3>USDT TRC20</h3>
-        <div class="price-label">Send exact USDT equivalent</div>
-        <div class="wallet-address">
-          <span class="label">TRC20 Address</span>
-          <!-- EDIT: USDT TRC20 wallet address -->TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-        </div>
-        <div class="wallet-actions">
-          <button class="btn btn-secondary" onclick="copyAddress(this, 'trc20')"><i class="fas fa-copy"></i> Copy</button>
-          <button class="btn btn-secondary" onclick="toggleQr('trc20')"><i class="fas fa-qrcode"></i> QR</button>
-        </div>
-        <div class="copied-msg" id="copied-trc20">Copied!</div>
-        <div class="wallet-qr" id="qr-trc20"></div>
-      </div>
-
-      <!-- Solana -->
-      <div class="wallet-card fade-in">
-        <div class="wallet-icon" style="color:#9945ff;"><i class="fas fa-circle"></i></div>
-        <h3>Solana</h3>
-        <div class="price-label">Send exact USDT equivalent</div>
-        <div class="wallet-address">
-          <span class="label">SOL Address</span>
-          <!-- EDIT: Solana wallet address -->3Jad7gaiJqWVntjq5P4hR5zqLMyCbTo8NxeX68Aq3i4B
-        </div>
-        <div class="wallet-actions">
-          <button class="btn btn-secondary" onclick="copyAddress(this, 'sol')"><i class="fas fa-copy"></i> Copy</button>
-          <button class="btn btn-secondary" onclick="toggleQr('sol')"><i class="fas fa-qrcode"></i> QR</button>
-        </div>
-        <div class="copied-msg" id="copied-sol">Copied!</div>
-        <div class="wallet-qr" id="qr-sol"></div>
       </div>
     </div>
   </div>
