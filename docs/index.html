@@ -62,12 +62,22 @@
       width: 120px; height: 120px;
       flex-shrink: 0;
       filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
+      animation: coinFlip 1.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes coinFlip {
+      0%   { transform: rotateY(0deg) scale(0.7); opacity: 0; }
+      15%  { transform: rotateY(540deg) scale(1.15); opacity: 1; }
+      35%  { transform: rotateY(1260deg) scale(0.9); }
+      55%  { transform: rotateY(1800deg) scale(1.08); }
+      75%  { transform: rotateY(1980deg) scale(0.96); }
+      100% { transform: rotateY(2160deg) scale(1); opacity: 1; }
     }
     .hero-brand {
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      gap: 32px;
+      gap: 28px;
+      perspective: 800px;
     }
     .hero-content {
       flex: 1;
@@ -83,7 +93,7 @@
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 0 0 40px 0;
+      padding: 0 0 32px 0;
     }
     .hero-brand-text { text-align: left; }
     .hero-tagline {
@@ -97,7 +107,7 @@
       border: 1px solid rgba(255,215,0,0.15);
       padding: 5px 14px;
       border-radius: 20px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       letter-spacing: 0.02em;
     }
     .hero-brand-text h1 {
@@ -106,20 +116,20 @@
       background: linear-gradient(135deg, #FFD700, #FFB300);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
       line-height: 1.1;
       letter-spacing: 0;
     }
     .hero-brand-text .hero-subtitle {
       font-size: 1.15rem;
       color: #d0d0d8;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px 0;
       max-width: 480px;
     }
     .hero-brand-text .hero-blurb {
       font-size: 0.95rem;
       color: #999;
-      margin: 0 0 28px 0;
+      margin: 0 0 20px 0;
       max-width: 480px;
       line-height: 1.7;
     }
@@ -134,6 +144,9 @@
       color: #b0b0b8;
       font-weight: 500;
       padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .stat-divider {
       width: 1px;
@@ -411,6 +424,9 @@
     .pricing-card:nth-child(3) { transition-delay: 0.2s; }
 
     /* Responsive */
+    @media (prefers-reduced-motion: reduce) {
+      .hero-logo { animation: none; }
+    }
     @media (max-width: 768px) {
       body { font-size: 15px; }
       .hero { min-height: 100vh; padding: 0; }
@@ -445,11 +461,11 @@
           <p class="hero-subtitle">Never miss free Sweepscash, spins, and promo codes again.</p>
           <p class="hero-blurb">Join an exclusive community of sweepstakes players who get real-time Discord alerts the moment bonuses drop. Auto-claim daily SC from 80+ casinos. Snag streamer link drops instantly. All in one membership.</p>
           <div class="hero-stats">
-            <span>500+ Members</span>
+            <span><i class="fas fa-user"></i> 500+ Members</span>
             <span class="stat-divider"></span>
-            <span>80+ Casinos</span>
+            <span><i class="fas fa-check"></i> 80+ Casinos</span>
             <span class="stat-divider"></span>
-            <span>24/7 Monitoring</span>
+            <span><i class="fas fa-check"></i> 24/7 Monitoring</span>
           </div>
         </div>
       </div>
