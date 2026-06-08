@@ -289,7 +289,10 @@ class DashboardTab(QWidget):
         self.timer.start(2000)
 
     def toggle(self):
-        if self.running: self.stop(); else: self.start()
+        if self.running:
+            self.stop()
+        else:
+            self.start()
 
     def start(self):
         self.logfn("[SYSTEM] Starting monitoring...")
