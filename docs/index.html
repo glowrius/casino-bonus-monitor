@@ -273,8 +273,10 @@
       border-color: #FFD700;
       box-shadow: 0 0 0 1px #FFD700, 0 12px 40px rgba(255,215,0,0.1);
       transform: scale(1.04);
+      position: relative;
+      z-index: 2;
     }
-    .pricing-card.popular:hover { transform: scale(1.04) translateY(-6px); }
+    .pricing-card.popular:hover { transform: scale(1.04) translateY(-6px); z-index: 3; }
     .pricing-badge {
       position: absolute;
       top: -12px; left: 50%;
@@ -658,7 +660,7 @@
 <!-- Benefits -->
 <section class="benefits">
   <div class="container">
-    <h2>How You Profit</h2>
+    <h2>How You Profit &nbsp;|&nbsp; 🔔 🤖 🎯 💬</h2>
     <p>Turn free casino bonuses into real money with 24/7 automated monitoring.</p>
     <div class="benefits-grid">
       <div class="benefit-card fade-in">

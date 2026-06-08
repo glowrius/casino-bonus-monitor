@@ -12,3 +12,5 @@ src/data/settings.json
 __pycache__/
 *.pyc
 *.spec
+*.dat
+dist/
