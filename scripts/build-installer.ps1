@@ -11,8 +11,8 @@ if (-not (Test-Path $iscc)) {
   exit 1
 }
 
-if (-not (Test-Path "$projectRoot\CasinoBot.exe")) {
-  Write-Error "CasinoBot.exe not found. Run scripts\build.ps1 first."
+if (-not (Test-Path "$projectRoot\build\CasinoBot.exe")) {
+  Write-Error "CasinoBot.exe not found in build/. Run scripts\build.ps1 first."
   exit 1
 }
 

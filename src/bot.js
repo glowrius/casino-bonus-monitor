@@ -109,6 +109,9 @@ class DiscordBot {
     const commands = [
       new SlashCommandBuilder().setName('status').setDescription('Show bot status and module information'),
       new SlashCommandBuilder().setName('claim').setDescription('Trigger an immediate daily claim run'),
+      new SlashCommandBuilder().setName('create').setDescription('Create accounts (hellofresh)')
+        .addStringOption(opt => opt.setName('service').setDescription('Service to create accounts for').setRequired(true).addChoices({ name: 'hellofresh', value: 'hellofresh' }))
+        .addIntegerOption(opt => opt.setName('amount').setDescription('Number of accounts to create').setRequired(true).setMinValue(1).setMaxValue(10)),
     ];
     try {
       const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_BOT_TOKEN);
@@ -156,6 +159,11 @@ class DiscordBot {
   async sendMonitorMessage(content) {
     if (!this.monitorChannel) return;
     await this.monitorChannel.send(content).catch(() => {});
+  }
+
+  async sendCmdMessage(content) {
+    if (!this.cmdChannel) return;
+    await this.cmdChannel.send(content).catch(() => {});
   }
 
   _buildPostEmbed(post) {

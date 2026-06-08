@@ -19,6 +19,7 @@ const db = require('./db');
 const redditMonitor = require('./reddit_monitor');
 const autoClaim = require('./auto_claim');
 const streamerSniper = require('./streamer_sniper');
+const hellofresh = require('./modules/hellofresh');
 
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL_SECONDS || '10', 10);
 const enabledClaimCount = (() => { try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'claim_profiles.json'), 'utf8')).filter(p => p.enabled).length; } catch { return 0; } })();
@@ -72,6 +73,34 @@ async function main() {
       await interaction.editReply({ content: `✅ Claim run complete: ${ok}/${results.length} successful` });
     } catch (e) {
       await interaction.editReply({ content: `❌ Claim run failed: ${e.message}` });
+    }
+  });
+
+  bot.onCommand('create', async (interaction) => {
+    const service = interaction.options.getString('service');
+    const amount = interaction.options.getInteger('amount');
+    await interaction.reply({ content: `⏳ Creating ${amount} ${service} account(s)... This may take several minutes.`, ephemeral: true });
+
+    if (service === 'hellofresh') {
+      try {
+        const results = await hellofresh.createMultiple(amount, (done, total, acct) => {
+          bot.sendCmdMessage(`**${service}** | ${done}/${total}: ${acct.email || 'failed'}`);
+        });
+        const ok = results.filter(r => r.success).length;
+        const fail = results.filter(r => !r.success).length;
+
+        const lines = results.slice(0, 5).map(r =>
+          r.success ? `✅ ${r.email} | ${r.password}` : `❌ ${r.error}`
+        );
+        await bot.sendCmdMessage(`**${service} | Create Complete** — ${ok} success, ${fail} failed\n\`\`\`${lines.join('\n')}\`\`\``);
+
+        const msg = ok > 0
+          ? `✅ **${service}**: Created ${ok}/${amount} accounts. Details posted in <#${process.env.CMD_CHANNEL_ID}>`
+          : `❌ **${service}**: All ${amount} accounts failed. Check logs.`;
+        await interaction.editReply({ content: msg });
+      } catch (e) {
+        await interaction.editReply({ content: `❌ **${service}** error: ${e.message}` });
+      }
     }
   });
 
