@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casino Bonus Monitor — Guides</title>
+  <title>Claims Casino · Guide</title>
   <link rel="icon" href="../logo.webp" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -489,8 +489,8 @@
   </section>
 
   <section id="installation">
-    <h2>⚙️ Installation</h2>
-    <p>After purchasing, download the installer from your purchase confirmation or the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a>. Run it and follow the setup wizard.</p>
+    <h2>⚙️ Getting Started</h2>
+    <p>After purchasing a membership, you will receive the bot software and your license key through Discord. Follow the steps below to get up and running.</p>
     <h3>System Requirements</h3>
     <ul>
       <li>Windows 10 or later (64-bit)</li>
@@ -502,13 +502,13 @@
       <div class="step-item fade-in">
         <div class="step-num">1</div>
         <div class="step-body">
-          <p><strong>Download</strong> <code>CasinoBot-Setup-v2.x.x.exe</code> from the link you received after purchase or <a href="https://github.com/glowrius/casino-bonus-monitor/releases">GitHub Releases</a>.</p>
+          <p><strong>Receive your software.</strong> After payment is confirmed, open a ticket in the membership Discord. You'll be sent the bot package and your license key.</p>
         </div>
       </div>
       <div class="step-item fade-in">
         <div class="step-num">2</div>
         <div class="step-body">
-          <p><strong>Run the installer.</strong> During setup you'll enter your Discord bot token and channel IDs. These can also be changed later in the <code>.env</code> file.</p>
+          <p><strong>Run the setup.</strong> During setup you'll enter your Discord bot token and channel IDs. These can also be changed later in the settings file.</p>
         </div>
       </div>
       <div class="step-item fade-in">
@@ -518,15 +518,11 @@
         </div>
       </div>
     </div>
-    <div class="tip">
-      <div class="icon">&#9432;</div>
-      <p>Check "Install certificate" during setup to avoid Windows SmartScreen warnings on future launches.</p>
-    </div>
   </section>
 
   <section id="setup">
     <h2>🔧 Discord Setup</h2>
-    <p>The installer asks for your channel IDs. Here's what each channel is for.</p>
+    <p>The setup process asks for your channel IDs. Here's what each channel is for.</p>
     <h3>Channels</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0;">
       <div class="card fade-in">
@@ -683,11 +679,11 @@
     </div>
     <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I update the bot?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>The bot checks for updates automatically every 24 hours. When a new version is found, it downloads and swaps itself. You can also grab the latest installer from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a> and run it over your current installation — your settings are preserved.</p></div>
+      <div class="accordion-content">      <p>The bot checks for updates automatically every 24 hours. When a new version is found, it downloads and swaps itself — your settings are preserved.</p></div>
     </div>
     <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I get a license key?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>License keys are provided to you after purchase. Go to your <code>#daily-claims</code> channel and click "Change License Key" to enter it. The key is stored locally and validated on use.</p></div>
+      <div class="accordion-content">      <p>Your license key is provided when you join the membership. Go to your <code>#daily-claims</code> channel and click "Change License Key" to enter it. The key is stored locally and validated on use.</p></div>
     </div>
   </section>
 
@@ -698,7 +694,7 @@
       <div class="accordion-content">
         <p>Check the bot's console window. Common causes:</p>
         <ul>
-          <li>Channel IDs in <code>.env</code> are wrong — check with <code>/status</code></li>
+          <li>Channel IDs in the settings file are wrong — check with <code>/status</code></li>
           <li>The RSS filter isn't matching any current posts</li>
           <li>The bot doesn't have permission to send messages in the target channel</li>
         </ul>
@@ -710,7 +706,7 @@
     </div>
     <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">"application error" when using commands<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Restart the bot. If it continues, check the console for the actual error — it will show a stack trace. Common causes: missing <code>.env</code> fields or network timeouts.</p></div>
+      <div class="accordion-content"><p>Restart the bot. If it continues, check the console for the actual error — it will show a stack trace. Common causes: missing settings fields or network timeouts.</p></div>
     </div>
     <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Slash commands not showing up<span class="arrow">&#9660;</span></button>
@@ -731,7 +727,7 @@
   </section>
 
   <div class="guide-footer">
-    <p>Claim City 2026 © &middot; Built with Node.js &middot; <a href="https://claimscasino.com">claimscasino.com</a></p>
+    <p>Claim City 2026 © &middot; <a href="https://claimscasino.com">claimscasino.com</a></p>
   </div>
 
 </div>

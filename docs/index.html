@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casino Bonus Monitor</title>
+  <title>Claims Casino · Premium Sweepstakes Membership</title>
   <link rel="icon" href="logo.webp" type="image/webp">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
@@ -62,11 +64,9 @@
       align-items: flex-start;
       justify-content: center;
       gap: 32px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
-    .hero-brand-text {
-      text-align: left;
-    }
+    .hero-brand-text { text-align: left; }
     .hero-brand-text h1 {
       font-size: 3rem;
       font-weight: 800;
@@ -82,12 +82,6 @@
       color: #d0d0d8;
       margin: 0;
       max-width: 480px;
-    }
-    .hero p {
-      font-size: 1.25rem;
-      color: #d0d0d8;
-      max-width: 600px;
-      margin: 0 auto 36px;
     }
 
     /* Buttons */
@@ -105,6 +99,7 @@
       cursor: pointer;
       border: none;
     }
+    .btn-lg { padding: 18px 48px; font-size: 1.1rem; }
     .btn-primary {
       background: linear-gradient(135deg, #FFD700, #FFB300);
       color: #111114;
@@ -134,99 +129,202 @@
       font-size: 1.05rem;
     }
 
-    /* Features */
-    .features { background: #111114; }
-    .features-grid {
+    /* Benefits */
+    .benefits { background: #111114; }
+    .benefits-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 28px;
     }
-    .feature-card {
+    .benefit-card {
       background: #1c1c21;
       border: 1px solid #2a2a2e;
       border-radius: 16px;
       padding: 36px 32px;
       transition: all .25s ease;
     }
-    .feature-card:hover { border-color: #FFD700; transform: translateY(-6px); box-shadow: 0 12px 40px rgba(255,215,0,0.08); }
-    .feature-card .icon { font-size: 2.2rem; margin-bottom: 16px; }
-    .feature-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; color: #ffffff; }
-    .feature-card p { color: #d0d0d8; font-size: 0.95rem; line-height: 1.65; }
-    .feature-card .channel-tag {
-      display: inline-block;
-      margin-top: 14px;
-      padding: 5px 14px;
-      background: #25252a;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      color: #FFD700;
-      font-family: monospace;
-    }
+    .benefit-card:hover { border-color: #FFD700; transform: translateY(-6px); box-shadow: 0 12px 40px rgba(255,215,0,0.08); }
+    .benefit-card .icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .benefit-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; color: #ffffff; }
+    .benefit-card p { color: #d0d0d8; font-size: 0.95rem; line-height: 1.65; }
 
-    /* Quick Start */
-    .quick-start {
+    /* Pricing */
+    .pricing {
+      background: linear-gradient(180deg, #111114 0%, #1c1c21 100%);
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 28px;
+      align-items: start;
+    }
+    .pricing-card {
       background: #1c1c21;
       border: 1px solid #2a2a2e;
       border-radius: 16px;
-      padding: 40px 36px;
-      margin: 60px auto 0;
-      max-width: 620px;
-    }
-    .quick-start h3 {
+      padding: 40px 32px;
       text-align: center;
-      font-size: 1.3rem;
-      margin-bottom: 28px;
-      color: #FFD700;
+      transition: all .25s ease;
+      position: relative;
     }
-    .quick-start .line {
+    .pricing-card:hover { border-color: #FFD700; transform: translateY(-6px); box-shadow: 0 12px 40px rgba(255,215,0,0.08); }
+    .pricing-card.popular {
+      border-color: #FFD700;
+      box-shadow: 0 0 0 1px #FFD700, 0 12px 40px rgba(255,215,0,0.1);
+      transform: scale(1.04);
+    }
+    .pricing-card.popular:hover { transform: scale(1.04) translateY(-6px); }
+    .pricing-badge {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: #FFD700;
+      color: #111114;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 16px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pricing-card h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
+    .pricing-card .price {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #FFD700;
+      margin-bottom: 4px;
+    }
+    .pricing-card .price-sub {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+    .pricing-card .features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 28px;
+    }
+    .pricing-card .features li {
+      padding: 8px 0;
+      color: #d0d0d8;
+      font-size: 0.9rem;
       display: flex;
       align-items: center;
-      padding: 14px 0;
-      border-bottom: 1px solid #25252a;
-      gap: 14px;
+      gap: 10px;
     }
-    .quick-start .line:last-child { border-bottom: none; }
-    .quick-start .line .emoji { font-size: 1.2rem; flex-shrink: 0; }
-    .quick-start .line .label { color: #f0efed; font-weight: 500; }
-    .quick-start .line code {
-      background: #25252a;
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-size: 0.85rem;
-      color: #FFD700;
-      font-family: 'JetBrains Mono', monospace;
-    }
-    .quick-start .line .channel {
-      margin-left: auto;
-      color: #5a8cff;
-      font-family: monospace;
-      font-size: 0.85rem;
-    }
+    .pricing-card .features li i { color: #22c55e; font-size: 0.8rem; width: 16px; }
+    .pricing-card .btn { width: 100%; justify-content: center; }
 
-    /* Channels */
-    .channels { background: #111114; }
-    .channel-list {
+    /* Crypto Accepted */
+    .crypto-accepted { background: #111114; }
+    .crypto-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 18px;
     }
-    .channel-item {
+    .crypto-item {
       background: #1c1c21;
       border: 1px solid #2a2a2e;
       border-radius: 14px;
-      padding: 24px 20px;
+      padding: 28px 20px;
       text-align: center;
-      transition: border-color .2s;
+      transition: all .2s ease;
     }
-    .channel-item:hover { border-color: #FFD700; }
-    .channel-item .name { color: #f0efed; font-weight: 600; margin-top: 10px; }
-    .channel-item .desc { color: #d0d0d8; font-size: 0.85rem; margin-top: 4px; }
+    .crypto-item:hover { border-color: #FFD700; }
+    .crypto-item .crypto-icon { font-size: 2rem; margin-bottom: 10px; }
+    .crypto-item .name { color: #f0efed; font-weight: 600; font-size: 0.9rem; }
 
-    /* Download */
-    .download {
-      background: linear-gradient(180deg, #111114 0%, #1c1c21 100%);
+    /* How It Works */
+    .how-it-works { background: #1c1c21; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 32px;
+      max-width: 800px;
+      margin: 0 auto;
     }
-    .download .version { color: #FFD700; font-size: 0.9rem; margin-top: 14px; text-align: center; }
+    .step {
+      text-align: center;
+    }
+    .step-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: #FFD700;
+      color: #111114;
+      font-size: 1.3rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
+    .step p { color: #d0d0d8; font-size: 0.9rem; }
+
+    /* Payment Details */
+    .payment-details { background: #111114; }
+    .wallet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 20px;
+    }
+    .wallet-card {
+      background: #1c1c21;
+      border: 1px solid #2a2a2e;
+      border-radius: 16px;
+      padding: 28px 24px;
+      text-align: center;
+      transition: all .2s ease;
+    }
+    .wallet-card:hover { border-color: #FFD700; }
+    .wallet-card .wallet-icon { font-size: 2rem; margin-bottom: 8px; }
+    .wallet-card h3 { font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-bottom: 4px; }
+    .wallet-card .price-label { color: #FFD700; font-weight: 600; font-size: 0.95rem; margin-bottom: 14px; }
+    .wallet-address {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      background: #0a0a0c;
+      border: 1px solid #2a2a2e;
+      border-radius: 8px;
+      padding: 10px 12px;
+      word-break: break-all;
+      color: #d0d0d8;
+      margin-bottom: 12px;
+      user-select: all;
+    }
+    .wallet-address .label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .wallet-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    .wallet-actions .btn { padding: 10px 20px; font-size: 0.85rem; }
+    .wallet-qr {
+      margin: 16px auto 0;
+      width: 120px; height: 120px;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 8px;
+      display: none;
+    }
+    .wallet-qr canvas, .wallet-qr img { width: 100% !important; height: 100% !important; }
+    .wallet-qr.show { display: block; }
+    .copied-msg {
+      color: #22c55e;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: none;
+      margin-top: 8px;
+    }
+    .copied-msg.show { display: block; }
 
     /* Footer */
     footer {
@@ -239,7 +337,7 @@
     footer a { color: #FFD700; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
-    /* Scroll Animations (Vercel-style) */
+    /* Scroll Animations */
     .fade-in {
       opacity: 0;
       transform: translateY(30px);
@@ -249,12 +347,10 @@
       opacity: 1;
       transform: translateY(0);
     }
-    .feature-card:nth-child(2) { transition-delay: 0.1s; }
-    .feature-card:nth-child(3) { transition-delay: 0.2s; }
-    .quick-start { transition-delay: 0.15s; }
-    .channel-item:nth-child(2) { transition-delay: 0.08s; }
-    .channel-item:nth-child(3) { transition-delay: 0.16s; }
-    .channel-item:nth-child(4) { transition-delay: 0.24s; }
+    .benefit-card:nth-child(2) { transition-delay: 0.1s; }
+    .benefit-card:nth-child(3) { transition-delay: 0.2s; }
+    .pricing-card:nth-child(2) { transition-delay: 0.1s; }
+    .pricing-card:nth-child(3) { transition-delay: 0.2s; }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -266,109 +362,249 @@
       .hero-logo { width: 80px; height: 80px; }
       .btn-group { flex-direction: column; align-items: stretch; }
       .btn { justify-content: center; }
+      .btn-lg { padding: 16px 32px; }
       section { padding: 60px 0; }
-      .btn-secondary { margin-left: 0; }
+      .pricing-card.popular { transform: none; }
+      .pricing-card.popular:hover { transform: translateY(-6px); }
+      .wallet-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
+<!-- Hero -->
 <section class="hero">
   <div class="container">
     <div class="hero-brand">
       <img src="logo.webp" alt="Claims Casino" class="hero-logo">
       <div class="hero-brand-text">
         <h1>Claim City 2026</h1>
-        <p>One program. Every free SC opportunity. Real-time Discord delivery.</p>
+        <p>Premium sweepstakes monitoring with real-time Discord alerts.</p>
       </div>
     </div>
-    <div class="btn-group fade-in">
-      <a href="https://github.com/glowrius/casino-bonus-monitor/releases/latest/download/CasinoBot-Setup.exe" class="btn btn-primary">Download Installer</a>
-      <a href="guide/" class="btn btn-secondary">User Guide</a>
-      <a href="https://claimscasino.com" class="btn btn-secondary">claimscasino.com</a>
-    </div>
+    <a href="#pricing" class="btn btn-primary btn-lg"><i class="fas fa-crown"></i> Get Access</a>
   </div>
 </section>
 
-<section class="features">
+<!-- Benefits -->
+<section class="benefits">
   <div class="container">
-    <h2>What it does</h2>
-    <p>One background process. Every free SC opportunity. Real-time Discord delivery.</p>
-    <div class="features-grid">
-      <div class="feature-card fade-in">
-        <div class="icon">🎰</div>
-        <h3>Auto-Claim Daily SC</h3>
-        <p>Automatically collects 24-hour free Sweepscash from all social casinos. Set it and forget it.</p>
-        <span class="channel-tag">#daily-sc-claims</span>
+    <h2>Membership Benefits</h2>
+    <p>Everything included with your Claims Casino membership.</p>
+    <div class="benefits-grid">
+      <div class="benefit-card fade-in">
+        <div class="icon">🔔</div>
+        <h3>Real-Time Discord Alerts</h3>
+        <p>Instant notifications the moment free SC, spins, and bonuses are posted. Never miss an opportunity.</p>
       </div>
-      <div class="feature-card fade-in">
-        <div class="icon">🔗</div>
-        <h3>Free Spins &amp; SC Monitor</h3>
-        <p>Scans Reddit sources in real-time for no-deposit bonuses, promo codes, and free spins.</p>
-        <span class="channel-tag">#monitor-posts</span>
+      <div class="benefit-card fade-in">
+        <div class="icon">🤖</div>
+        <h3>Auto Daily Claims</h3>
+        <p>Automatic 24-hour Sweepscash collection from 80+ supported social casinos. Set it and forget it.</p>
       </div>
-      <div class="feature-card fade-in">
+      <div class="benefit-card fade-in">
         <div class="icon">🎯</div>
-        <h3>Streamer Link Sniping</h3>
-        <p>Watches Kick.com streamer chats for dropped links — giveaways, limited codes, bonus URLs.</p>
-        <span class="channel-tag">#streamer-chat</span>
-      </div>
-    </div>
-
-    <div class="quick-start fade-in">
-      <h3>Quick Start</h3>
-      <div class="line"><span class="emoji">1</span><span class="label">Set your bot token &amp; channel IDs in <code>.env</code></span></div>
-      <div class="line"><span class="emoji">2</span><span class="label">Run <code>CasinoBot.exe</code></span></div>
-      <div class="line"><span class="emoji">3</span><span class="label">New offers arrive in <span class="channel">#monitor-posts</span></span></div>
-      <div class="line"><span class="emoji">⚡</span><span class="label">Polls every 10s — no API keys needed</span></div>
-      <div class="line"><span class="emoji">📦</span><span class="label">One signed EXE, no dependencies</span></div>
-    </div>
-  </div>
-</section>
-
-<section class="channels">
-  <div class="container">
-    <h2>Discord Channels</h2>
-    <p>Every feature maps to its own channel for clean organization.</p>
-    <div class="channel-list">
-      <div class="channel-item fade-in">
-        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
-        <div class="name">#monitor-posts</div>
-        <div class="desc">Real-time free SC offers</div>
-      </div>
-      <div class="channel-item fade-in">
-        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
-        <div class="name">#daily-claims</div>
-        <div class="desc">Interactive claim panel</div>
-      </div>
-      <div class="channel-item fade-in">
-        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
-        <div class="name">#streamer-chat</div>
-        <div class="desc">Kick link sniping</div>
-      </div>
-      <div class="channel-item fade-in">
-        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
-        <div class="name">#guides</div>
-        <div class="desc">User documentation</div>
+        <h3>Streamer Sniping &amp; More</h3>
+        <p>Live Kick.com chat monitoring for dropped links, promo codes, and exclusive giveaways in real-time.</p>
       </div>
     </div>
   </div>
 </section>
 
-<section class="download" id="download">
+<!-- Pricing -->
+<section class="pricing" id="pricing">
   <div class="container">
-    <h2>Download</h2>
-    <p>Standalone Windows executable — no Node.js or Python required.</p>
-    <div class="btn-group">
-      <a href="https://github.com/glowrius/casino-bonus-monitor/releases/latest/download/CasinoBot-Setup.exe" class="btn btn-primary">Download Installer</a>
+    <h2>Choose Your Plan</h2>
+    <p>One-time payment. Lifetime access. No recurring subscriptions.</p>
+    <div class="pricing-grid">
+      <!-- Monthly -->
+      <div class="pricing-card fade-in">
+        <h3>Monthly</h3>
+        <div class="price"><!-- EDIT: Price -->TBD</div>
+        <div class="price-sub">USDT per month</div>
+        <ul class="features">
+          <li><i class="fas fa-check"></i> Real-time Discord alerts</li>
+          <li><i class="fas fa-check"></i> Auto daily claims</li>
+          <li><i class="fas fa-check"></i> Streamer link sniping</li>
+          <li><i class="fas fa-check"></i> 80+ casinos supported</li>
+          <li><i class="fas fa-check"></i> Monthly renewal</li>
+        </ul>
+        <a href="#payment" class="btn btn-primary">Buy Now</a>
+      </div>
+
+      <!-- Lifetime -->
+      <div class="pricing-card popular fade-in">
+        <span class="pricing-badge">Best Value</span>
+        <h3>Lifetime</h3>
+        <div class="price"><!-- EDIT: Price -->TBD</div>
+        <div class="price-sub">USDT · one-time</div>
+        <ul class="features">
+          <li><i class="fas fa-check"></i> Everything in Monthly</li>
+          <li><i class="fas fa-check"></i> Lifetime access</li>
+          <li><i class="fas fa-check"></i> Priority Discord support</li>
+          <li><i class="fas fa-check"></i> All future updates</li>
+          <li><i class="fas fa-check"></i> No recurring fees</li>
+        </ul>
+        <a href="#payment" class="btn btn-primary">Buy Now</a>
+      </div>
+
+      <!-- Elite -->
+      <div class="pricing-card fade-in">
+        <h3>Elite</h3>
+        <div class="price"><!-- EDIT: Price -->TBD</div>
+        <div class="price-sub">USDT · one-time</div>
+        <ul class="features">
+          <li><i class="fas fa-check"></i> Everything in Lifetime</li>
+          <li><i class="fas fa-check"></i> VIP Discord role</li>
+          <li><i class="fas fa-check"></i> Direct line to support</li>
+          <li><i class="fas fa-check"></i> Early access to new features</li>
+          <li><i class="fas fa-check"></i> Custom integrations</li>
+        </ul>
+        <a href="#payment" class="btn btn-primary">Buy Now</a>
+      </div>
     </div>
-    <div class="version">Windows 64-bit · v2.1.0 · 54 MB</div>
+  </div>
+</section>
+
+<!-- Accepted Cryptocurrencies -->
+<section class="crypto-accepted">
+  <div class="container">
+    <h2>Accepted Cryptocurrencies</h2>
+    <p>Pay with your preferred crypto. All payments are final and non-refundable.</p>
+    <div class="crypto-grid">
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
+        <div class="name">Bitcoin</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#627eea;"><i class="fab fa-ethereum"></i></div>
+        <div class="name">Ethereum</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#26a17b;"><i class="fas fa-circle"></i></div>
+        <div class="name">USDT ERC20</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#ef0027;"><i class="fas fa-bolt"></i></div>
+        <div class="name">USDT TRC20</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#9945ff;"><i class="fas fa-circle"></i></div>
+        <div class="name">Solana</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+  <div class="container">
+    <h2>How It Works</h2>
+    <p>Three simple steps to get started.</p>
+    <div class="steps">
+      <div class="step fade-in">
+        <div class="step-num">1</div>
+        <h3>Choose a Plan</h3>
+        <p>Select the membership tier that fits your needs above.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">2</div>
+        <h3>Send Crypto</h3>
+        <p>Copy the wallet address for your preferred crypto and send the exact amount.</p>
+      </div>
+      <div class="step fade-in">
+        <div class="step-num">3</div>
+        <h3>Get Access</h3>
+        <p>Join our Discord and open a ticket with your transaction ID to verify and gain access.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Payment Details -->
+<section class="payment-details" id="payment">
+  <div class="container">
+    <h2>Payment Details</h2>
+    <p>Send the exact amount to the address below. After payment, join our Discord and open a ticket.</p>
+    <div class="wallet-grid">
+      <!-- Bitcoin -->
+      <div class="wallet-card fade-in">
+        <div class="wallet-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
+        <h3>Bitcoin</h3>
+        <div class="price-label">Send exact USDT equivalent</div>
+        <div class="wallet-address">
+          <span class="label">BTC Address</span>
+          <!-- EDIT: BTC wallet address -->bc1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        </div>
+        <div class="wallet-actions">
+          <button class="btn btn-secondary" onclick="copyAddress(this, 'btc')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-secondary" onclick="toggleQr('btc')"><i class="fas fa-qrcode"></i> QR</button>
+        </div>
+        <div class="copied-msg" id="copied-btc">Copied!</div>
+        <div class="wallet-qr" id="qr-btc"></div>
+      </div>
+
+      <!-- Ethereum -->
+      <div class="wallet-card fade-in">
+        <div class="wallet-icon" style="color:#627eea;"><i class="fab fa-ethereum"></i></div>
+        <h3>Ethereum (USDT ERC20)</h3>
+        <div class="price-label">Send exact USDT equivalent</div>
+        <div class="wallet-address">
+          <span class="label">ETH/USDT Address</span>
+          <!-- EDIT: ETH/USDT ERC20 wallet address -->0xXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        </div>
+        <div class="wallet-actions">
+          <button class="btn btn-secondary" onclick="copyAddress(this, 'eth')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-secondary" onclick="toggleQr('eth')"><i class="fas fa-qrcode"></i> QR</button>
+        </div>
+        <div class="copied-msg" id="copied-eth">Copied!</div>
+        <div class="wallet-qr" id="qr-eth"></div>
+      </div>
+
+      <!-- USDT TRC20 -->
+      <div class="wallet-card fade-in">
+        <div class="wallet-icon" style="color:#ef0027;"><i class="fas fa-bolt"></i></div>
+        <h3>USDT TRC20</h3>
+        <div class="price-label">Send exact USDT equivalent</div>
+        <div class="wallet-address">
+          <span class="label">TRC20 Address</span>
+          <!-- EDIT: USDT TRC20 wallet address -->TXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        </div>
+        <div class="wallet-actions">
+          <button class="btn btn-secondary" onclick="copyAddress(this, 'trc20')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-secondary" onclick="toggleQr('trc20')"><i class="fas fa-qrcode"></i> QR</button>
+        </div>
+        <div class="copied-msg" id="copied-trc20">Copied!</div>
+        <div class="wallet-qr" id="qr-trc20"></div>
+      </div>
+
+      <!-- Solana -->
+      <div class="wallet-card fade-in">
+        <div class="wallet-icon" style="color:#9945ff;"><i class="fas fa-circle"></i></div>
+        <h3>Solana</h3>
+        <div class="price-label">Send exact USDT equivalent</div>
+        <div class="wallet-address">
+          <span class="label">SOL Address</span>
+          <!-- EDIT: Solana wallet address -->XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        </div>
+        <div class="wallet-actions">
+          <button class="btn btn-secondary" onclick="copyAddress(this, 'sol')"><i class="fas fa-copy"></i> Copy</button>
+          <button class="btn btn-secondary" onclick="toggleQr('sol')"><i class="fas fa-qrcode"></i> QR</button>
+        </div>
+        <div class="copied-msg" id="copied-sol">Copied!</div>
+        <div class="wallet-qr" id="qr-sol"></div>
+      </div>
+    </div>
   </div>
 </section>
 
 <footer>
   <div class="container">
-    <p><a href="https://claimscasino.com">claimscasino.com</a> · Built with Node.js · Claim City 2026 ©</p>
+    <p>
+      <a href="https://claimscasino.com">claimscasino.com</a> ·
+      <!-- EDIT: Discord invite link --><a href="https://discord.gg/YOUR_INVITE">Discord Support</a> ·
+      © Claim City 2026
+    </p>
   </div>
 </footer>
 
@@ -377,6 +613,31 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+function copyAddress(btn, id) {
+  const card = btn.closest('.wallet-card');
+  const addrEl = card.querySelector('.wallet-address');
+  const addr = addrEl.textContent.replace('BTC Address', '').replace('ETH/USDT Address', '').replace('TRC20 Address', '').replace('SOL Address', '').trim();
+  navigator.clipboard.writeText(addr).then(() => {
+    const msg = document.getElementById('copied-' + id);
+    msg.classList.add('show');
+    setTimeout(() => msg.classList.remove('show'), 2000);
+  });
+}
+
+function toggleQr(id) {
+  const qrEl = document.getElementById('qr-' + id);
+  if (qrEl.classList.contains('show')) {
+    qrEl.classList.remove('show');
+    return;
+  }
+  const card = qrEl.closest('.wallet-card');
+  const addrEl = card.querySelector('.wallet-address');
+  const addr = addrEl.textContent.replace('BTC Address', '').replace('ETH/USDT Address', '').replace('TRC20 Address', '').replace('SOL Address', '').trim();
+  qrEl.innerHTML = '';
+  new QRCode(qrEl, { text: addr, width: 120, height: 120, colorDark: '#000000', colorLight: '#ffffff' });
+  qrEl.classList.add('show');
+}
 </script>
 </body>
 </html>
