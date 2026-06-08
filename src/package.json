@@ -1,0 +1,20 @@
+{
+  "name": "casino-bonus-monitor",
+  "version": "2.0.0",
+  "description": "Casino Bonus Monitor - Discord bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "cd .. && scripts/build.ps1"
+  },
+  "pkg": {
+    "assets": [
+      "data/**/*"
+    ]
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-cron": "^3.0.3",
+    "ws": "^8.18.0"
+  }
+}

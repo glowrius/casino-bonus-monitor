@@ -1,6 +1,9 @@
 node_modules/
 .env
-data/seen_posts.json
-data/claim_history.json
-data/settings.json
+build/
 *.log
+src/node_modules/
+src/.env
+src/data/seen_posts.json
+src/data/claim_history.json
+src/data/settings.json
