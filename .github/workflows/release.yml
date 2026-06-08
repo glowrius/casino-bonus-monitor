@@ -30,8 +30,8 @@ jobs:
           npx @yao-pkg/pkg -t node22-win-x64 index.js -o ..\build\CasinoBot.exe
           mkdir ..\build -Force | Out-Null
 
-      - name: Add icon (skipped)
-        run: echo "Skipping icon step - rcedit deprecated on windows-2025"
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
 
       - name: Build Installer
         shell: pwsh

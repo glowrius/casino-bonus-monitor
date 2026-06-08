@@ -4,9 +4,22 @@ param(
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Resolve-Path "$root\.."
-$iscc = "C:\Users\GLOW\AppData\Local\Programs\Inno Setup 6\ISCC.exe"
 
-if (-not (Test-Path $iscc)) {
+# Find ISCC.exe from common install locations
+$isccPaths = @(
+  "C:\Users\GLOW\AppData\Local\Programs\Inno Setup 6\ISCC.exe",
+  "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+  "C:\Program Files\Inno Setup 6\ISCC.exe",
+  "${env:ChocolateyInstall}\lib\innosetup\tools\ISCC.exe",
+  "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+  "${env:ProgramFiles}\Inno Setup 6\ISCC.exe"
+)
+$iscc = $null
+foreach ($p in $isccPaths) {
+  if (Test-Path $p) { $iscc = $p; break }
+}
+
+if (-not $iscc) {
   Write-Error "ISCC.exe not found. Install Inno Setup 6 first."
   exit 1
 }
