@@ -277,9 +277,9 @@ class DiscordBot {
       .setTitle('🎰 Daily Claims Panel').setColor(0x57F287).setTimestamp()
       .setDescription('Use the buttons below to scan for available daily bonuses, manage your license key, or claim available Sweepscash.')
       .addFields(
-        { name: '🔍 Scan for Dailies', value: 'Checks each casino with saved cookies and reports available bonuses', inline: true },
-        { name: '🔑 Change License Key', value: 'Opens a form to enter or update your license key', inline: true },
-        { name: '💰 Claim Available Daily SC', value: 'Claims bonuses for all casinos flagged as available', inline: true },
+        { name: '🔍 Scan for Dailies', value: 'Checks each casino with saved cookies and reports available bonuses', inline: false },
+        { name: '🔑 Change License Key', value: 'Opens a form to enter or update your license key', inline: false },
+        { name: '💰 Claim Available Daily SC', value: 'Claims bonuses for all casinos flagged as available', inline: false },
       );
     await this.dailyClaimsChannel.send({ embeds: [embed], components: [row] }).catch(() => {});
   }

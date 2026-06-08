@@ -34,7 +34,8 @@ jobs:
         shell: pwsh
         run: |
           npm install -g rcedit
-          rcedit build\CasinoBot.exe --set-icon scripts\icon.ico `
+          $rcedit = "$env:APPDATA\npm\node_modules\rcedit\bin\rcedit-x64.exe"
+          & $rcedit build\CasinoBot.exe --set-icon scripts\icon.ico `
             --set-version-string "FileDescription" "Casino Bonus Monitor" `
             --set-version-string "ProductName" "Casino Bonus Monitor"
 
