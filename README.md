@@ -1,9 +1,9 @@
 <div align="center">
-  <img src="https://glowrius.github.io/casino-bonus-monitor/" alt="Casino Bonus Monitor" width="80">
+  <img src="docs/logo.webp" alt="Claims Casino" width="80">
   <h1>Casino Bonus Monitor</h1>
   <p><strong>One program. Every free SC opportunity. Real-time Discord delivery.</strong></p>
   <p>
-    <a href="https://glowrius.github.io/casino-bonus-monitor/">Website</a> ·
+    <a href="https://claimscasino.com">Website</a> ·
     <a href="https://github.com/glowrius/casino-bonus-monitor/releases">Download</a> ·
     <a href="#quick-start">Quick Start</a>
   </p>

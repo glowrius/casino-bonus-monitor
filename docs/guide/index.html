@@ -58,7 +58,7 @@
       gap: 10px;
       margin-bottom: 32px;
     }
-    .sidebar-logo img { width: 32px; height: 32px; }
+    .sidebar-logo img { width: 36px; height: 36px; border-radius: 6px; }
     .sidebar nav a {
       display: block;
       padding: 9px 12px;
@@ -142,6 +142,31 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 12px;
+    }
+    .guide-hero-brand {
+      display: flex;
+      align-items: flex-start;
+      gap: 28px;
+      margin-top: 20px;
+    }
+    .guide-hero-logo {
+      width: 100px; height: 100px;
+      flex-shrink: 0;
+      filter: drop-shadow(0 0 16px rgba(255,215,0,0.18));
+    }
+    .guide-hero-text {
+      text-align: left;
+    }
+    .guide-hero-text h1 {
+      font-size: 2.2rem;
+      margin: 0 0 6px 0;
+      line-height: 1.15;
+    }
+    .guide-hero-text p {
+      color: #d0d0d8;
+      font-size: 1rem;
+      margin: 0;
+      max-width: 500px;
     }
     .guide-hero p {
       font-size: 1.15rem;
@@ -377,6 +402,10 @@
       .sidebar-overlay.open { display: block; }
       .main { margin-left: 0; padding: 24px 20px 80px; }
       .guide-hero h1 { font-size: 1.8rem; }
+      .guide-hero-brand { flex-direction: column; align-items: center; gap: 16px; }
+      .guide-hero-logo { width: 72px; height: 72px; }
+      .guide-hero-text { text-align: center; }
+      .guide-hero-text h1 { font-size: 1.6rem; }
       .step-item { flex-direction: column; }
       .step-num { width: 28px; height: 28px; font-size: 0.8rem; }
       .cmd-table { font-size: 0.8rem; }
@@ -414,8 +443,8 @@
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <a href="../" class="sidebar-logo">
-    <img src="../logo.webp" alt="">
-    <span>Claim City <span style="color:#f0efed;">Guides</span></span>
+    <img src="../logo.webp" alt="Claims Casino">
+    <span>Claims Casino</span>
   </a>
   <nav>
     <div class="group-label">Getting Started</div>
@@ -442,8 +471,13 @@
 
   <div class="guide-hero">
     <span class="badge">Claim City 2026 · v2.1.0</span>
-    <h1>Casino Bonus Monitor</h1>
-    <p>Everything you need to know about monitoring, claiming, and never missing a free SC opportunity.</p>
+    <div class="guide-hero-brand">
+      <img src="../logo.webp" alt="Claims Casino" class="guide-hero-logo">
+      <div class="guide-hero-text">
+        <h1>Claim City 2026</h1>
+        <p>Everything you need to know about monitoring, claiming, and never missing a free SC opportunity.</p>
+      </div>
+    </div>
   </div>
 
   <section id="overview">
@@ -697,7 +731,7 @@
   </section>
 
   <div class="guide-footer">
-    <p>Claim City 2026 © &middot; Built with Node.js &middot; <a href="https://github.com/glowrius/casino-bonus-monitor">GitHub</a></p>
+    <p>Claim City 2026 © &middot; Built with Node.js &middot; <a href="https://claimscasino.com">claimscasino.com</a></p>
   </div>
 
 </div>

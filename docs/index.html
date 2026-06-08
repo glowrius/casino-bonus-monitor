@@ -53,34 +53,41 @@
       75% { transform: translate(30px, -20px) scale(1.05); }
     }
     .hero-logo {
-      width: 80px; height: 80px;
-      margin-bottom: 12px;
+      width: 120px; height: 120px;
+      flex-shrink: 0;
       filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
     }
-    .hero h1 {
-      font-size: 3.2rem;
+    .hero-brand {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 32px;
+      margin-bottom: 20px;
+    }
+    .hero-brand-text {
+      text-align: left;
+    }
+    .hero-brand-text h1 {
+      font-size: 3rem;
       font-weight: 800;
       background: linear-gradient(135deg, #FFD700, #FFB300);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 14px;
+      margin: 0 0 8px 0;
+      line-height: 1.1;
       letter-spacing: 0;
+    }
+    .hero-brand-text p {
+      font-size: 1.15rem;
+      color: #d0d0d8;
+      margin: 0;
+      max-width: 480px;
     }
     .hero p {
       font-size: 1.25rem;
       color: #d0d0d8;
       max-width: 600px;
       margin: 0 auto 36px;
-    }
-    .hero-badge {
-      display: inline-block;
-      background: #1c1c21;
-      border: 1px solid #2a2a2e;
-      border-radius: 20px;
-      padding: 6px 18px;
-      font-size: 0.85rem;
-      color: #FFD700;
-      margin-bottom: 10px;
     }
 
     /* Buttons */
@@ -253,7 +260,10 @@
     @media (max-width: 768px) {
       body { font-size: 15px; }
       .hero { padding: 60px 0 40px; }
-      .hero h1 { font-size: 2.2rem; }
+      .hero-brand { flex-direction: column; align-items: center; gap: 16px; }
+      .hero-brand-text { text-align: center; }
+      .hero-brand-text h1 { font-size: 2.2rem; }
+      .hero-logo { width: 80px; height: 80px; }
       .btn-group { flex-direction: column; align-items: stretch; }
       .btn { justify-content: center; }
       section { padding: 60px 0; }
@@ -265,14 +275,17 @@
 
 <section class="hero">
   <div class="container">
-    <img src="logo.webp" alt="Casino Bonus Monitor" class="hero-logo">
-    <span class="hero-badge">Claim City 2026</span>
-    <h1>Casino Bonus Monitor</h1>
-    <p>One program. Every free SC opportunity. Real-time Discord delivery.</p>
+    <div class="hero-brand">
+      <img src="logo.webp" alt="Claims Casino" class="hero-logo">
+      <div class="hero-brand-text">
+        <h1>Claim City 2026</h1>
+        <p>One program. Every free SC opportunity. Real-time Discord delivery.</p>
+      </div>
+    </div>
     <div class="btn-group fade-in">
       <a href="https://github.com/glowrius/casino-bonus-monitor/releases/latest/download/CasinoBot-Setup.exe" class="btn btn-primary">Download Installer</a>
       <a href="guide/" class="btn btn-secondary">User Guide</a>
-      <a href="https://github.com/glowrius/casino-bonus-monitor" class="btn btn-secondary">View on GitHub</a>
+      <a href="https://claimscasino.com" class="btn btn-secondary">claimscasino.com</a>
     </div>
   </div>
 </section>
@@ -355,7 +368,7 @@
 
 <footer>
   <div class="container">
-    <p><a href="https://github.com/glowrius/casino-bonus-monitor">GitHub</a> · Built with Node.js · Claim City 2026 ©</p>
+    <p><a href="https://claimscasino.com">claimscasino.com</a> · Built with Node.js · Claim City 2026 ©</p>
   </div>
 </footer>
 
