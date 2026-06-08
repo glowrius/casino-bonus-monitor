@@ -255,46 +255,7 @@ async function main() {
     }
   });
 
-  // Post daily-claims panel + guide announcement
-  setTimeout(async () => {
-    await bot.sendDailyClaimsPanel();
-    await bot.sendToChannel('1493303855532867725', {
-      embeds: [{
-        title: '📖 │ User Guide Available',
-        color: 0x57F287,
-        description: 'A full user guide is now available online covering all casino features:\n\n' +
-          '• Command reference (`/status`, `/claim`, `/setcookie`)\n' +
-          '• Cookie-based claiming setup\n' +
-          '• Streamer alerts configuration\n' +
-          '• Auto-claim schedule & history\n' +
-          '• FAQ & troubleshooting\n\n' +
-          '**Read the guide:** https://glowrius.github.io/casino-bonus-monitor/guide/',
-        footer: { text: 'Claim City 2026 ©' }
-      }]
-    });
 
-    await bot.sendToChannel('1493300189224767670', {
-      embeds: [{
-        title: '📜 │ Server Rules & Terms of Service',
-        color: 0xFFD700,
-        description: 'By joining this server and using our service, you agree to the following:\n' +
-          '\n' +
-          '**🎲 1. Service & Intellectual Property**\n' +
-          '• No copying, reverse-engineering, or replicating our service or methods.\n' +
-          '• No reselling, leaking, or using server info to build a competing product.\n' +
-          '\n' +
-          '**🎰 2. General Conduct**\n' +
-          '• Be respectful — no harassment, hate speech, or toxic behavior.\n' +
-          '• No spam, self-promotion, or unsolicited DMs to members.\n' +
-          '• No NSFW, explicit, or illegal content.\n' +
-          '\n' +
-          '**⚖️ 3. Administration & Compliance**\n' +
-          '• Staff may warn, kick, or ban at their discretion to protect the community.\n' +
-          '• All members must follow Discord Terms of Service & Community Guidelines.',
-        footer: { text: 'Claim City 2026 ©' }
-      }]
-    });
-  }, 5000);
 
   bot.onCommand('hellofresh_list', async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
