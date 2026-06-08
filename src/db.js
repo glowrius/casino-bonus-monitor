@@ -2,7 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+const DATA_DIR = (() => {
+  const cwd = process.cwd();
+  for (const p of [path.join(cwd, 'src', 'data'), path.join(cwd, 'data')]) {
+    if (fs.existsSync(p)) return p;
+  }
+  return path.join(cwd, 'src', 'data');
+})();
 const SEEN_POSTS_FILE = path.join(DATA_DIR, 'seen_posts.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 

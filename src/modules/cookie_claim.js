@@ -3,8 +3,15 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
-const PROFILES_FILE = path.join(process.cwd(), 'src', 'data', 'claim_profiles.json');
-const COOKIE_DIR = path.join(process.cwd(), 'src', 'data', 'cookies');
+const DATA_DIR = (() => {
+  const cwd = process.cwd();
+  for (const p of [path.join(cwd, 'src', 'data'), path.join(cwd, 'data')]) {
+    if (fs.existsSync(path.join(p, 'claim_profiles.json'))) return p;
+  }
+  return path.join(cwd, 'src', 'data');
+})();
+const PROFILES_FILE = path.join(DATA_DIR, 'claim_profiles.json');
+const COOKIE_DIR = path.join(DATA_DIR, 'cookies');
 
 function ensureDir() {
   if (!fs.existsSync(COOKIE_DIR)) fs.mkdirSync(COOKIE_DIR, { recursive: true });

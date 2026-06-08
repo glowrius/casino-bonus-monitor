@@ -3,7 +3,18 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 3456;
-const DATA_DIR = path.join(process.cwd(), 'src', 'data');
+const DATA_DIR = (() => {
+  const cwd = process.cwd();
+  // Try both project-root/src/data and src/data (when run from src/)
+  const candidates = [
+    path.join(cwd, 'src', 'data'),
+    path.join(cwd, 'data'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(path.join(p, 'claim_profiles.json'))) return p;
+  }
+  return candidates[0]; // fallback
+})();
 const COOKIE_DIR = path.join(DATA_DIR, 'cookies');
 
 function readJSON(file) {

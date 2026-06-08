@@ -270,7 +270,14 @@ class DiscordBot {
 
   validateLicenseKey(key) {
     try {
-      const keys = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'src', 'data', 'license_keys.json'), 'utf8'));
+      const licensePath = (() => {
+        const cwd = process.cwd();
+        for (const p of [path.join(cwd, 'src', 'data', 'license_keys.json'), path.join(cwd, 'data', 'license_keys.json')]) {
+          if (fs.existsSync(p)) return p;
+        }
+        return path.join(cwd, 'src', 'data', 'license_keys.json');
+      })();
+      const keys = JSON.parse(fs.readFileSync(licensePath, 'utf8'));
       return keys.includes(key);
     } catch { return false; }
   }
