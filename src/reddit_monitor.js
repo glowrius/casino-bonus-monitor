@@ -80,8 +80,7 @@ async function processItems(items, label) {
     if (!isRelevantPost(item.title)) continue;
     db.markPostSeen(item.title, item.link, 'reddit');
     try {
-      if (label === 'Startup') await bot.sendFloodPost(item);
-      else await bot.sendMonitorPost(item);
+      await bot.sendMonitorPost(item);
       await sleep(1500);
     } catch (e) {
       console.error(`[${label}] Send error:`, e.message);
@@ -110,8 +109,8 @@ async function pollRSS() {
 async function startupFlood() {
   const settings = db.getSettings();
   const rssUrls = (settings.rssUrls || process.env.REDDIT_RSS_URLS || '').split(',').map(s => s.trim()).filter(Boolean);
-  const cmdChannel = process.env.CMD_CHANNEL_ID || 'CMD';
-  console.log(`[Startup] Flooding <#${cmdChannel}> with last 24h posts...`);
+  const monChannel = process.env.MONITOR_CHANNEL_ID || 'monitor';
+  console.log(`[Startup] Flooding <#${monChannel}> with last 24h posts...`);
   let totalSent = 0;
   const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
   for (const url of rssUrls) {
@@ -123,7 +122,7 @@ async function startupFlood() {
       totalSent += count;
     } catch (e) { console.error(`[Startup] Error fetching ${url}:`, e.message); }
   }
-  console.log(`[Startup] Flood complete: ${totalSent} posts sent to <#${cmdChannel}>`);
+  console.log(`[Startup] Flood complete: ${totalSent} posts sent to <#${monChannel}>`);
 }
 
 function start(intervalSeconds) {

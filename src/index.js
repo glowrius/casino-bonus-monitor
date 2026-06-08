@@ -76,31 +76,86 @@ async function main() {
     }
   });
 
-  bot.onCommand('create', async (interaction) => {
-    const service = interaction.options.getString('service');
+  bot.onCommand('hellofresh_create', async (interaction) => {
     const amount = interaction.options.getInteger('amount');
-    await interaction.reply({ content: `⏳ Creating ${amount} ${service} account(s)... This may take several minutes.`, ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
-    if (service === 'hellofresh') {
-      try {
-        const results = await hellofresh.createMultiple(amount, (done, total, acct) => {
-          bot.sendCmdMessage(`**${service}** | ${done}/${total}: ${acct.email || 'failed'}`);
-        });
-        const ok = results.filter(r => r.success).length;
-        const fail = results.filter(r => !r.success).length;
-
-        const lines = results.slice(0, 5).map(r =>
-          r.success ? `✅ ${r.email} | ${r.password}` : `❌ ${r.error}`
-        );
-        await bot.sendCmdMessage(`**${service} | Create Complete** — ${ok} success, ${fail} failed\n\`\`\`${lines.join('\n')}\`\`\``);
-
-        const msg = ok > 0
-          ? `✅ **${service}**: Created ${ok}/${amount} accounts. Details posted in <#${process.env.CMD_CHANNEL_ID}>`
-          : `❌ **${service}**: All ${amount} accounts failed. Check logs.`;
-        await interaction.editReply({ content: msg });
-      } catch (e) {
-        await interaction.editReply({ content: `❌ **${service}** error: ${e.message}` });
+    try {
+      const pendings = [];
+      for (let i = 0; i < amount; i++) {
+        const acct = await hellofresh.createAccount();
+        pendings.push(acct);
+        await interaction.editReply({ content: `⏳ Creating temp emails... ${i + 1}/${amount} done`, ephemeral: true });
       }
+
+      const linkLines = pendings.map((a, i) =>
+        `**${i + 1}.** [Referral Link](${a.referralLink})\n   \`${a.email}\` • Password: \`${a.password}\``
+      ).join('\n');
+
+      await interaction.editReply({
+        embeds: [{
+          title: '✅ Registration Links Ready',
+          color: 0x4CEA4D,
+          description: `${linkLines}\n\n**📧 Instructions**\n1. Click each referral link above\n2. Register with the temp email shown\n3. The bot will auto-verify once the confirmation email arrives\n4. Check back with \`/hellofresh list\``,
+          footer: { text: 'Monitoring inboxes for 10 min per account' }
+        }]
+      });
+
+      // Background verification
+      for (let i = 0; i < pendings.length; i++) {
+        const acct = pendings[i];
+        const msg = await interaction.followUp({ content: `🔍 Monitoring ${acct.email} for verification email...`, ephemeral: true });
+        const ok = await hellofresh.verifyAccount(acct);
+        if (ok) {
+          const saved = hellofresh.loadAccounts();
+          saved.push(acct);
+          hellofresh.saveAccounts(saved);
+          await interaction.followUp({
+            content: `✅ **Account ${i + 1} verified!** \`${acct.email}\``,
+            ephemeral: true
+          });
+        } else {
+          await interaction.followUp({
+            content: `⏰ **Account ${i + 1} timed out** — \`${acct.email}\`\nNo verification email received within 10 min. Try again.`,
+            ephemeral: true
+          });
+        }
+      }
+
+      const v = pendings.filter(a => a.verified).length;
+      await interaction.followUp({ content: `**Done!** ${v}/${amount} verified. Use \`/hellofresh list\` to see all.`, ephemeral: true });
+    } catch (e) {
+      await interaction.editReply({ content: `❌ Error: ${e.message}` });
+    }
+  });
+
+  console.log('[Bot] Command handlers registered (status, claim, hellofresh_create, hellofresh_list)');
+
+  bot.onCommand('hellofresh_list', async (interaction) => {
+    await interaction.deferReply({ ephemeral: true });
+    try {
+      const accounts = hellofresh.loadAccounts();
+      if (accounts.length === 0) {
+        await interaction.editReply({ content: 'No HelloFresh accounts saved yet. Use `/hellofresh create <amount>` to start.' });
+        return;
+      }
+      const verified = accounts.filter(a => a.verified).length;
+      const shown = accounts.slice(-10).reverse();
+      const fields = shown.map((a, i) => ({
+        name: `${i + 1}. ${a.email}${a.verified ? ' ✅' : ' ⏳'}`,
+        value: `Password: \`${a.password}\`\nCreated: <t:${Math.floor(new Date(a.createdAt).getTime() / 1000)}:R>`,
+        inline: false
+      }));
+      if (accounts.length > 10) fields.unshift({ name: `Showing last 10 of ${accounts.length}`, value: `${verified} verified • ${accounts.length - verified} pending`, inline: false });
+      await interaction.editReply({ embeds: [{
+        title: 'HelloFresh Accounts',
+        color: 0x4CEA4D,
+        description: `**${accounts.length} total** • ${verified} verified ✅ • ${accounts.length - verified} pending ⏳`,
+        fields,
+        footer: { text: 'HF Auto Account Creator' }
+      }]});
+    } catch (e) {
+      await interaction.editReply({ content: `❌ Error: ${e.message}` });
     }
   });
 
