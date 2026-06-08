@@ -94,10 +94,19 @@
     }
     .hero-arrow {
       display: flex;
-      justify-content: center;
-      color: rgba(255,215,0,0.3);
-      font-size: 1rem;
-      animation: fadeInUp 1s ease 2s both, bounceDown 2s ease-in-out 3s infinite;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: #FFD700;
+      opacity: 0.55;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      animation: fadeInUp 1s ease 2.2s both;
+    }
+    .hero-arrow i {
+      font-size: 0.9rem;
+      animation: bounceDown 2s ease-in-out infinite;
     }
     @keyframes bounceDown {
       0%, 100% { transform: translateY(0); opacity: 0.5; }
@@ -641,6 +650,7 @@
     </div>
     <div class="hero-arrow">
       <i class="fas fa-chevron-down"></i>
+      <span>How We Make You Money</span>
     </div>
   </div>
 </section>
@@ -680,10 +690,6 @@
   <div class="container">
     <h2>Choose Your Plan</h2>
     <p>Start earning with 24/7 casino monitoring. Bitcoin (BTC) only. All payments are final and non-refundable.</p>
-    <div class="section-scroll-hint">
-      <span>Choose Your Plan</span>
-      <i class="fas fa-chevron-down"></i>
-    </div>
     <div class="pricing-grid">
       <!-- Monthly -->
       <div class="pricing-card fade-in">
@@ -730,6 +736,10 @@
         </ul>
         <a href="#payment" class="btn btn-primary" onclick="event.preventDefault();openConfirmModal('Elite', '349.99')">Buy Now</a>
       </div>
+    </div>
+    <div class="section-scroll-hint" style="margin-top:48px">
+      <span>Choose Your Plan</span>
+      <i class="fas fa-chevron-down"></i>
     </div>
   </div>
 </section>
