@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Claim City Guides 🪝</title>
+  <title>Claim City Guides</title>
   <link rel="icon" href="../logo.svg" type="image/svg+xml">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -114,7 +114,7 @@
     }
     .guide-hero p {
       font-size: 1.15rem;
-      color: #b0b0b8;
+      color: #d0d0d8;
       max-width: 600px;
     }
 
@@ -126,6 +126,7 @@
       margin-bottom: 20px;
       padding-bottom: 10px;
       border-bottom: 1px solid #1f1f23;
+      color: #ffffff;
     }
     section h3 {
       font-size: 1.15rem;
@@ -133,8 +134,8 @@
       margin: 24px 0 10px;
       color: #FFD700;
     }
-    section p { color: #c0c0c4; margin-bottom: 14px; }
-    section ul, section ol { color: #c0c0c4; margin: 0 0 14px 24px; }
+    section p { color: #d0d0d8; margin-bottom: 14px; }
+    section ul, section ol { color: #d0d0d8; margin: 0 0 14px 24px; }
     section li { margin-bottom: 6px; }
     section a { color: #FFD700; text-decoration: none; }
     section a:hover { text-decoration: underline; }
@@ -155,7 +156,7 @@
       margin-bottom: 6px;
     }
     .card-title code { color: #FFD700; }
-    .card-desc { color: #b0b0b8; font-size: 0.9rem; }
+    .card-desc { color: #d0d0d8; font-size: 0.9rem; }
     .card .tag {
       display: inline-block;
       margin-top: 8px;
@@ -361,23 +362,23 @@
 <aside class="sidebar" id="sidebar">
   <a href="../" class="sidebar-logo">
     <img src="../logo.svg" alt="">
-    Claim City <span style="color:#f0efed;">Guides</span> 🪝
+    Claim City <span style="color:#f0efed;">Guides</span>
   </a>
   <nav>
     <div class="group-label">Getting Started</div>
-    <a href="#overview" onclick="closeSidebar()">📖 Overview</a>
-    <a href="#installation" onclick="closeSidebar()">⚙️ Installation</a>
-    <a href="#setup" onclick="closeSidebar()">🔧 Discord Setup</a>
+    <a href="#overview" onclick="closeSidebar()">📖 | Overview</a>
+    <a href="#installation" onclick="closeSidebar()">⚙️ | Installation</a>
+    <a href="#setup" onclick="closeSidebar()">🔧 | Discord Setup</a>
 
     <div class="group-label">Features</div>
-    <a href="#commands" onclick="closeSidebar()">⌨️ Commands</a>
-    <a href="#cookies" onclick="closeSidebar()">🍪 Cookie Claiming</a>
-    <a href="#streamer" onclick="closeSidebar()">🎥 Streamer Alerts</a>
-    <a href="#autoclaim" onclick="closeSidebar()">🤖 Auto-Claim</a>
+    <a href="#commands" onclick="closeSidebar()">⌨️ | Commands</a>
+    <a href="#cookies" onclick="closeSidebar()">🍪 | Cookie Claiming</a>
+    <a href="#streamer" onclick="closeSidebar()">🎥 | Streamer Alerts</a>
+    <a href="#autoclaim" onclick="closeSidebar()">🤖 | Auto-Claim</a>
 
     <div class="group-label">Support</div>
-    <a href="#faq" onclick="closeSidebar()">❓ FAQ</a>
-    <a href="#troubleshooting" onclick="closeSidebar()">🛠️ Troubleshooting</a>
+    <a href="#faq" onclick="closeSidebar()">❓ | FAQ</a>
+    <a href="#troubleshooting" onclick="closeSidebar()">🛠️ | Troubleshooting</a>
   </nav>
 </aside>
 
@@ -388,88 +389,87 @@
 
   <div class="guide-hero">
     <span class="badge">v2.0.0 — Claim City 2026 ©</span>
-    <h1>Claim City Guides 🪝</h1>
+    <h1>Claim City Guides</h1>
     <p>Everything you need to know about monitoring, claiming, and never missing a free SC opportunity.</p>
   </div>
 
   <section id="overview">
     <h2>📖 Overview</h2>
-    <p>Casino Bonus Monitor is a standalone Windows EXE that combines a Discord bot, Reddit RSS monitor, and auto-claimer into one background process. It scans sweepstakes casino subreddits for free SC and free spins offers, watches Kick.com streamer chats for dropped links, and can automatically claim daily bonuses from supported casinos — all delivered straight to your Discord server.</p>
+    <p>Welcome to Claim City 2026. This bot monitors Reddit for free SC and free spins offers, watches Kick streamer chats for dropped links, and claims your daily casino bonuses on autopilot — all delivered to your Discord server. One background process, zero daily effort.</p>
     <div class="card">
-      <div class="card-title">How it works</div>
-      <div class="card-desc">The bot polls Reddit RSS feeds every 10 seconds, filters for free SC / free spins keywords, extracts claim links from post descriptions, and posts them to your Discord channel. Streamer alerts connect via Kick's Pusher WebSocket to catch links in real-time chat. The auto-claimer runs on a cron schedule with your saved cookies.</div>
+      <div class="card-title">At a Glance</div>
+      <div class="card-desc">Free SC offers are pulled from casino subreddits every 10 seconds, filtered for real bonuses (no new casino promos or reviews), and posted to your monitor channel with clickable claim links. Streamer alerts arrive in real-time. Daily claims run automatically with your saved cookies.</div>
     </div>
   </section>
 
   <section id="installation">
     <h2>⚙️ Installation</h2>
-    <p>Download the installer from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a> and run it. The installer will guide you through Discord configuration.</p>
+    <p>After purchasing, download the installer from your purchase confirmation or the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a>. Run it and follow the setup wizard.</p>
     <h3>System Requirements</h3>
     <ul>
       <li>Windows 10 or later (64-bit)</li>
       <li>No Node.js, Python, or any runtime required</li>
-      <li>Internet connection (for Reddit API, Discord, Kick WebSocket)</li>
+      <li>Internet connection</li>
       <li>~100 MB disk space</li>
     </ul>
     <div class="step-list">
       <div class="step-item">
         <div class="step-num">1</div>
         <div class="step-body">
-          <p><strong>Download</strong> the latest <code>CasinoBot-Setup-v2.x.x.exe</code> from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">GitHub Releases</a> page.</p>
+          <p><strong>Download</strong> <code>CasinoBot-Setup-v2.x.x.exe</code> from the link you received after purchase or <a href="https://github.com/glowrius/casino-bonus-monitor/releases">GitHub Releases</a>.</p>
         </div>
       </div>
       <div class="step-item">
         <div class="step-num">2</div>
         <div class="step-body">
-          <p><strong>Run the installer.</strong> During setup you'll be asked for your Discord bot token and channel IDs. These can also be configured later in the <code>.env</code> file.</p>
+          <p><strong>Run the installer.</strong> During setup you'll enter your Discord bot token and channel IDs. These can also be changed later in the <code>.env</code> file.</p>
         </div>
       </div>
       <div class="step-item">
         <div class="step-num">3</div>
         <div class="step-body">
-          <p><strong>Launch</strong> CasinoBot.exe. The console will display module status and the bot will come online in your Discord server. Check with <code>/status</code>.</p>
+          <p><strong>Launch</strong> CasinoBot.exe. The console shows module status and the bot comes online in your Discord server. Type <code>/status</code> to confirm everything is running.</p>
         </div>
       </div>
     </div>
     <div class="tip">
       <div class="icon">&#9432;</div>
-      <p>Running the installer with the "Install certificate" option selected will prevent Windows SmartScreen warnings on launch.</p>
+      <p>Check "Install certificate" during setup to avoid Windows SmartScreen warnings on future launches.</p>
     </div>
   </section>
 
   <section id="setup">
     <h2>🔧 Discord Setup</h2>
-    <p>The bot uses Discord's modern slash commands. Here's what you need to set up.</p>
-    <h3>Channel Configuration</h3>
-    <p>The bot uses three channels in your Discord server:</p>
+    <p>The installer asks for your channel IDs. Here's what each channel is for.</p>
+    <h3>Channels</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0;">
       <div class="card">
         <div class="card-title"><code>#monitor-posts</code></div>
-        <div class="card-desc">All RSS-sourced free SC / free spins offers appear here. This is the main feed.</div>
+        <div class="card-desc">All free SC and free spins offers appear here as they're found — your main feed.</div>
         <span class="tag">MONITOR_CHANNEL_ID</span>
       </div>
       <div class="card">
         <div class="card-title"><code>#streamer-chat</code></div>
-        <div class="card-desc">Kick.com streamer link drops and chat alerts are delivered here.</div>
+        <div class="card-desc">Kick.com streamer link drops are delivered here in real-time.</div>
         <span class="tag">STREAMER_CHANNEL_ID</span>
       </div>
       <div class="card">
         <div class="card-title"><code>#daily-claims</code></div>
-        <div class="card-desc">Interactive panel with Scan / Claim buttons for daily casino bonuses.</div>
+        <div class="card-desc">Interactive panel with Scan and Claim buttons for daily casino bonuses.</div>
         <span class="tag">DAILY_CLAIMS_CHANNEL_ID</span>
       </div>
     </div>
-    <h3>Required Intents</h3>
-    <p>In your <a href="https://discord.com/developers/applications">Discord Developer Portal</a>, make sure your bot has these Privileged Gateway Intents enabled:</p>
+    <h3>Discord Bot Settings</h3>
+    <p>In your <a href="https://discord.com/developers/applications">Discord Developer Portal</a>, go to your bot's settings and enable these under the Bot page:</p>
     <ul>
-      <li><strong>Server Members Intent</strong> — required for channel member lookups</li>
-      <li><strong>Message Content Intent</strong> — required for reading message content (future use)</li>
+      <li><strong>Server Members Intent</strong></li>
+      <li><strong>Message Content Intent</strong></li>
     </ul>
   </section>
 
   <section id="commands">
     <h2>⌨️ Commands</h2>
-    <p>All commands are slash commands (type <code>/</code> in Discord) and registered instantly within your server.</p>
+    <p>All commands are slash commands. Type <code>/</code> in your Discord server and they'll appear.</p>
     <table class="cmd-table">
       <thead>
         <tr><th>Command</th><th>Description</th><th>Options</th></tr>
@@ -483,18 +483,18 @@
     </table>
     <div class="warn">
       <div class="icon">&#9888;</div>
-      <p>Session cookies contain your login credentials. Never share them with anyone. The bot stores them locally in <code>data/cookies/</code> and only uses them for claim requests.</p>
+      <p>Session cookies contain your login credentials. Never share them. The bot stores them locally and only uses them for claim requests.</p>
     </div>
   </section>
 
   <section id="cookies">
     <h2>🍪 Cookie-Based Daily Claiming</h2>
-    <p>To claim daily bonuses on your behalf, the bot needs your session cookies for each casino. Here's how to get them and use them.</p>
+    <p>To let the bot claim daily bonuses for you, it needs your login cookies. This is a one-time setup per casino. Here's how to grab them from your browser:</p>
     <h3>Getting Your Cookies</h3>
     <div class="step-list">
       <div class="step-item">
         <div class="step-num">1</div>
-        <div class="step-body"><p><strong>Log into</strong> the casino in your browser (Chrome, Firefox, Edge).</p></div>
+        <div class="step-body"><p><strong>Log in</strong> to the casino in your browser (Chrome, Firefox, Edge).</p></div>
       </div>
       <div class="step-item">
         <div class="step-num">2</div>
@@ -503,28 +503,27 @@
       <div class="step-item">
         <div class="step-num">3</div>
         <div class="step-body">
-          <p><strong>Copy the cookie string.</strong> Right-click any cookie → "Copy All" or use the <code>document.cookie</code> method:</p>
+          <p><strong>Copy the cookie string.</strong> Right-click any cookie → "Copy All" or paste this in the address bar and press Enter:</p>
           <pre>javascript:prompt('Cookies:', document.cookie);</pre>
-          <p>Paste this in the address bar, press Enter, and copy the full string.</p>
         </div>
       </div>
       <div class="step-item">
         <div class="step-num">4</div>
         <div class="step-body">
-          <p><strong>Save to the bot</strong> with the <code>/setcookie</code> command:</p>
+          <p><strong>Save to the bot</strong> using the <code>/setcookie</code> command:</p>
           <pre>/setcookie casino: "Chumba Casino" cookie: "sessionid=abc123; _gid=GA1.2.xyz"</pre>
         </div>
       </div>
     </div>
     <h3>Using the Daily Claims Panel</h3>
-    <p>Once cookies are saved, use the interactive panel in your <code>#daily-claims</code> channel:</p>
+    <p>Once your cookies are saved, head to your <code>#daily-claims</code> channel. The panel has three buttons:</p>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0;">
-      <div class="card" style="border-color: #3a5a3a;"><div class="card-title" style="color:#57F287;">Scan for Dailies</div><div class="card-desc">Checks each casino's claim page using your saved cookies and reports which bonuses are available to claim.</div></div>
-      <div class="card" style="border-color: #5a4a2a;"><div class="card-title" style="color:#FFD700;">Change License Key</div><div class="card-desc">Opens a modal to update your license key. Valid keys are checked against the local store.</div></div>
-      <div class="card" style="border-color: #3a5a3a;"><div class="card-title" style="color:#57F287;">Claim Available Daily SC</div><div class="card-desc">Submits claims for all casinos flagged as available during the last scan. Results posted in channel.</div></div>
+      <div class="card" style="border-color: #3a5a3a;"><div class="card-title" style="color:#57F287;">Scan for Dailies</div><div class="card-desc">Checks each casino and reports which bonuses are available to claim right now.</div></div>
+      <div class="card" style="border-color: #5a4a2a;"><div class="card-title" style="color:#FFD700;">Change License Key</div><div class="card-desc">Opens a window to enter or update your license key.</div></div>
+      <div class="card" style="border-color: #3a5a3a;"><div class="card-title" style="color:#57F287;">Claim Available Daily SC</div><div class="card-desc">Submits claims for all available casinos from the last scan. Results appear in the channel.</div></div>
     </div>
     <h3>Supported Casinos</h3>
-    <p>The bot includes profiles for 8 social casinos. Enable them in <code>data/claim_profiles.json</code>:</p>
+    <p>The bot supports 8 social casinos out of the box. Enable the ones you have accounts for in <code>data/claim_profiles.json</code>:</p>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 14px 0;">
       <div class="card" style="padding:12px 16px;"><div class="card-title" style="font-size:0.9rem;">Chumba Casino</div></div>
       <div class="card" style="padding:12px 16px;"><div class="card-title" style="font-size:0.9rem;">LuckyLand Slots</div></div>
@@ -539,9 +538,9 @@
 
   <section id="streamer">
     <h2>🎥 Streamer Alerts</h2>
-    <p>The bot can monitor Kick.com streamer chats in real-time via Pusher WebSocket. When a streamer or viewer drops a link in chat, it's forwarded to your streamer alerts channel.</p>
+    <p>Never miss a link drop during a live stream. The bot watches Kick.com streamer chats and forwards any links to your streamer channel.</p>
     <h3>How to Set Up</h3>
-    <p>Edit <code>data/streamer_profiles.json</code> and add streamers by their Kick.com username:</p>
+    <p>Edit <code>data/streamer_profiles.json</code> and add the streamers you want to follow:</p>
     <pre>[
   {
     "name": "My Streamer",
@@ -550,37 +549,28 @@
     "monitorLinks": true
   }
 ]</pre>
-    <p>Set <code>enabled: true</code> and the bot will connect to that streamer's chat room on startup.</p>
-    <h3>How It Works</h3>
-    <ul>
-      <li>Bot connects to Kick.com's Pusher WebSocket for each enabled streamer's chatroom</li>
-      <li>Monitors <code>ChatMessageEvent</code> for messages containing URLs</li>
-      <li>Deduplicates links using SHA-256 hash (no repeats within 24h)</li>
-      <li>Posts alerts to your configured <code>#streamer-chat</code> channel</li>
-      <li>Auto-reconnects with a 10-second delay on disconnect</li>
-    </ul>
+    <p>Set <code>enabled: true</code> and restart the bot — it will connect to that streamer's chat on startup.</p>
     <div class="tip">
       <div class="icon">&#9432;</div>
-      <p>Streamer alerts are entirely separate from Reddit RSS alerts. They have their own channel and their own dedup database.</p>
+      <p>Streamer alerts use their own channel and dedup system, separate from Reddit monitor posts.</p>
     </div>
   </section>
 
   <section id="autoclaim">
     <h2>🤖 Auto-Claim (Scheduled)</h2>
-    <p>Beyond the interactive panel, the bot can automatically claim daily bonuses on a schedule using <code>node-cron</code>.</p>
+    <p>Set it and forget it. In addition to the manual Claim button in the panel, the bot runs daily claims on a schedule so you never miss a bonus.</p>
     <h3>Schedule</h3>
-    <p>By default, auto-claim runs every day at <strong>10:00 AM</strong> (server local time). The schedule is defined per-casino profile and can be customized.</p>
+    <p>By default, auto-claim runs every day at <strong>10:00 AM</strong> (your server's local time). This is configurable per casino profile.</p>
     <h3>Claim History</h3>
-    <p>Each claim attempt is logged to <code>data/claim_history.json</code> with:</p>
+    <p>Every claim attempt is logged and includes the casino name, date, and whether it succeeded:</p>
     <ul>
       <li>Casino name</li>
       <li>Date and time of attempt</li>
       <li>Success/failure status</li>
-      <li>HTTP response code</li>
     </ul>
     <div class="warn">
       <div class="icon">&#9888;</div>
-      <p>Auto-claim requires valid session cookies. Without cookies, the bot will attempt the claim but it will fail (redirected to login). Use <code>/setcookie</code> or the interactive panel to configure each casino.</p>
+      <p>Auto-claim needs valid session cookies. Without them, the claim will fail (the casino redirects to login). Set up each casino with <code>/setcookie</code> or through the daily claims panel.</p>
     </div>
   </section>
 
@@ -588,31 +578,31 @@
     <h2>❓ FAQ</h2>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">Do I need to keep my PC running 24/7?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Yes, the bot runs as a background process on your Windows machine. It's lightweight (~100 MB RAM) and designed to run minimized. For 24/7 operation, consider running it on a cheap VPS or an old laptop.</p></div>
+      <div class="accordion-content"><p>Yes, the bot runs as a background process on your Windows machine. It's lightweight (~100 MB RAM) and designed to run minimized. For around-the-clock operation, a cheap VPS or an old laptop works great.</p></div>
     </div>
     <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">Why are my claims failing with no cookies?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>The claim URLs require an active login session. Without cookies, the casino server redirects to the login page. Use <code>/setcookie</code> or extract cookies via browser DevTools as described in the Cookie Claiming section above.</p></div>
+      <button class="accordion-btn" onclick="toggleAcc(this)">Why are my claims failing?<span class="arrow">&#9660;</span></button>
+      <div class="accordion-content"><p>Most likely missing cookies. The casino needs an active login session to accept a claim. Use <code>/setcookie</code> or the steps in the Cookie Claiming section above.</p></div>
     </div>
     <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">How often does the bot check for new Reddit posts?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Every 10 seconds by default. You can change this with the <code>POLL_INTERVAL_SECONDS</code> environment variable. Lower values check more frequently but may hit rate limits.</p></div>
+      <button class="accordion-btn" onclick="toggleAcc(this)">How often does the bot check for new posts?<span class="arrow">&#9660;</span></button>
+      <div class="accordion-content"><p>Every 10 seconds. The RSS feed is polled continuously, and new offers appear in your monitor channel within seconds of being posted.</p></div>
     </div>
     <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">What keywords does the RSS filter look for?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>The bot filters for free SC and free spins offers. It excludes posts about new casinos, flash sales, and casino reviews. The filter is keyword-based and runs on the RSS post title and description.</p></div>
+      <button class="accordion-btn" onclick="toggleAcc(this)">What kind of posts does the filter catch?<span class="arrow">&#9660;</span></button>
+      <div class="accordion-content"><p>The bot filters for free SC and free spins offers. It automatically filters out new casino announcements, flash sales, and reviews — so you only see real bonus opportunities.</p></div>
     </div>
     <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">Can I add my own casino profiles?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Yes! Edit <code>data/claim_profiles.json</code> and add a new entry with the casino name, claim URL, HTTP method, schedule, and a success indicator word or phrase that appears in the page after a successful claim.</p></div>
+      <button class="accordion-btn" onclick="toggleAcc(this)">Can I add more casino profiles?<span class="arrow">&#9660;</span></button>
+      <div class="accordion-content"><p>Yes. Open <code>data/claim_profiles.json</code> and add an entry with the casino name, claim URL, and a word that appears on the page after a successful claim.</p></div>
     </div>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I update the bot?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>The bot includes a built-in auto-updater. It checks GitHub Releases daily. When a new version is found, it downloads the EXE and swaps it. You can also manually download from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a> and run the installer over your existing installation.</p></div>
+      <div class="accordion-content"><p>The bot checks for updates automatically every 24 hours. When a new version is found, it downloads and swaps itself. You can also grab the latest installer from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a> and run it over your current installation — your settings are preserved.</p></div>
     </div>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I get a license key?<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>License keys are distributed to users. Check your server's <code>#daily-claims</code> channel and use the "Change License Key" button to enter or update your key. The key is validated against the local <code>license_keys.json</code> file.</p></div>
+      <div class="accordion-content"><p>License keys are provided to you after purchase. Go to your <code>#daily-claims</code> channel and click "Change License Key" to enter it. The key is stored locally and validated on use.</p></div>
     </div>
   </section>
 
@@ -621,36 +611,35 @@
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">Bot is online but not posting anything<span class="arrow">&#9660;</span></button>
       <div class="accordion-content">
-        <p>Check the bot's console window for errors. Common causes:</p>
+        <p>Check the bot's console window. Common causes:</p>
         <ul>
-          <li>Invalid channel IDs in <code>.env</code> — verify with <code>/status</code></li>
-          <li>Reddit RSS feed changed — check <code>REDDIT_RSS_URLS</code></li>
-          <li>Filter is too aggressive — check keyword filtering logic</li>
-          <li>Bot doesn't have permission to send messages in the target channel</li>
+          <li>Channel IDs in <code>.env</code> are wrong — check with <code>/status</code></li>
+          <li>The RSS filter isn't matching any current posts</li>
+          <li>The bot doesn't have permission to send messages in the target channel</li>
         </ul>
       </div>
     </div>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">Streamer alerts not working<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Ensure the streamer profile is enabled (<code>"enabled": true</code>) and the Kick username is correct. The bot will log connection status to the console. Verify <code>STREAMER_CHANNEL_ID</code> is set and points to a valid channel the bot can see.</p></div>
+      <div class="accordion-content"><p>Make sure <code>"enabled": true</code> in the streamer profile and the Kick username is correct. Check that <code>STREAMER_CHANNEL_ID</code> points to a channel the bot can see. The console will show connection status.</p></div>
     </div>
     <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">"application error" when using a command<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>Restart the bot. If the issue persists, check the console for stack traces. Common causes: missing <code>.env</code> variables, corrupted data files, or network timeouts.</p></div>
+      <button class="accordion-btn" onclick="toggleAcc(this)">"application error" when using commands<span class="arrow">&#9660;</span></button>
+      <div class="accordion-content"><p>Restart the bot. If it continues, check the console for the actual error — it will show a stack trace. Common causes: missing <code>.env</code> fields or network timeouts.</p></div>
     </div>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">Slash commands not showing up<span class="arrow">&#9660;</span></button>
-      <div class="accordion-content"><p>The bot registers commands per-guild (instant). If commands don't appear after restart, re-invite the bot with the <code>applications.commands</code> scope. You may need to type <code>/</code> and wait a few seconds for Discord to sync.</p></div>
+      <div class="accordion-content"><p>Commands register instantly on your server. If they don't appear, re-invite the bot with the <code>applications.commands</code> OAuth2 scope. Type <code>/</code> and wait a moment for Discord to sync.</p></div>
     </div>
     <div class="accordion">
       <button class="accordion-btn" onclick="toggleAcc(this)">Bot crashed or not responding<span class="arrow">&#9660;</span></button>
       <div class="accordion-content">
-        <p>Check the console for error messages. Common causes:</p>
+        <p>Check the console for clues. Common causes:</p>
         <ul>
-          <li>Discord API rate limiting — bot will auto-reconnect</li>
-          <li>Kick WebSocket disconnects — auto-reconnects after 10s</li>
-          <li>Invalid data in JSON config files — validate with a JSON checker</li>
-          <li>Out of memory — the bot uses ~100 MB under normal load</li>
+          <li>Discord API rate limiting — the bot reconnects automatically</li>
+          <li>Kick WebSocket disconnect — auto-reconnects after 10 seconds</li>
+          <li>Invalid JSON in config files — validate with a JSON checker</li>
+          <li>RAM usage — the bot uses ~100 MB under normal load</li>
         </ul>
       </div>
     </div>

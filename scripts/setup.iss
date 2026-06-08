@@ -46,7 +46,6 @@ Source: "..\build\CasinoBot.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
 Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
 Source: "..\src\data\license_keys.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
-Source: "..\src\data\seen_posts.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
 Source: "..\scripts\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\.env.example"; DestDir: "{app}"; DestName: ".env.example"; Flags: ignoreversion
 
