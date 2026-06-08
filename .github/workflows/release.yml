@@ -33,7 +33,9 @@ jobs:
       - name: Add icon
         shell: pwsh
         run: |
-          npx --yes rcedit@4.0.1 build/CasinoBot.exe --set-icon scripts/icon.ico `
+          npm install -g rcedit
+          $rcedit = "$(npm root -g)\rcedit\bin\rcedit-x64.exe"
+          & $rcedit build/CasinoBot.exe --set-icon scripts/icon.ico `
             --set-version-string "FileDescription" "Casino Bonus Monitor" `
             --set-version-string "ProductName" "Casino Bonus Monitor"
 
