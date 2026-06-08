@@ -12,6 +12,12 @@ function extractCasinoAndOffer(title) {
   return { casino: 'Casino', offer: title };
 }
 
+function extractSCAmount(title, description) {
+  const text = `${title} ${description}`;
+  const m = text.match(/(\d+)\s*(sc|sweepscash|free\s*sc)\b/i);
+  return m ? parseInt(m[1]) : null;
+}
+
 function extractClaimLink(description, fallbackLink) {
   const hrefMatch = description.match(/<a[^>]+href="([^"]+)"[^>]*>/i);
   if (hrefMatch) {
@@ -42,9 +48,8 @@ const CASINO_DOMAINS = {
 function getCasinoLogo(casinoName) {
   const name = casinoName.toLowerCase();
   for (const [key, domain] of Object.entries(CASINO_DOMAINS)) {
-    if (name.includes(key)) return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    if (name.includes(key)) return `https://logo.clearbit.com/${domain}?size=128`;
   }
-  if (name.includes('casino') || name.includes('sweep')) return `https://www.google.com/s2/favicons?domain=${name.replace(/[^a-z0-9]/g, '')}.com&sz=64`;
   return null;
 }
 
@@ -250,14 +255,16 @@ class DiscordBot {
     const claimLink = extractClaimLink(post.description, post.link);
     const logoUrl = getCasinoLogo(casino);
     const pubDate = post.pubDate ? new Date(post.pubDate) : new Date();
-    const description = claimLink && claimLink !== post.link
+    const scAmount = extractSCAmount(post.title, post.description);
+    const scSuffix = scAmount ? ` ⏐ \:${scAmount}SC` : '';
+    const description = (claimLink && claimLink !== post.link
       ? `**[Claim Here](${claimLink})**`
-      : '';
+      : '') + scSuffix;
     const embed = new EmbedBuilder()
       .setTitle(offer).setURL(claimLink || post.link).setDescription(description)
       .setColor(0x57F287).setFooter({ text: 'Claim City 2026 ©' }).setTimestamp(pubDate);
-    if (logoUrl) embed.setAuthor({ name: casino, iconURL: logoUrl });
-    else embed.setAuthor({ name: casino });
+    embed.setAuthor({ name: casino });
+    if (logoUrl) embed.setThumbnail(logoUrl);
     return embed;
   }
 
