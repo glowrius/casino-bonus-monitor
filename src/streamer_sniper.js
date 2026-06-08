@@ -5,7 +5,14 @@ const WebSocket = require('ws');
 const db = require('./db');
 const bot = require('./bot');
 
-const PROFILES_FILE = path.join(process.cwd(), 'src', 'data', 'streamer_profiles.json');
+const DATA_DIR = (() => {
+  const cwd = process.cwd();
+  for (const p of [path.join(cwd, 'src', 'data'), path.join(cwd, 'data')]) {
+    if (fs.existsSync(path.join(p, 'streamer_profiles.json'))) return p;
+  }
+  return path.join(cwd, 'src', 'data');
+})();
+const PROFILES_FILE = path.join(DATA_DIR, 'streamer_profiles.json');
 const PUSHER_APP_KEY = '32cbd69e4b950bf97679';
 const PUSHER_CLUSTER = 'us2';
 const PUSHER_URL = `wss://ws-${PUSHER_CLUSTER}.pusher.com/app/${PUSHER_APP_KEY}?protocol=7&client=js&version=8.4.0-0&flash=false`;

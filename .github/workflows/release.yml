@@ -57,5 +57,5 @@ jobs:
             build/CasinoBot.exe `
             build/CasinoDashboard.exe `
             build/CasinoBot-Setup-*.exe `
-            --title $env:GITHUB_REF_NAME `
-            --notes "Auto-built from commit $env:GITHUB_SHA"
+            --title "Claim City 2026 $env:GITHUB_REF_NAME" `
+            --generate-notes

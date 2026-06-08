@@ -5,8 +5,15 @@ const http = require('http');
 const cron = require('node-cron');
 const bot = require('./bot');
 
-const PROFILES_FILE = path.join(process.cwd(), 'src', 'data', 'claim_profiles.json');
-const HISTORY_FILE = path.join(process.cwd(), 'src', 'data', 'claim_history.json');
+const DATA_DIR = (() => {
+  const cwd = process.cwd();
+  for (const p of [path.join(cwd, 'src', 'data'), path.join(cwd, 'data')]) {
+    if (fs.existsSync(path.join(p, 'claim_profiles.json'))) return p;
+  }
+  return path.join(cwd, 'src', 'data');
+})();
+const PROFILES_FILE = path.join(DATA_DIR, 'claim_profiles.json');
+const HISTORY_FILE = path.join(DATA_DIR, 'claim_history.json');
 
 function loadProfiles() {
   try {

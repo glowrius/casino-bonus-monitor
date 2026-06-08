@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claim City 2026</title>
   <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #111114;
       color: #f0efed;
       line-height: 1.7;
@@ -28,16 +29,33 @@
     .hero::before {
       content: '';
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle at 50% 50%, rgba(255,215,0,0.03) 0%, transparent 60%);
+      width: 550px; height: 550px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255,215,0,0.06) 0%, transparent 65%);
+      top: -20%; left: -15%;
       pointer-events: none;
+      animation: orbFloat 16s ease-in-out infinite;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255,215,0,0.04) 0%, transparent 65%);
+      bottom: -15%; right: -10%;
+      pointer-events: none;
+      animation: orbFloat 14s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(60px, -50px) scale(1.12); }
+      50% { transform: translate(-40px, 40px) scale(0.88); }
+      75% { transform: translate(30px, -20px) scale(1.05); }
     }
     .hero-logo {
-      width: 72px; height: 72px;
-      margin-bottom: 20px;
+      width: 80px; height: 80px;
+      margin-bottom: 28px;
+      filter: drop-shadow(0 0 20px rgba(255,215,0,0.2));
     }
     .hero h1 {
       font-size: 3.2rem;
@@ -194,7 +212,6 @@
       transition: border-color .2s;
     }
     .channel-item:hover { border-color: #FFD700; }
-    .channel-item .emoji { font-size: 1.6rem; }
     .channel-item .name { color: #f0efed; font-weight: 600; margin-top: 10px; }
     .channel-item .desc { color: #d0d0d8; font-size: 0.85rem; margin-top: 4px; }
 
@@ -214,6 +231,23 @@
     }
     footer a { color: #FFD700; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* Scroll Animations (Vercel-style) */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .feature-card:nth-child(2) { transition-delay: 0.1s; }
+    .feature-card:nth-child(3) { transition-delay: 0.2s; }
+    .quick-start { transition-delay: 0.15s; }
+    .channel-item:nth-child(2) { transition-delay: 0.08s; }
+    .channel-item:nth-child(3) { transition-delay: 0.16s; }
+    .channel-item:nth-child(4) { transition-delay: 0.24s; }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -235,7 +269,7 @@
     <span class="hero-badge">v2.0.0 — Standalone EXE</span>
     <h1>Claim City 2026</h1>
     <p>One program. Every free SC opportunity. Real-time Discord delivery.</p>
-    <div class="btn-group">
+    <div class="btn-group fade-in">
       <a href="https://github.com/glowrius/casino-bonus-monitor/releases" class="btn btn-primary">Download Installer</a>
       <a href="guide/" class="btn btn-secondary">User Guide</a>
       <a href="https://github.com/glowrius/casino-bonus-monitor" class="btn btn-secondary">View on GitHub</a>
@@ -248,19 +282,19 @@
     <h2>What it does</h2>
     <p>One background process. Every free SC opportunity. Real-time Discord delivery.</p>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card fade-in">
         <div class="icon">🎰</div>
         <h3>Auto-Claim Daily SC</h3>
         <p>Automatically collects 24-hour free Sweepscash from all social casinos. Set it and forget it.</p>
         <span class="channel-tag">#daily-sc-claims</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card fade-in">
         <div class="icon">🔗</div>
         <h3>Free Spins &amp; SC Monitor</h3>
         <p>Scans Reddit sources in real-time for no-deposit bonuses, promo codes, and free spins.</p>
         <span class="channel-tag">#monitor-posts</span>
       </div>
-      <div class="feature-card">
+      <div class="feature-card fade-in">
         <div class="icon">🎯</div>
         <h3>Streamer Link Sniping</h3>
         <p>Watches Kick.com streamer chats for dropped links — giveaways, limited codes, bonus URLs.</p>
@@ -268,7 +302,7 @@
       </div>
     </div>
 
-    <div class="quick-start">
+    <div class="quick-start fade-in">
       <h3>Quick Start</h3>
       <div class="line"><span class="emoji">1</span><span class="label">Set your bot token &amp; channel IDs in <code>.env</code></span></div>
       <div class="line"><span class="emoji">2</span><span class="label">Run <code>CasinoBot.exe</code></span></div>
@@ -284,23 +318,23 @@
     <h2>Discord Channels</h2>
     <p>Every feature maps to its own channel for clean organization.</p>
     <div class="channel-list">
-      <div class="channel-item">
-        <div class="emoji">📬</div>
+      <div class="channel-item fade-in">
+        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
         <div class="name">#monitor-posts</div>
         <div class="desc">Real-time free SC offers</div>
       </div>
-      <div class="channel-item">
-        <div class="emoji">💰</div>
+      <div class="channel-item fade-in">
+        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
         <div class="name">#daily-claims</div>
         <div class="desc">Interactive claim panel</div>
       </div>
-      <div class="channel-item">
-        <div class="emoji">🎥</div>
+      <div class="channel-item fade-in">
+        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
         <div class="name">#streamer-chat</div>
         <div class="desc">Kick link sniping</div>
       </div>
-      <div class="channel-item">
-        <div class="emoji">📖</div>
+      <div class="channel-item fade-in">
+        <img src="https://cdn.simpleicons.org/discord/5865F2" width="28" height="28" alt="" style="margin-bottom:4px;">
         <div class="name">#guides</div>
         <div class="desc">User documentation</div>
       </div>
@@ -325,5 +359,11 @@
   </div>
 </footer>
 
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>

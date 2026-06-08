@@ -7,6 +7,9 @@
     <a href="https://github.com/glowrius/casino-bonus-monitor/releases">Download</a> ·
     <a href="#quick-start">Quick Start</a>
   </p>
+  <p>
+    <a href="https://github.com/glowrius/casino-bonus-monitor/releases/latest"><img src="https://img.shields.io/github/v/release/glowrius/casino-bonus-monitor?label=Download&color=FFD700&style=for-the-badge" alt="Download"></a>
+  </p>
   <br>
 </div>
 

@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Claim City Guides</title>
   <link rel="icon" href="../logo.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #111114;
       color: #f0efed;
       line-height: 1.7;
@@ -93,7 +94,37 @@
     }
 
     /* Hero */
-    .guide-hero { margin-bottom: 48px; }
+    .guide-hero {
+      margin-bottom: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .guide-hero::before {
+      content: '';
+      position: absolute;
+      width: 450px; height: 450px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255,215,0,0.06) 0%, transparent 65%);
+      top: -25%; left: -20%;
+      pointer-events: none;
+      animation: orbFloat 16s ease-in-out infinite;
+    }
+    .guide-hero::after {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(255,215,0,0.04) 0%, transparent 65%);
+      bottom: -20%; right: -15%;
+      pointer-events: none;
+      animation: orbFloat 14s ease-in-out infinite reverse;
+    }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(60px, -50px) scale(1.12); }
+      50% { transform: translate(-40px, 40px) scale(0.88); }
+      75% { transform: translate(30px, -20px) scale(1.05); }
+    }
     .guide-hero .badge {
       display: inline-block;
       background: #1c1c21;
@@ -351,6 +382,28 @@
       .cmd-table { font-size: 0.8rem; }
       .cmd-table td, .cmd-table th { padding: 8px 10px; }
     }
+
+    /* Scroll Animations (Vercel-style) */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card:nth-child(2) { transition-delay: 0.1s; }
+    .card:nth-child(3) { transition-delay: 0.2s; }
+    .step-item:nth-child(2) { transition-delay: 0.1s; }
+    .step-item:nth-child(3) { transition-delay: 0.2s; }
+    .accordion:nth-child(2) { transition-delay: 0.05s; }
+    .accordion:nth-child(3) { transition-delay: 0.1s; }
+    .accordion:nth-child(4) { transition-delay: 0.15s; }
+    .accordion:nth-child(5) { transition-delay: 0.2s; }
+    .accordion:nth-child(6) { transition-delay: 0.25s; }
+    .accordion:nth-child(7) { transition-delay: 0.3s; }
+    .accordion:nth-child(8) { transition-delay: 0.35s; }
   </style>
 </head>
 <body>
@@ -396,8 +449,7 @@
   <section id="overview">
     <h2>📖 Overview</h2>
     <p>Welcome to Claim City 2026. This bot monitors Reddit for free SC and free spins offers, watches Kick streamer chats for dropped links, and claims your daily casino bonuses on autopilot — all delivered to your Discord server. One background process, zero daily effort.</p>
-    <div class="card">
-      <div class="card-title">At a Glance</div>
+    <div class="card fade-in">
       <div class="card-desc">Free SC offers are pulled from casino subreddits every 10 seconds, filtered for real bonuses (no new casino promos or reviews), and posted to your monitor channel with clickable claim links. Streamer alerts arrive in real-time. Daily claims run automatically with your saved cookies.</div>
     </div>
   </section>
@@ -413,19 +465,19 @@
       <li>~100 MB disk space</li>
     </ul>
     <div class="step-list">
-      <div class="step-item">
+      <div class="step-item fade-in">
         <div class="step-num">1</div>
         <div class="step-body">
           <p><strong>Download</strong> <code>CasinoBot-Setup-v2.x.x.exe</code> from the link you received after purchase or <a href="https://github.com/glowrius/casino-bonus-monitor/releases">GitHub Releases</a>.</p>
         </div>
       </div>
-      <div class="step-item">
+      <div class="step-item fade-in">
         <div class="step-num">2</div>
         <div class="step-body">
           <p><strong>Run the installer.</strong> During setup you'll enter your Discord bot token and channel IDs. These can also be changed later in the <code>.env</code> file.</p>
         </div>
       </div>
-      <div class="step-item">
+      <div class="step-item fade-in">
         <div class="step-num">3</div>
         <div class="step-body">
           <p><strong>Launch</strong> CasinoBot.exe. The console shows module status and the bot comes online in your Discord server. Type <code>/status</code> to confirm everything is running.</p>
@@ -443,18 +495,18 @@
     <p>The installer asks for your channel IDs. Here's what each channel is for.</p>
     <h3>Channels</h3>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 14px 0;">
-      <div class="card">
-        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1493303378065883237" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="" style="vertical-align:middle;margin-right:6px;"><code>#monitor-posts</code></a></div>
+      <div class="card fade-in">
+        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1493303378065883237" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="20" height="20" alt="" style="vertical-align:middle;margin-right:6px;"><code>#monitor-posts</code></a></div>
         <div class="card-desc">All free SC and free spins offers appear here as they're found — your main feed.</div>
         <span class="tag">MONITOR_CHANNEL_ID</span>
       </div>
-      <div class="card">
-        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1498512166167380039" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="" style="vertical-align:middle;margin-right:6px;"><code>#streamer-chat</code></a></div>
+      <div class="card fade-in">
+        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1498512166167380039" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="20" height="20" alt="" style="vertical-align:middle;margin-right:6px;"><code>#streamer-chat</code></a></div>
         <div class="card-desc">Kick.com streamer link drops are delivered here in real-time.</div>
         <span class="tag">STREAMER_CHANNEL_ID</span>
       </div>
-      <div class="card">
-        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1493303773471445073" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="16" height="16" alt="" style="vertical-align:middle;margin-right:6px;"><code>#daily-claims</code></a></div>
+      <div class="card fade-in">
+        <div class="card-title"><a href="https://discord.com/channels/1484550021176102953/1493303773471445073" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;"><img src="https://cdn.simpleicons.org/discord/5865F2" width="20" height="20" alt="" style="vertical-align:middle;margin-right:6px;"><code>#daily-claims</code></a></div>
         <div class="card-desc">Interactive panel with Scan and Claim buttons for daily casino bonuses.</div>
         <span class="tag">DAILY_CLAIMS_CHANNEL_ID</span>
       </div>
@@ -470,7 +522,7 @@
   <section id="commands">
     <h2>⌨️ Commands</h2>
     <p>All commands are slash commands. Type <code>/</code> in your Discord server and they'll appear.</p>
-    <table class="cmd-table">
+    <table class="cmd-table fade-in">
       <thead>
         <tr><th>Command</th><th>Description</th><th>Options</th></tr>
       </thead>
@@ -576,31 +628,30 @@
 
   <section id="faq">
     <h2>❓ FAQ</h2>
-    <div class="accordion">
-      <button class="accordion-btn" onclick="toggleAcc(this)">Do I need to keep my PC running 24/7?<span class="arrow">&#9660;</span></button>
+    <div class="accordion fade-in"><span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Yes, the bot runs as a background process on your Windows machine. It's lightweight (~100 MB RAM) and designed to run minimized. For around-the-clock operation, a cheap VPS or an old laptop works great.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Why are my claims failing?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Most likely missing cookies. The casino needs an active login session to accept a claim. Use <code>/setcookie</code> or the steps in the Cookie Claiming section above.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">How often does the bot check for new posts?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Every 10 seconds. The RSS feed is polled continuously, and new offers appear in your monitor channel within seconds of being posted.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">What kind of posts does the filter catch?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>The bot filters for free SC and free spins offers. It automatically filters out new casino announcements, flash sales, and reviews — so you only see real bonus opportunities.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Can I add more casino profiles?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Yes. Open <code>data/claim_profiles.json</code> and add an entry with the casino name, claim URL, and a word that appears on the page after a successful claim.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I update the bot?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>The bot checks for updates automatically every 24 hours. When a new version is found, it downloads and swaps itself. You can also grab the latest installer from the <a href="https://github.com/glowrius/casino-bonus-monitor/releases">releases page</a> and run it over your current installation — your settings are preserved.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">How do I get a license key?<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>License keys are provided to you after purchase. Go to your <code>#daily-claims</code> channel and click "Change License Key" to enter it. The key is stored locally and validated on use.</p></div>
     </div>
@@ -608,7 +659,7 @@
 
   <section id="troubleshooting">
     <h2>🛠️ Troubleshooting</h2>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Bot is online but not posting anything<span class="arrow">&#9660;</span></button>
       <div class="accordion-content">
         <p>Check the bot's console window. Common causes:</p>
@@ -619,19 +670,19 @@
         </ul>
       </div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Streamer alerts not working<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Make sure <code>"enabled": true</code> in the streamer profile and the Kick username is correct. Check that <code>STREAMER_CHANNEL_ID</code> points to a channel the bot can see. The console will show connection status.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">"application error" when using commands<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Restart the bot. If it continues, check the console for the actual error — it will show a stack trace. Common causes: missing <code>.env</code> fields or network timeouts.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Slash commands not showing up<span class="arrow">&#9660;</span></button>
       <div class="accordion-content"><p>Commands register instantly on your server. If they don't appear, re-invite the bot with the <code>applications.commands</code> OAuth2 scope. Type <code>/</code> and wait a moment for Discord to sync.</p></div>
     </div>
-    <div class="accordion">
+    <div class="accordion fade-in">
       <button class="accordion-btn" onclick="toggleAcc(this)">Bot crashed or not responding<span class="arrow">&#9660;</span></button>
       <div class="accordion-content">
         <p>Check the console for clues. Common causes:</p>
@@ -681,6 +732,11 @@ const observer = new IntersectionObserver((entries) => {
 }, { rootMargin: '-80px 0px -60% 0px' });
 sections.forEach(s => observer.observe(s));
 </script>
-
+<script>
+const fadeObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
+</script>
 </body>
 </html>
