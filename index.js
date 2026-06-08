@@ -1,5 +1,10 @@
 require('dotenv').config();
 
+if (process.argv.includes('--update')) {
+  try { const u = require('./updater'); u.runUpdateCheck(false).then(() => process.exit(0)); } catch(e) { console.log('Updater unavailable:', e.message); process.exit(1); }
+  return;
+}
+
 const db = require('./db');
 const redditMonitor = require('./reddit_monitor');
 const autoClaim = require('./auto_claim');
@@ -16,6 +21,7 @@ console.log('── Modules ─────────────────�
 console.log(`  RSS Monitor:    active (${POLL_INTERVAL}s interval)`);
 console.log(`  Auto-Claim:     loaded (${require('./data/claim_profiles.json').filter(p => p.enabled).length} casinos enabled)`);
 console.log(`  Streamer Sniper: loaded`);
+console.log(`  Updater:        enabled (auto-checks daily)`);
 console.log('');
 console.log('── Discord ──────────────────────────────');
 console.log(`  CMD Channel:     <#${process.env.CMD_CHANNEL_ID || 'not set'}>`);
@@ -28,6 +34,7 @@ console.log('');
 redditMonitor.start(POLL_INTERVAL);
 autoClaim.start();
 streamerSniper.start();
+try { require('./updater').startAutoCheck(); } catch(e) { console.log('Updater unavailable:', e.message); }
 
 process.on('SIGINT', () => {
   console.log('\nShutting down...');
