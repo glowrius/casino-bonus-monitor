@@ -269,17 +269,25 @@ class DiscordBot {
   async sendDailyClaimsPanel() {
     if (!this.dailyClaimsChannel) return;
     const row = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId('scan_dailies').setLabel('Scan for Dailies').setStyle(ButtonStyle.Primary),
-      new ButtonBuilder().setCustomId('change_license_key').setLabel('Change License Key').setStyle(ButtonStyle.Secondary),
-      new ButtonBuilder().setCustomId('claim_dailies').setLabel('Claim Available Daily SC').setStyle(ButtonStyle.Success),
+      new ButtonBuilder().setCustomId('scan_dailies').setLabel('🔍 Scan for Dailies').setStyle(ButtonStyle.Primary),
+      new ButtonBuilder().setCustomId('change_license_key').setLabel('🔑 Change License Key').setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder().setCustomId('claim_dailies').setLabel('💰 │ Claim Available Daily SC').setStyle(ButtonStyle.Success),
     );
     const embed = new EmbedBuilder()
       .setTitle('🎰 Daily Claims Panel').setColor(0x57F287).setTimestamp()
-      .setDescription('Use the buttons below to scan for available daily bonuses, manage your license key, or claim available Sweepscash.')
+      .setDescription('═══════════════════════════════════════\n' +
+        'Manage and claim daily Sweepscash bonuses from all supported casinos in one place.\n' +
+        '═══════════════════════════════════════\n\n' +
+        '**How it works:**\n' +
+        '1. Save your casino cookies using `/setcookie`\n' +
+        '2. Click **🔍 Scan for Dailies** to check which casinos have bonuses ready\n' +
+        '3. Click **💰 │ Claim Available Daily SC** to claim all available bonuses at once\n' +
+        '4. Use **🔑 Change License Key** to update your key whenever needed\n\n' +
+        '> All claim attempts are logged. Cookies are stored locally and never shared.')
       .addFields(
-        { name: '🔍 Scan for Dailies', value: 'Checks each casino with saved cookies and reports available bonuses', inline: false },
-        { name: '🔑 Change License Key', value: 'Opens a form to enter or update your license key', inline: false },
-        { name: '💰 Claim Available Daily SC', value: 'Claims bonuses for all casinos flagged as available', inline: false },
+        { name: '🔍 Scan for Dailies', value: 'Visits each enabled casino\'s claim page using your saved session cookies and reports which daily bonuses are currently available. Scan results show available, already-claimed, and error statuses per casino.', inline: false },
+        { name: '🔑 Change License Key', value: 'Opens a secure input form to enter or update your license key. The key is validated against the local license store before being saved to your settings.', inline: false },
+        { name: '💰 │ Claim Available Daily SC', value: 'Submits claim requests for every casino flagged as available. Each attempt sends the claim with your session cookies and reports whether it succeeded or failed, including HTTP status codes.', inline: false },
       );
     await this.dailyClaimsChannel.send({ embeds: [embed], components: [row] }).catch(() => {});
   }
