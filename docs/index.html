@@ -92,29 +92,37 @@
       justify-content: center;
       flex-wrap: wrap;
     }
-    .scroll-indicator {
+    .hero-arrow {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      color: rgba(255,215,0,0.35);
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      animation: fadeInUp 1s ease 1.8s both;
-    }
-    .scroll-indicator i {
-      font-size: 0.9rem;
-      animation: bounceDown 2s ease-in-out infinite;
+      justify-content: center;
+      color: rgba(255,215,0,0.3);
+      font-size: 1rem;
+      animation: fadeInUp 1s ease 2s both, bounceDown 2s ease-in-out 3s infinite;
     }
     @keyframes bounceDown {
       0%, 100% { transform: translateY(0); opacity: 0.5; }
-      50% { transform: translateY(6px); opacity: 1; }
+      50% { transform: translateY(5px); opacity: 1; }
     }
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    .section-scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 36px 0 24px;
+      color: #FFD700;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+    .section-scroll-hint i {
+      font-size: 0.9rem;
+      animation: bounceDown 2s ease-in-out infinite;
     }
     .hero-brand-text { text-align: left; }
     .hero-tagline {
@@ -631,8 +639,7 @@
       <a href="#pricing" class="btn btn-primary btn-lg" onclick="event.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth',block:'start'})"><i class="fas fa-crown"></i> Get Access</a>
       <a href="https://discord.gg/PXxb9fDWrp" class="btn btn-secondary btn-lg"><i class="fab fa-discord"></i> Join our Free Community</a>
     </div>
-    <div class="scroll-indicator">
-      <span>View Plans</span>
+    <div class="hero-arrow">
       <i class="fas fa-chevron-down"></i>
     </div>
   </div>
@@ -643,6 +650,10 @@
   <div class="container">
     <h2>How You Profit</h2>
     <p>Turn free casino bonuses into real money with 24/7 automated monitoring.</p>
+    <div class="section-scroll-hint">
+      <span>View Plans Below</span>
+      <i class="fas fa-chevron-down"></i>
+    </div>
     <div class="benefits-grid">
       <div class="benefit-card fade-in">
         <div class="icon">🔔</div>
