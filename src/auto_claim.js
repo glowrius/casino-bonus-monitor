@@ -3,9 +3,10 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 const cron = require('node-cron');
+const bot = require('./bot');
 
-const PROFILES_FILE = path.join(__dirname, 'data', 'claim_profiles.json');
-const HISTORY_FILE = path.join(__dirname, 'data', 'claim_history.json');
+const PROFILES_FILE = path.join(process.cwd(), 'src', 'data', 'claim_profiles.json');
+const HISTORY_FILE = path.join(process.cwd(), 'src', 'data', 'claim_history.json');
 
 function loadProfiles() {
   try {
@@ -85,41 +86,7 @@ async function httpClaim(profile) {
 }
 
 async function sendDiscordNotification(results) {
-  const webhook = process.env.DISCORD_WEBHOOK_MONITOR;
-  if (!webhook) return;
-
-  const successCount = results.filter(r => r.success).length;
-  const failCount = results.filter(r => !r.success).length;
-
-  const embed = {
-    embeds: [{
-      title: '📋 Daily Auto-Claim Results',
-      color: failCount > 0 ? 16759808 : 5763719,
-      timestamp: new Date().toISOString(),
-      fields: [
-        { name: '✅ Successful', value: `${successCount} / ${results.length}`, inline: true },
-        { name: '❌ Failed', value: `${failCount} / ${results.length}`, inline: true }
-      ]
-    }]
-  };
-
-  for (const r of results.slice(0, 5)) {
-    embed.embeds[0].fields.push({
-      name: `${r.success ? '✅' : '❌'} ${r.casino}`,
-      value: r.success ? 'Claimed successfully' : `Failed (${r.status || r.error})`,
-      inline: false
-    });
-  }
-
-  const data = JSON.stringify(embed);
-  const u = new URL(webhook);
-  const client = webhook.startsWith('https') ? https : http;
-  const req = client.request(webhook, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
-  });
-  req.write(data);
-  req.end();
+  bot.sendClaimResults(results);
 }
 
 async function runDailyClaim() {

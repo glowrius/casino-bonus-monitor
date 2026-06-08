@@ -27,13 +27,14 @@ jobs:
       - name: Build EXE
         run: |
           cd src
-          npx @yao-pkg/pkg -t node22-win-x64 index.js -o ..\CasinoBot.exe
+          npx @yao-pkg/pkg -t node22-win-x64 index.js -o ..\build\CasinoBot.exe
+          mkdir ..\build -Force | Out-Null
 
       - name: Add icon
         shell: pwsh
         run: |
           npm install -g rcedit
-          rcedit CasinoBot.exe --set-icon icon.ico `
+          rcedit build\CasinoBot.exe --set-icon scripts\icon.ico `
             --set-version-string "FileDescription" "Casino Bonus Monitor" `
             --set-version-string "ProductName" "Casino Bonus Monitor"
 
@@ -48,7 +49,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create $env:GITHUB_REF_NAME `
-            CasinoBot.exe `
+            build/CasinoBot.exe `
             build/CasinoBot-Setup-*.exe `
             --title $env:GITHUB_REF_NAME `
             --notes "Auto-built from commit $env:GITHUB_SHA"

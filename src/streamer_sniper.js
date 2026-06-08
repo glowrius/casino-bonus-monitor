@@ -3,8 +3,9 @@ const path = require('path');
 const https = require('https');
 const WebSocket = require('ws');
 const db = require('./db');
+const bot = require('./bot');
 
-const PROFILES_FILE = path.join(__dirname, 'data', 'streamer_profiles.json');
+const PROFILES_FILE = path.join(process.cwd(), 'src', 'data', 'streamer_profiles.json');
 const PUSHER_APP_KEY = '32cbd69e4b950bf97679';
 const PUSHER_CLUSTER = 'us2';
 const PUSHER_URL = `wss://ws-${PUSHER_CLUSTER}.pusher.com/app/${PUSHER_APP_KEY}?protocol=7&client=js&version=8.4.0-0&flash=false`;
@@ -91,7 +92,6 @@ function connectToStreamer(profile) {
         const payload = JSON.parse(msg.data);
         const content = payload.content || '';
         const sender = payload.sender?.username || 'unknown';
-        const rolePing = process.env.MONITOR_PING_ROLE_ID;
 
         const urls = extractUrls(content);
         if (urls.length > 0) {
@@ -100,37 +100,7 @@ function connectToStreamer(profile) {
           urls.forEach(url => {
             if (db.isPostSeen(url, url)) return;
             db.markPostSeen(url, url, `kick_${kickUsername}`);
-
-            const webhook = process.env.DISCORD_WEBHOOK_MONITOR;
-            if (webhook) {
-              const embed = {
-                content: rolePing ? `<@&${rolePing}>` : '',
-                embeds: [{
-                  title: `🎯 Streamer Link - ${name}`,
-                  url: url,
-                  color: 16759808,
-                  fields: [
-                    { name: 'Streamer', value: name, inline: true },
-                    { name: 'Sender', value: sender, inline: true },
-                    { name: 'Link', value: `[Click here](${url})`, inline: false }
-                  ],
-                  timestamp: new Date().toISOString()
-                }]
-              };
-
-              const data = JSON.stringify(embed);
-              const u = new URL(webhook);
-              const client = webhook.startsWith('https') ? https : http;
-              const req = client.request(webhook, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Content-Length': Buffer.byteLength(data)
-                }
-              });
-              req.write(data);
-              req.end();
-            }
+            bot.sendStreamerAlert(name, url, sender);
           });
         }
       }

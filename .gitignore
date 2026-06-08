@@ -2,6 +2,7 @@ node_modules/
 .env
 build/
 *.log
+CasinoBot.exe
 src/node_modules/
 src/.env
 src/data/seen_posts.json

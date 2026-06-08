@@ -20,7 +20,7 @@ if (-not $Token) {
   exit 1
 }
 
-$exePath = "$projectRoot\CasinoBot.exe"
+$exePath = "$projectRoot\build\CasinoBot.exe"
 $setupPath = Get-ChildItem "$projectRoot\build\CasinoBot-Setup-$Version.exe" -ErrorAction SilentlyContinue
 
 if (-not (Test-Path $exePath)) {

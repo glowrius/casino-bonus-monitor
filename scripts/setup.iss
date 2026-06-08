@@ -42,10 +42,10 @@ Name: "desktopicon"; Description: "Create a &desktop shortcut"; GroupDescription
 Name: "installcert"; Description: "Install code signing certificate (stops Windows security warnings)"; GroupDescription: "Security:"; Flags: checkedonce
 
 [Files]
-Source: "..\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "..\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\CasinoBot.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\src\data\claim_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
+Source: "..\src\data\streamer_profiles.json"; DestDir: "{app}\src\data"; Flags: ignoreversion
+Source: "..\scripts\CasinoBot.cer"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\src\.env.example"; DestDir: "{app}"; DestName: ".env.example"; Flags: ignoreversion
 
 [Icons]
@@ -63,43 +63,47 @@ Filename: "certutil"; Parameters: "-delstore TrustedPublisher ""{app}\CasinoBot.
 [Code]
 
 var
-  WebhookPage: TInputQueryWizardPage;
-  CmdWebhook: String;
-  MonitorWebhook: String;
+  ConfigPage: TInputQueryWizardPage;
+  BotToken: String;
+  CmdChannelId: String;
+  MonitorChannelId: String;
 
 procedure InitializeWizard;
 begin
-  WebhookPage := CreateInputQueryPage(
+  ConfigPage := CreateInputQueryPage(
     wpSelectTasks,
-    'Discord Webhook Configuration',
-    'Paste your Discord webhook URLs below',
-    'You can find these in your Discord server settings under Integrations → Webhooks. ' +
+    'Discord Bot Configuration',
+    'Paste your Discord bot token and channel IDs below',
+    'Get your bot token from https://discord.com/developers/applications. ' +
+    'Channel IDs are found by right-clicking a channel → Copy ID (Developer Mode must be enabled). ' +
     'Leave blank to configure later in the .env file.'
   );
 
-  WebhookPage.Add('CMD Webhook URL (startup flood → #cmd):', False);
-  WebhookPage.Add('Monitor Webhook URL (live posts → #monitor-posts):', False);
+  ConfigPage.Add('Bot Token:', False);
+  ConfigPage.Add('Monitor Channel ID (#monitor-posts):', False);
+  ConfigPage.Add('CMD Channel ID (#cmd):', False);
 
-  WebhookPage.Values[0] := GetPreviousData('CmdWebhook', '');
-  WebhookPage.Values[1] := GetPreviousData('MonitorWebhook', '');
+  ConfigPage.Values[0] := GetPreviousData('BotToken', '');
+  ConfigPage.Values[1] := GetPreviousData('MonitorChannelId', '');
+  ConfigPage.Values[2] := GetPreviousData('CmdChannelId', '');
 end;
 
 procedure RegisterPreviousData(PreviousDataKey: Integer);
 begin
-  SetPreviousData(PreviousDataKey, 'CmdWebhook', WebhookPage.Values[0]);
-  SetPreviousData(PreviousDataKey, 'MonitorWebhook', WebhookPage.Values[1]);
+  SetPreviousData(PreviousDataKey, 'BotToken', ConfigPage.Values[0]);
+  SetPreviousData(PreviousDataKey, 'MonitorChannelId', ConfigPage.Values[1]);
+  SetPreviousData(PreviousDataKey, 'CmdChannelId', ConfigPage.Values[2]);
 end;
 
 function ShouldWriteEnv: Boolean;
 begin
-  Result := (WebhookPage.Values[0] <> '') or (WebhookPage.Values[1] <> '');
+  Result := (ConfigPage.Values[0] <> '') or (ConfigPage.Values[1] <> '') or (ConfigPage.Values[2] <> '');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
 var
   EnvFile: String;
   Lines: TArrayOfString;
-  I: Integer;
 begin
   if CurStep = ssPostInstall then
   begin
@@ -107,12 +111,13 @@ begin
     begin
       EnvFile := ExpandConstant('{app}\.env');
 
-      SetArrayLength(Lines, 5);
+      SetArrayLength(Lines, 6);
       Lines[0] := '# Casino Bonus Monitor Configuration';
-      Lines[1] := 'DISCORD_WEBHOOK_CMD=' + WebhookPage.Values[0];
-      Lines[2] := 'DISCORD_WEBHOOK_MONITOR=' + WebhookPage.Values[1];
-      Lines[3] := 'CMD_CHANNEL_ID=';
-      Lines[4] := 'MONITOR_CHANNEL_ID=';
+      Lines[1] := 'DISCORD_BOT_TOKEN=' + ConfigPage.Values[0];
+      Lines[2] := 'MONITOR_CHANNEL_ID=' + ConfigPage.Values[1];
+      Lines[3] := 'CMD_CHANNEL_ID=' + ConfigPage.Values[2];
+      Lines[4] := 'REDDIT_RSS_URLS=https://www.reddit.com/r/sweepstakesidehustle/.rss';
+      Lines[5] := 'POLL_INTERVAL_SECONDS=10';
 
       if not SaveStringsToFile(EnvFile, Lines, False) then
       begin

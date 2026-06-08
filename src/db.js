@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const SEEN_POSTS_FILE = path.join(DATA_DIR, 'seen_posts.json');
 const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
 
