@@ -18,11 +18,16 @@
       line-height: 1.7;
       font-size: 17px;
     }
-    .container { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 0 32px; width: 100%; }
+    .hero .container { display: flex; flex-direction: column; align-items: center; }
 
     /* Hero */
     .hero {
-      padding: 100px 0 70px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
       text-align: center;
       background: linear-gradient(180deg, #1c1c21 0%, #111114 100%);
       position: relative;
@@ -64,8 +69,8 @@
       align-items: flex-start;
       justify-content: center;
       gap: 32px;
-      margin-bottom: 24px;
     }
+    .hero-cta { margin-top: 56px; }
     .hero-brand-text { text-align: left; }
     .hero-brand-text h1 {
       font-size: 3rem;
@@ -85,7 +90,6 @@
     }
 
     /* Buttons */
-    .btn-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
     .btn {
       display: inline-flex;
       align-items: center;
@@ -114,7 +118,7 @@
     .btn-secondary:hover { border-color: #FFD700; color: #FFD700; transform: translateY(-2px); }
 
     /* Sections */
-    section { padding: 90px 0; }
+    section { padding: 100px 0; }
     section h2 {
       text-align: center;
       font-size: 2.2rem;
@@ -134,7 +138,7 @@
     .benefits-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 28px;
+      gap: 32px;
     }
     .benefit-card {
       background: #1c1c21;
@@ -155,14 +159,14 @@
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 28px;
+      gap: 32px;
       align-items: start;
     }
     .pricing-card {
       background: #1c1c21;
       border: 1px solid #2a2a2e;
       border-radius: 16px;
-      padding: 40px 32px;
+      padding: 44px 36px;
       text-align: center;
       transition: all .25s ease;
       position: relative;
@@ -272,7 +276,7 @@
       background: #1c1c21;
       border: 1px solid #2a2a2e;
       border-radius: 16px;
-      padding: 28px 24px;
+      padding: 32px 28px;
       text-align: center;
       transition: all .2s ease;
     }
@@ -355,15 +359,14 @@
     /* Responsive */
     @media (max-width: 768px) {
       body { font-size: 15px; }
-      .hero { padding: 60px 0 40px; }
+      .hero { min-height: 100vh; padding: 60px 0 40px; }
       .hero-brand { flex-direction: column; align-items: center; gap: 16px; }
       .hero-brand-text { text-align: center; }
       .hero-brand-text h1 { font-size: 2.2rem; }
       .hero-logo { width: 80px; height: 80px; }
-      .btn-group { flex-direction: column; align-items: stretch; }
       .btn { justify-content: center; }
       .btn-lg { padding: 16px 32px; }
-      section { padding: 60px 0; }
+      section { padding: 64px 0; }
       .pricing-card.popular { transform: none; }
       .pricing-card.popular:hover { transform: translateY(-6px); }
       .wallet-grid { grid-template-columns: 1fr; }
@@ -382,7 +385,7 @@
         <p>Premium sweepstakes monitoring with real-time Discord alerts.</p>
       </div>
     </div>
-    <a href="#pricing" class="btn btn-primary btn-lg"><i class="fas fa-crown"></i> Get Access</a>
+      <a href="#pricing" class="btn btn-primary btn-lg hero-cta" onclick="event.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth',block:'start'})"><i class="fas fa-crown"></i> Get Access</a>
   </div>
 </section>
 
@@ -436,7 +439,7 @@
       <div class="pricing-card popular fade-in">
         <span class="pricing-badge">Best Value</span>
         <h3>Lifetime</h3>
-        <div class="price">$5,000</div>
+        <div class="price">$4,999.99</div>
         <div class="price-sub">BTC · one-time</div>
         <ul class="features">
           <li><i class="fas fa-check"></i> Everything in Monthly</li>
@@ -549,7 +552,7 @@ document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 function copyAddress(btn, id) {
   const card = btn.closest('.wallet-card');
   const addrEl = card.querySelector('.wallet-address');
-  const addr = addrEl.textContent.replace('BTC Address', '').replace('ETH/USDT Address', '').replace('TRC20 Address', '').replace('SOL Address', '').trim();
+  const addr = addrEl.textContent.replace('BTC Address', '').trim();
   navigator.clipboard.writeText(addr).then(() => {
     const msg = document.getElementById('copied-' + id);
     msg.classList.add('show');
@@ -565,7 +568,7 @@ function toggleQr(id) {
   }
   const card = qrEl.closest('.wallet-card');
   const addrEl = card.querySelector('.wallet-address');
-  const addr = addrEl.textContent.replace('BTC Address', '').replace('ETH/USDT Address', '').replace('TRC20 Address', '').replace('SOL Address', '').trim();
+  const addr = addrEl.textContent.replace('BTC Address', '').trim();
   qrEl.innerHTML = '';
   new QRCode(qrEl, { text: addr, width: 120, height: 120, colorDark: '#000000', colorLight: '#ffffff' });
   qrEl.classList.add('show');
