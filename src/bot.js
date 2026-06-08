@@ -256,7 +256,7 @@ class DiscordBot {
     const logoUrl = getCasinoLogo(casino);
     const pubDate = post.pubDate ? new Date(post.pubDate) : new Date();
     const scAmount = extractSCAmount(post.title, post.description);
-    const scSuffix = scAmount ? ` ⏐ \:${scAmount}SC` : '';
+    const scSuffix = scAmount ? ` ⏐ ${scAmount}SC` : '';
     const description = (claimLink && claimLink !== post.link
       ? `**[Claim Here](${claimLink})**`
       : '') + scSuffix;
