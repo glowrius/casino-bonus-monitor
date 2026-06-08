@@ -92,6 +92,30 @@
       justify-content: center;
       flex-wrap: wrap;
     }
+    .scroll-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: rgba(255,215,0,0.35);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      animation: fadeInUp 1s ease 1.8s both;
+    }
+    .scroll-indicator i {
+      font-size: 0.9rem;
+      animation: bounceDown 2s ease-in-out infinite;
+    }
+    @keyframes bounceDown {
+      0%, 100% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(6px); opacity: 1; }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .hero-brand-text { text-align: left; }
     .hero-tagline {
       display: inline-flex;
@@ -145,13 +169,6 @@
       align-items: center;
       gap: 8px;
     }
-    .stat-divider {
-      width: 1px;
-      height: 20px;
-      background: #2a2a2e;
-      flex-shrink: 0;
-    }
-
     /* Buttons */
     .btn {
       display: inline-flex;
@@ -606,13 +623,11 @@
         <div class="hero-brand-text">
           <span class="hero-tagline">&#10022; Trusted by 500+ Members</span>
           <h1>Claims Casino Automation</h1>
-          <p class="hero-subtitle">Never miss free Sweepscash, spins, and promo codes again.</p>
-          <p class="hero-blurb">Join an exclusive community of sweepstakes players who get real-time Discord alerts the moment bonuses drop. Auto-claim daily SC from 80+ casinos. Snag streamer link drops instantly. All in one membership.</p>
+          <p class="hero-subtitle">Turn free casino bonuses into real profit — without lifting a finger.</p>
+          <p class="hero-blurb">Get instant Discord alerts on profitable casino bonus drops, auto-claim daily free SC from 80+ casinos, and snipe streamer link drops — all designed to turn free Sweepstakes Cash into real earnings.</p>
           <div class="hero-stats">
             <span><i class="fas fa-user"></i> 500+ Members</span>
-            <span class="stat-divider"></span>
             <span><i class="fas fa-check"></i> 80+ Casinos</span>
-            <span class="stat-divider"></span>
             <span><i class="fas fa-check"></i> 24/7 Monitoring</span>
           </div>
         </div>
@@ -622,34 +637,38 @@
       <a href="#pricing" class="btn btn-primary btn-lg" onclick="event.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth',block:'start'})"><i class="fas fa-crown"></i> Get Access</a>
       <a href="https://discord.gg/PXxb9fDWrp" class="btn btn-secondary btn-lg"><i class="fab fa-discord"></i> Join our Free Community</a>
     </div>
+    <div class="scroll-indicator">
+      <span>View Plans</span>
+      <i class="fas fa-chevron-down"></i>
+    </div>
   </div>
 </section>
 
 <!-- Benefits -->
 <section class="benefits">
   <div class="container">
-    <h2>Membership Benefits</h2>
-    <p>Everything included with your Claims Casino membership.</p>
+    <h2>How You Profit</h2>
+    <p>Turn free casino bonuses into real money with 24/7 automated monitoring.</p>
     <div class="benefits-grid">
       <div class="benefit-card fade-in">
         <div class="icon">🔔</div>
-        <h3>Real-Time Discord Alerts</h3>
-        <p>Instant notifications the moment free SC, spins, and bonuses are posted. Never miss an opportunity.</p>
+        <h3>Real-Time Profit Alerts</h3>
+        <p>Get paid the moment free SC, spins, and bonuses drop — claim before they expire and stack real cash faster.</p>
       </div>
       <div class="benefit-card fade-in">
         <div class="icon">🤖</div>
-        <h3>Auto Daily Claims</h3>
-        <p>Automatic 24-hour Sweepscash collection from 80+ supported social casinos. Set it and forget it.</p>
+        <h3>Auto Daily Earnings</h3>
+        <p>Set it and forget it. We auto-collect free Sweepscash daily from 80+ casinos, compounding your earnings on autopilot.</p>
       </div>
       <div class="benefit-card fade-in">
         <div class="icon">🎯</div>
         <h3>Streamer Sniping &amp; More</h3>
-        <p>Live Kick.com chat monitoring for dropped links, promo codes, and exclusive giveaways in real-time.</p>
+        <p>Live monitor Kick.com chats for link drops and exclusive promos — claim high-value bonuses other players miss.</p>
       </div>
       <div class="benefit-card fade-in">
         <div class="icon">💬</div>
-        <h3>Priority Support &amp; Community</h3>
-        <p>Direct access to our support team and a private Discord community of fellow sweepstakes players. Share tips, strategies, and wins.</p>
+        <h3>Private Profit Community</h3>
+        <p>Access a private network of profit-focused grinders sharing winning strategies, exclusive tips, and real earnings results.</p>
       </div>
     </div>
   </div>
@@ -659,7 +678,7 @@
 <section class="pricing" id="pricing">
   <div class="container">
     <h2>Choose Your Plan</h2>
-    <p>Bitcoin (BTC) only. All payments are final and non-refundable.</p>
+    <p>Start earning with 24/7 casino monitoring. Bitcoin (BTC) only. All payments are final and non-refundable.</p>
     <div class="pricing-grid">
       <!-- Monthly -->
       <div class="pricing-card fade-in">
