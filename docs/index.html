@@ -351,9 +351,9 @@
     .crypto-accepted { background: #111114; }
     .crypto-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 14px;
-      max-width: 700px;
+      max-width: 420px;
       margin: 0 auto;
     }
     .crypto-item {
@@ -427,6 +427,27 @@
       font-size: 1.6rem; transition: color .15s; display: flex; align-items: center;
     }
     .nav-profile:hover { color: #FFD700; }
+    .nav-profile-wrapper { position: relative; display: inline-block; }
+    .profile-dropdown {
+      position: absolute; top: 100%; right: 0; margin-top: 8px;
+      background: rgba(28,28,33,0.95); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+      padding: 6px; min-width: 180px; opacity: 0; visibility: hidden;
+      transform: translateY(-4px); transition: all .2s ease; z-index: 1000;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .profile-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+    .profile-dropdown-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      border-radius: 8px; cursor: pointer; color: #ccc; font-size: 0.85rem;
+      transition: all .15s; background: none; border: none; width: 100%; text-align: left;
+    }
+    .profile-dropdown-item:hover { background: rgba(255,255,255,0.06); color: #f0efed; }
+    .profile-dropdown-item i { width: 16px; font-size: 0.9rem; color: #888; }
+    .profile-dropdown-item.logout { border-top: 1px solid rgba(255,255,255,0.06); margin-top: 4px; padding-top: 14px; }
+    .profile-dropdown-item.logout:hover { color: #ef4444; }
+    .profile-dropdown-item.logout:hover i { color: #ef4444; }
 
     /* Auth Modal */
     .auth-overlay {
@@ -772,6 +793,7 @@
       .pricing-card.popular { transform: none; }
       .pricing-card.popular:hover { transform: translateY(-6px); }
       .wallet-grid { grid-template-columns: 1fr; }
+      .crypto-grid { grid-template-columns: repeat(3, 1fr); max-width: 320px; gap: 10px; }
       .testimonials-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
       .testimonial-card .testimonial-caption { padding: 10px 12px 14px; }
       .testimonial-card .testimonial-caption .win { font-size: 1rem; }
@@ -784,9 +806,17 @@
   <a href="#" class="nav-brand" onclick="event.preventDefault();window.scrollTo({top:0,behavior:'smooth'})">
     <img src="logo.webp" alt="Claims Casino"> Claims Casino
   </a>
-  <button class="nav-profile" id="profileBtn" onclick="openAuthModal()" aria-label="Account">
-    <i class="fas fa-user-circle"></i>
-  </button>
+  <div class="nav-profile-wrapper">
+    <button class="nav-profile" id="profileBtn" onclick="toggleProfileMenu()" aria-label="Account">
+      <i class="fas fa-user-circle"></i>
+    </button>
+    <div class="profile-dropdown" id="profileDropdown">
+      <button class="profile-dropdown-item" onclick="profileAction('profile')"><i class="fas fa-user"></i> Profile</button>
+      <button class="profile-dropdown-item" onclick="profileAction('payments')"><i class="fas fa-credit-card"></i> Payments</button>
+      <button class="profile-dropdown-item" onclick="profileAction('settings')"><i class="fas fa-cog"></i> Settings</button>
+      <button class="profile-dropdown-item logout" onclick="profileAction('logout')"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+    </div>
+  </div>
 </nav>
 
 <!-- Hero -->
@@ -849,7 +879,7 @@
 <section class="pricing" id="pricing">
   <div class="container">
     <h2>Choose Your Plan</h2>
-    <p>Start earning with 24/7 casino monitoring. BTC · ETH · USDC · USDT · SOL accepted. All payments are final and non-refundable.</p>
+    <p>Start earning with 24/7 casino monitoring. BTC · ETH · USDC · USDT · SOL · BNB accepted. All payments are final and non-refundable.</p>
     <div class="pricing-grid">
       <!-- Monthly -->
       <div class="pricing-card fade-in">
@@ -904,7 +934,7 @@
 <section class="crypto-accepted">
   <div class="container">
     <h2>Accepted Cryptocurrencies</h2>
-    <p>BTC · ETH · USDC · USDT · SOL</p>
+    <p>BTC · ETH · USDC · USDT · SOL · BNB</p>
     <div class="crypto-grid">
       <div class="crypto-item fade-in">
         <div class="crypto-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
@@ -925,6 +955,10 @@
       <div class="crypto-item fade-in">
         <div class="crypto-icon"><span class="crypto-dot" style="background:#9945ff;"></span><span class="crypto-ticker" style="color:#9945ff;">SOL</span></div>
         <div class="name">Solana</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon"><span class="crypto-dot" style="background:#f3ba2f;"></span><span class="crypto-ticker" style="color:#f3ba2f;">BNB</span></div>
+        <div class="name">BNB</div>
       </div>
     </div>
   </div>
@@ -1310,23 +1344,48 @@ function updateAuthUI() {
   } else {
     btn.innerHTML = '<i class="fas fa-user-circle"></i>';
     btn.title = 'Log In / Sign Up';
+    closeProfileMenu();
   }
 }
 
+function toggleProfileMenu() {
+  if (!authUser) { openAuthModal(); return; }
+  document.getElementById('profileDropdown').classList.toggle('open');
+}
+
 function openAuthModal() {
-  if (authUser) {
-    if (confirm('Logged in as ' + authUser.email + '\nClick OK to log out.')) {
-      authUser = null;
-      localStorage.removeItem('claims_casino_auth');
-      updateAuthUI();
-    }
-    return;
-  }
+  closeProfileMenu();
   document.getElementById('authOverlay').classList.add('open');
   document.body.classList.add('auth-open');
   document.getElementById('authError').style.display = 'none';
   document.getElementById('authSuccess').style.display = 'none';
 }
+
+function closeProfileMenu() {
+  document.getElementById('profileDropdown').classList.remove('open');
+}
+
+function profileAction(action) {
+  if (action === 'logout') {
+    authUser = null;
+    localStorage.removeItem('claims_casino_auth');
+    updateAuthUI();
+    closeProfileMenu();
+    return;
+  }
+  closeProfileMenu();
+  if (action === 'profile') alert('Profile page coming soon. Email: ' + authUser.email);
+  else if (action === 'payments') alert('Payments history coming soon.');
+  else if (action === 'settings') alert('Settings page coming soon.');
+}
+
+document.addEventListener('click', function(e) {
+  const dd = document.getElementById('profileDropdown');
+  const wrapper = document.querySelector('.nav-profile-wrapper');
+  if (dd.classList.contains('open') && wrapper && !wrapper.contains(e.target)) {
+    closeProfileMenu();
+  }
+});
 
 function closeAuthModal() {
   document.getElementById('authOverlay').classList.remove('open');

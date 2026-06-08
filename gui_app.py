@@ -42,8 +42,8 @@ from PyQt6.QtWidgets import (
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
     QSystemTrayIcon, QMenu, QFrame, QListWidget, QStackedWidget, QProgressDialog
 )
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal
-from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve
+from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon, QGraphicsOpacityEffect
 
 # ═══════════════════════════════════════════════════════════════
 # STYLESHEET
@@ -51,10 +51,10 @@ from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
 
 DARK_SS = """
 QListWidget {
-    background: #1a1a1e; border: none; border-right: 1px solid #2a2a2e;
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #1a1a1e, stop:1 #141418);
+    border: none; border-right: 1px solid #2a2a2e; border-bottom-left-radius: 12px;
     color: #888; font-size: 14px; font-weight: 600; outline: none;
     padding: 8px 0; min-width: 200px; max-width: 200px;
-    border-bottom-left-radius: 12px;
 }
 QListWidget::item {
     padding: 14px 20px; border-left: 3px solid transparent;
@@ -599,7 +599,10 @@ class SettingsTab(QWidget):
         ag = QGroupBox("About")
         al = QVBoxLayout()
         al.addWidget(QLabel("Casino - Automation Suite v1.0.0"))
-        al.addWidget(QLabel("© 2026 Claims Casino"))
+        l = QLabel('<a href="https://claimscasino.com/terms" style="color:#FFD700;text-decoration:none;">Terms of Service</a>')
+        l.setOpenExternalLinks(True)
+        al.addWidget(l)
+        al.addWidget(QLabel("© 2026 Claims Casino Automation"))
         ag.setLayout(al); lo.addWidget(ag)
         lo.addStretch(); self.setLayout(lo)
 
@@ -643,7 +646,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.ste)
         ml.addWidget(self.stack)
         self.sidebar.setCurrentRow(0)
-        self.sidebar.currentRowChanged.connect(self.stack.setCurrentIndex)
+        self.sidebar.currentRowChanged.connect(self.on_page_change)
 
         sb = QStatusBar(); self.setStatusBar(sb)
         self.sl = QLabel("● OFFLINE")
@@ -660,13 +663,16 @@ class MainWindow(QMainWindow):
         sb.addPermanentWidget(vl)
 
         # Tray
+        ico = BASE_DIR / "assets/icon.ico"
         self.tray = QSystemTrayIcon(self)
-        # Create a simple gold pixmap as icon
-        px = QPixmap(32,32); px.fill(QColor("#111114"))
-        p = QPainter(px); p.setBrush(QColor("#FFD700")); p.setPen(Qt.PenStyle.NoPen)
-        p.drawEllipse(2,2,28,28); p.setFont(QFont("Arial",16,700)); p.setPen(QColor("#111"))
-        p.drawText(px.rect(),Qt.AlignmentFlag.AlignCenter,"CC"); p.end()
-        self.tray.setIcon(QIcon(px))
+        if ico.exists():
+            self.tray.setIcon(QIcon(str(ico)))
+        else:
+            px = QPixmap(32,32); px.fill(QColor("#111114"))
+            p = QPainter(px); p.setBrush(QColor("#FFD700")); p.setPen(Qt.PenStyle.NoPen)
+            p.drawEllipse(2,2,28,28); p.setFont(QFont("Arial",16,700)); p.setPen(QColor("#111"))
+            p.drawText(px.rect(),Qt.AlignmentFlag.AlignCenter,"CC"); p.end()
+            self.tray.setIcon(QIcon(px))
 
         tm = QMenu()
         tm.addAction("Show", self.show)
@@ -682,6 +688,20 @@ class MainWindow(QMainWindow):
         self.status_timer.start(2000)
 
         QTimer.singleShot(3000, self.check_up)
+
+    def on_page_change(self, idx):
+        if idx < 0: return
+        self.stack.setCurrentIndex(idx)
+        w = self.stack.currentWidget()
+        if w:
+            ef = QGraphicsOpacityEffect(w)
+            w.setGraphicsEffect(ef)
+            an = QPropertyAnimation(ef, b"opacity")
+            an.setDuration(200)
+            an.setStartValue(0.0)
+            an.setEndValue(1.0)
+            an.setEasingCurve(QEasingCurve.Type.OutCubic)
+            an.start()
 
     def refresh_st(self):
         with combined.state_lock: s = dict(combined.state)
