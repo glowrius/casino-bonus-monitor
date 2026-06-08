@@ -348,20 +348,23 @@
     .crypto-accepted { background: #111114; }
     .crypto-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 14px;
+      max-width: 700px;
+      margin: 0 auto;
     }
     .crypto-item {
-      background: #1c1c21;
-      border: 1px solid #2a2a2e;
+      background: rgba(28, 28, 33, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 14px;
-      padding: 28px 20px;
+      padding: 22px 16px;
       text-align: center;
       transition: all .2s ease;
     }
-    .crypto-item:hover { border-color: #FFD700; }
-    .crypto-item .crypto-icon { font-size: 2rem; margin-bottom: 10px; }
-    .crypto-item .name { color: #f0efed; font-weight: 600; font-size: 0.9rem; }
+    .crypto-item:hover { border-color: #FFD700; transform: translateY(-3px); }
+    .crypto-item .crypto-icon { font-size: 1.8rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 36px; }
+    .crypto-item .name { color: #f0efed; font-weight: 600; font-size: 0.8rem; }
 
     /* How It Works */
     .how-it-works { background: #1c1c21; }
@@ -376,17 +379,21 @@
       text-align: center;
     }
     .step-num {
-      width: 48px; height: 48px;
+      width: 52px; height: 52px;
       border-radius: 50%;
-      background: #FFD700;
-      color: #111114;
-      font-size: 1.3rem;
-      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 16px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      border: 3px dashed rgba(255,255,255,0.18);
+      box-shadow: 0 0 0 4px currentColor, inset 0 0 0 2px rgba(255,255,255,0.08);
     }
+    .step:nth-child(1) .step-num { background: #e63946; }
+    .step:nth-child(2) .step-num { background: #1d3557; }
+    .step:nth-child(3) .step-num { background: #2d6a4f; }
     .step h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: #ffffff; }
     .step p { color: #d0d0d8; font-size: 0.9rem; }
 
@@ -710,7 +717,7 @@
 <section class="pricing" id="pricing">
   <div class="container">
     <h2>Choose Your Plan</h2>
-    <p>Start earning with 24/7 casino monitoring. Bitcoin (BTC) only. All payments are final and non-refundable.</p>
+    <p>Start earning with 24/7 casino monitoring. BTC · ETH · USDC · USDT · TRX · SOL accepted. All payments are final and non-refundable.</p>
     <div class="section-scroll-hint">
       <span>Choose Your Plan</span>
       <i class="fas fa-chevron-down"></i>
@@ -769,11 +776,31 @@
 <section class="crypto-accepted">
   <div class="container">
     <h2>Accepted Cryptocurrencies</h2>
-    <p>Bitcoin (BTC) only.</p>
+    <p>BTC · ETH · USDC · USDT · TRX · SOL</p>
     <div class="crypto-grid">
       <div class="crypto-item fade-in">
         <div class="crypto-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
         <div class="name">Bitcoin</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#627eea;"><i class="fab fa-ethereum"></i></div>
+        <div class="name">Ethereum</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#2775ca;"><span style="font-weight:800;">●</span><span style="font-weight:700;font-size:0.9rem;">USDC</span></div>
+        <div class="name">USD Coin</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#26a17b;"><span style="font-weight:800;">●</span><span style="font-weight:700;font-size:0.9rem;">USDT</span></div>
+        <div class="name">Tether</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#ef473a;"><span style="font-weight:800;">◈</span><span style="font-weight:700;font-size:0.9rem;">TRX</span></div>
+        <div class="name">TRON</div>
+      </div>
+      <div class="crypto-item fade-in">
+        <div class="crypto-icon" style="color:#9945ff;"><span style="font-weight:800;">◆</span><span style="font-weight:700;font-size:0.9rem;">SOL</span></div>
+        <div class="name">Solana</div>
       </div>
     </div>
   </div>
@@ -799,31 +826,6 @@
         <div class="step-num">3</div>
         <h3>Get Access</h3>
         <p>Join our Discord and open a ticket with your transaction ID to verify and gain access.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Payment Details -->
-<section class="payment-details" id="payment">
-  <div class="container">
-    <h2>Payment Details</h2>
-    <p>Bitcoin (BTC) only. Send the exact BTC equivalent of your chosen plan to the address below.</p>
-    <div class="wallet-grid">
-      <div class="wallet-card fade-in">
-        <div class="wallet-icon" style="color:#f7931a;"><i class="fab fa-bitcoin"></i></div>
-        <h3>Bitcoin</h3>
-        <div class="price-label">Send exact BTC equivalent</div>
-        <div class="wallet-address">
-          <span class="label">BTC Address</span>
-          bc1qndy36lk0pvkggnp2jgrkgkqzsp6lne60azwc9j
-        </div>
-        <div class="wallet-actions">
-          <button class="btn btn-secondary" onclick="copyAddress(this, 'btc')"><i class="fas fa-copy"></i> Copy</button>
-          <button class="btn btn-secondary" onclick="toggleQr('btc')"><i class="fas fa-qrcode"></i> QR</button>
-        </div>
-        <div class="copied-msg" id="copied-btc">Copied!</div>
-        <div class="wallet-qr" id="qr-btc"></div>
       </div>
     </div>
   </div>
@@ -890,8 +892,8 @@
   <div class="container">
     <p>
       <a href="https://claimscasino.com">claimscasino.com</a> ·
-      <!-- EDIT: Discord invite link --><a href="https://discord.gg/PXxb9fDWrp">Discord Support</a> ·
-      © Claims Casino Automation
+      <a href="mailto:support@claimscasino.com">support@claimscasino.com</a> ·
+      © 2026 Claims Casino Automation
     </p>
   </div>
 </footer>
@@ -940,6 +942,7 @@ function openConfirmModal(plan, price) {
   document.getElementById('paymentView').style.display = 'none';
   document.getElementById('successView').style.display = 'none';
   document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function confirmPayment() {
@@ -1012,6 +1015,7 @@ function onPaymentConfirmed() {
 
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
   if (pollingInterval) clearInterval(pollingInterval);
   document.getElementById('pendingStatus').style.display = 'none';
   document.getElementById('sentBtn').disabled = false;
