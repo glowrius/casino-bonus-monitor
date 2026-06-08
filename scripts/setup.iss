@@ -2,7 +2,7 @@
 ; Inno Setup 6 Script
 
 #define MyAppName "Casino Bonus Monitor"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "glowrius"
 #define MyAppURL "https://glowrius.github.io/casino-bonus-monitor/"
 #define MyAppExeName "CasinoBot.exe"
