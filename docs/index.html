@@ -19,7 +19,7 @@
       font-size: 17px;
     }
     .container { max-width: 960px; margin: 0 auto; padding: 0 32px; width: 100%; }
-    .hero .container { flex: 1; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 64px 32px 24px; }
+    .hero .container { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 48px; padding: 40px 32px; }
 
     /* Hero */
     .hero {
@@ -80,7 +80,6 @@
       perspective: 800px;
     }
     .hero-content {
-      flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -88,12 +87,10 @@
       width: 100%;
     }
     .hero-actions {
-      flex-shrink: 0;
       display: flex;
       gap: 16px;
       justify-content: center;
       flex-wrap: wrap;
-      padding: 0 0 16px 0;
     }
     .hero-brand-text { text-align: left; }
     .hero-tagline {
@@ -288,11 +285,10 @@
       width: 20px;
       height: 20px;
       border-radius: 4px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
+      text-align: center;
+      line-height: 20px;
       font-size: 0.75rem;
-      line-height: 1;
       flex-shrink: 0;
     }
     .pricing-card .btn { width: 100%; justify-content: center; }
@@ -576,7 +572,7 @@
     @media (max-width: 768px) {
       body { font-size: 15px; }
       .hero { min-height: 100vh; padding: 0; }
-      .hero .container { padding: 40px 20px 16px; }
+      .hero .container { padding: 32px 20px; gap: 32px; }
       .hero-brand { flex-direction: column; align-items: center; gap: 16px; }
       .hero-brand-text { text-align: center; }
       .hero-brand-text .hero-tagline { margin-left: auto; margin-right: auto; }
@@ -592,7 +588,7 @@
       .pricing-card .features li { padding: 6px 0; }
       section > .container > p { margin-bottom: 28px; }
       section h2 { font-size: 1.7rem; margin-bottom: 14px; }
-      .hero-actions { flex-direction: column; align-items: stretch; padding: 0 0 16px 0; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
       .pricing-card.popular { transform: none; }
       .pricing-card.popular:hover { transform: translateY(-6px); }
       .wallet-grid { grid-template-columns: 1fr; }
@@ -624,7 +620,7 @@
     </div>
     <div class="hero-actions">
       <a href="#pricing" class="btn btn-primary btn-lg" onclick="event.preventDefault();document.getElementById('pricing').scrollIntoView({behavior:'smooth',block:'start'})"><i class="fas fa-crown"></i> Get Access</a>
-      <a href="https://discord.gg/YOUR_INVITE" class="btn btn-secondary btn-lg"><i class="fab fa-discord"></i> Join our Free Community</a>
+      <a href="https://discord.gg/PXxb9fDWrp" class="btn btn-secondary btn-lg"><i class="fab fa-discord"></i> Join our Free Community</a>
     </div>
   </div>
 </section>
@@ -828,7 +824,7 @@
         <span id="successInvoice"></span>
       </div>
       <div class="modal-actions">
-        <a href="https://discord.gg/YOUR_INVITE" class="btn btn-primary" target="_blank"><i class="fab fa-discord"></i> Join Discord</a>
+        <a href="https://discord.gg/PXxb9fDWrp" class="btn btn-primary" target="_blank"><i class="fab fa-discord"></i> Join Discord</a>
         <button class="btn btn-secondary" onclick="closeModal()">Close</button>
       </div>
     </div>
@@ -839,7 +835,7 @@
   <div class="container">
     <p>
       <a href="https://claimscasino.com">claimscasino.com</a> ·
-      <!-- EDIT: Discord invite link --><a href="https://discord.gg/YOUR_INVITE">Discord Support</a> ·
+      <!-- EDIT: Discord invite link --><a href="https://discord.gg/PXxb9fDWrp">Discord Support</a> ·
       © Claims Casino Automation
     </p>
   </div>
