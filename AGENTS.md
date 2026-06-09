@@ -6,7 +6,11 @@ Desktop GUI app ("Claims Casino - Automation Suite") for auto-claiming sweepstak
 ## What's Built (Core Changes)
 
 ### Desktop App (`gui_app.py`)
-- **AnimatedButton class**: `QVariantAnimation`-powered QPushButton with 180ms hover/press fade (Import, Refresh, Validate, Clear Done, Clear, + Add, + Add Link, etc.)
+- **AnimatedButton class**: `QVariantAnimation`-powered QPushButton with 180ms hover/press fade, supports `variant` param: "default", "gold", "success", "danger". All buttons now use AnimatedButton.
+- **Title bar centering**: Brand labels (CLAIMS CASINO + Automation Suite) vertically centered in 64px bar via QWidget wrapper with top/bottom padding.
+- **Summary box spacing**: Daily SC stat columns have `setSpacing(4)` between number and label, `setSpacing(16)` between columns.
+- **Toolbar layout**: + Add / Claim All / Stop All on left, stretch, Import / Refresh on right.
+- **Bottom frames**: All tabs have consistent `setContentsMargins(8,8,8,8)` with `setSpacing(6)` in bottom group boxes.
 - **Expandable window**: `setMinimumSize(900,600)` + `resize(1200,780)`
 - **SSO login**: `CasinoAutomation.login()` accepts `login_method` ("email"/"google"/"apple") with auto-fill
 - **Add Account dialog**: Login Method dropdown (Email/Google/Apple), `vals()` returns 4-tuple
