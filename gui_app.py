@@ -40,10 +40,10 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QTabWidget, QTableWidget,
     QTableWidgetItem, QHeaderView, QDialog, QMessageBox, QTextEdit,
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
-    QSystemTrayIcon, QMenu, QFrame, QListWidget, QStackedWidget, QProgressDialog
+    QSystemTrayIcon, QMenu, QFrame, QListWidget, QStackedWidget, QProgressDialog, QGraphicsOpacityEffect
 )
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve
-from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon, QGraphicsOpacityEffect
+from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon
 
 # ═══════════════════════════════════════════════════════════════
 # STYLESHEET
