@@ -387,7 +387,7 @@
       transition: all .25s ease;
     }
     .testimonial-card:hover { transform: translateY(-4px); box-shadow: 0 8px 30px rgba(255,215,0,0.06); }
-    .testimonial-card img { width: 100%; display: block; }
+    .testimonial-card img { width: 100%; display: block; max-height: 360px; object-fit: cover; }
     .testimonial-card::after {
       content: "";
       position: absolute;
@@ -448,6 +448,45 @@
     .profile-dropdown-item.logout { border-top: 1px solid rgba(255,255,255,0.06); margin-top: 4px; padding-top: 14px; }
     .profile-dropdown-item.logout:hover { color: #ef4444; }
     .profile-dropdown-item.logout:hover i { color: #ef4444; }
+
+    /* Profile / Payments / Settings Modal */
+    .profile-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      z-index: 1100; align-items: center; justify-content: center; padding: 20px;
+    }
+    .profile-overlay.open { display: flex; }
+    .profile-modal {
+      background: rgba(28,28,33,0.85); backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+      padding: 36px 32px 32px; max-width: 520px; width: 100%;
+      max-height: 80vh; overflow-y: auto; position: relative; animation: modalIn 0.25s ease;
+    }
+    .profile-modal h3 { margin: 0 0 20px; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+    .profile-modal h3 i { color: #FFD700; }
+    .profile-modal .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; }
+    .profile-modal .info-row .label { color: #888; }
+    .profile-modal .info-row .value { color: #f0efed; font-weight: 500; }
+    .profile-modal .empty-state { text-align: center; padding: 40px 20px; color: #666; }
+    .profile-modal .empty-state i { font-size: 2.5rem; margin-bottom: 16px; color: #444; display: block; }
+    .profile-modal .payment-item { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .profile-modal .payment-item:last-child { border-bottom: none; }
+    .profile-modal .payment-item .p-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .profile-modal .payment-item .p-plan { font-weight: 600; font-size: 0.9rem; }
+    .profile-modal .payment-item .p-amount { color: #22c55e; font-weight: 700; }
+    .profile-modal .payment-item .p-date { font-size: 0.8rem; color: #666; }
+    .profile-modal .payment-item .p-status { font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    .profile-modal .payment-item .p-status.completed { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .profile-modal .payment-item .p-status.pending { background: rgba(255,215,0,0.15); color: #FFD700; }
+    .profile-modal .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .profile-modal .toggle-row:last-child { border-bottom: none; }
+    .profile-modal .toggle-row .toggle-label { font-size: 0.9rem; }
+    .profile-modal .toggle-row .toggle-label small { display: block; color: #666; font-size: 0.75rem; margin-top: 2px; }
+    .profile-modal .toggle-switch { width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
+    .profile-modal .toggle-switch.on { background: #FFD700; }
+    .profile-modal .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #f0efed; border-radius: 50%; transition: transform .2s; }
+    .profile-modal .toggle-switch.on::after { transform: translateX(20px); }
 
     /* Auth Modal */
     .auth-overlay {
@@ -1139,6 +1178,13 @@
   </div>
 </div>
 
+<div class="profile-overlay" id="profileOverlay" onclick="if(event.target===this)closeProfileOverlay()">
+  <div class="profile-modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeProfileOverlay()">&times;</button>
+    <div id="profileModalContent"></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -1317,7 +1363,11 @@ function checkMempool() {
 function onPaymentConfirmed() {
   document.getElementById('paymentView').style.display = 'none';
   document.getElementById('successView').style.display = '';
-  document.getElementById('successInvoice').textContent = document.getElementById('invoiceId').textContent;
+  const inv = document.getElementById('invoiceId').textContent;
+  document.getElementById('successInvoice').textContent = inv;
+  const history = JSON.parse(localStorage.getItem('claims_casino_payments') || '[]');
+  history.push({ invoice: inv, plan: currentPlan, amount: currentPrice.replace(/[^0-9.]/g,''), date: new Date().toLocaleDateString(), status: 'completed' });
+  localStorage.setItem('claims_casino_payments', JSON.stringify(history));
 }
 
 function closeModal() {
@@ -1335,6 +1385,18 @@ let authUser = null;
 const saved = localStorage.getItem('claims_casino_auth');
 if (saved) { authUser = JSON.parse(saved); updateAuthUI(); }
 document.body.classList.add('has-nav');
+// Migrate old user data format
+try {
+  const users = JSON.parse(localStorage.getItem('claims_casino_users') || '{}');
+  let changed = false;
+  for (const k in users) {
+    if (typeof users[k] === 'string') {
+      users[k] = { password: users[k], since: 'Today' };
+      changed = true;
+    }
+  }
+  if (changed) localStorage.setItem('claims_casino_users', JSON.stringify(users));
+} catch(e){}
 
 function updateAuthUI() {
   const btn = document.getElementById('profileBtn');
@@ -1374,9 +1436,77 @@ function profileAction(action) {
     return;
   }
   closeProfileMenu();
-  if (action === 'profile') alert('Profile page coming soon. Email: ' + authUser.email);
-  else if (action === 'payments') alert('Payments history coming soon.');
-  else if (action === 'settings') alert('Settings page coming soon.');
+  const content = document.getElementById('profileModalContent');
+  if (action === 'profile') renderProfileView(content);
+  else if (action === 'payments') renderPaymentsView(content);
+  else if (action === 'settings') renderSettingsView(content);
+  document.getElementById('profileOverlay').classList.add('open');
+  document.body.classList.add('auth-open');
+}
+
+function closeProfileOverlay() {
+  document.getElementById('profileOverlay').classList.remove('open');
+  document.body.classList.remove('auth-open');
+}
+
+function renderProfileView(el) {
+  const history = JSON.parse(localStorage.getItem('claims_casino_payments') || '[]');
+  const totalPaid = history.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+  el.innerHTML = '<h3><i class="fas fa-user-circle"></i> My Profile</h3>' +
+    '<div class="info-row"><span class="label">Email</span><span class="value">' + escapeHtml(authUser.email) + '</span></div>' +
+    '<div class="info-row"><span class="label">Member Since</span><span class="value">' + (authUser.since || 'Today') + '</span></div>' +
+    '<div class="info-row"><span class="label">Total Payments</span><span class="value">' + history.length + '</span></div>' +
+    '<div class="info-row"><span class="label">Total Spent</span><span class="value" style="color:#22c55e;">$' + totalPaid.toFixed(2) + '</span></div>' +
+    '<div style="margin-top:20px;text-align:center;font-size:0.8rem;color:#666;">' +
+    '<button class="btn btn-secondary" onclick="closeProfileOverlay()" style="padding:10px 28px;">Close</button></div>';
+}
+
+function renderPaymentsView(el) {
+  const history = JSON.parse(localStorage.getItem('claims_casino_payments') || '[]');
+  let html = '<h3><i class="fas fa-receipt"></i> Payment History</h3>';
+  if (history.length === 0) {
+    html += '<div class="empty-state"><i class="fas fa-credit-card"></i><br>No payments yet.<br><span style="font-size:0.85rem;color:#888;">Complete a purchase to see it here.</span></div>';
+  } else {
+    for (const p of history) {
+      html += '<div class="payment-item">' +
+        '<div class="p-header"><span class="p-plan">' + escapeHtml(p.plan) + '</span><span class="p-amount">$' + parseFloat(p.amount).toFixed(2) + '</span></div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+        '<span class="p-date">' + p.date + '</span>' +
+        '<span class="p-status ' + (p.status === 'completed' ? 'completed' : 'pending') + '">' + p.status + '</span></div>' +
+        '<div style="font-size:0.75rem;color:#555;margin-top:2px;">Invoice: ' + escapeHtml(p.invoice) + '</div>' +
+        '</div>';
+    }
+  }
+  html += '<div style="margin-top:20px;text-align:center;font-size:0.8rem;color:#666;">' +
+    '<button class="btn btn-secondary" onclick="closeProfileOverlay()" style="padding:10px 28px;">Close</button></div>';
+  el.innerHTML = html;
+}
+
+function renderSettingsView(el) {
+  const notifs = localStorage.getItem('claims_notifications') !== 'off';
+  el.innerHTML = '<h3><i class="fas fa-cog"></i> Settings</h3>' +
+    '<div class="toggle-row">' +
+    '<div class="toggle-label">Email Notifications<small>Receive updates about promos and wins</small></div>' +
+    '<div class="toggle-switch' + (notifs ? ' on' : '') + '" id="notifToggle" onclick="toggleNotif()"></div>' +
+    '</div>' +
+    '<div class="toggle-row">' +
+    '<div class="toggle-label">Dark Theme<small>Always enabled on this site</small></div>' +
+    '<div class="toggle-switch on" style="opacity:0.5;cursor:default;"></div>' +
+    '</div>' +
+    '<div style="margin-top:24px;text-align:center;">' +
+    '<button class="btn btn-secondary" onclick="closeProfileOverlay()" style="padding:10px 28px;">Close</button></div>';
+}
+
+function toggleNotif() {
+  const el = document.getElementById('notifToggle');
+  const on = el.classList.toggle('on');
+  localStorage.setItem('claims_notifications', on ? 'on' : 'off');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 document.addEventListener('click', function(e) {
@@ -1426,8 +1556,8 @@ function handleLogin() {
   if (!email || !password) { showAuthError('Please fill in all fields.'); return; }
   const data = JSON.parse(localStorage.getItem('claims_casino_users') || '{}');
   if (!data[email]) { showAuthError('No account found with this email.'); return; }
-  if (data[email] !== password) { showAuthError('Incorrect password.'); return; }
-  authUser = { email };
+  if (typeof data[email] === 'string' ? data[email] !== password : data[email].password !== password) { showAuthError('Incorrect password.'); return; }
+  authUser = { email, since: typeof data[email] === 'string' ? 'Today' : (data[email].since || 'Today') };
   localStorage.setItem('claims_casino_auth', JSON.stringify(authUser));
   updateAuthUI();
   closeAuthModal();
@@ -1444,9 +1574,9 @@ function handleSignup() {
   if (password !== confirm) { showAuthError('Passwords do not match.'); return; }
   const data = JSON.parse(localStorage.getItem('claims_casino_users') || '{}');
   if (data[email]) { showAuthError('An account with this email already exists.'); return; }
-  data[email] = password;
+  data[email] = { password: password, since: new Date().toLocaleDateString() };
   localStorage.setItem('claims_casino_users', JSON.stringify(data));
-  authUser = { email };
+  authUser = { email, since: data[email].since };
   localStorage.setItem('claims_casino_auth', JSON.stringify(authUser));
   updateAuthUI();
   closeAuthModal();
