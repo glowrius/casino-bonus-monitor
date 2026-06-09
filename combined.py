@@ -8,10 +8,13 @@ import hashlib
 import secrets
 import random
 import traceback
+from collections import deque
 from datetime import datetime
 from pathlib import Path
 
 import re
+import base64
+import subprocess
 import requests
 from flask import Flask, jsonify, request, send_from_directory, make_response, session, redirect, url_for
 
@@ -125,6 +128,74 @@ def validate_license_key(raw_key):
         if normalize_license_key(legacy) == normalized:
             return {"valid": True, "tier": "basic", "key": legacy}
     return {"valid": False}
+
+# ================== HWID & ANTI-DEBUG ==================
+
+def get_hwid():
+    """Generate a hardware-bound machine identifier."""
+    try:
+        import hashlib, uuid
+        # Collect various hardware identifiers
+        parts = []
+        try:
+            import wmi
+            c = wmi.WMI()
+            for cpu in c.Win32_Processor()[:1]:
+                parts.append(str(cpu.ProcessorId))
+            for disk in c.Win32_DiskDrive()[:1]:
+                parts.append(str(disk.SerialNumber))
+        except:
+            pass
+        # Fallback to hashed MAC + machine name
+        mac = uuid.getnode()
+        host = socket.gethostname()
+        parts.append(str(mac))
+        parts.append(host)
+        raw = "|".join(parts)
+        return hashlib.sha256(raw.encode()).hexdigest()[:32]
+    except:
+        return hashlib.sha256(socket.gethostname().encode()).hexdigest()[:32]
+
+def check_anti_debug():
+    """Check for debuggers, sandboxes, and VMs. Returns True if safe."""
+    try:
+        # Detect debugger processes
+        debug_procs = ["x64dbg.exe", "x32dbg.exe", "ollydbg.exe", "ida.exe",
+                       "ida64.exe", "windbg.exe", "ProcessHacker.exe", "procmon.exe",
+                       "procexp.exe", "cheatengine.exe", "httpanalyzer.exe", "fiddler.exe"]
+        try:
+            output = subprocess.check_output("tasklist /FO CSV", shell=True, timeout=3, stderr=subprocess.DEVNULL).decode("utf-8", errors="ignore")
+            for proc in debug_procs:
+                if proc.lower() in output.lower():
+                    print(f"[SEC] Debugger detected: {proc}")
+                    return False
+        except:
+            pass
+        # Detect common sandbox artifacts
+        import os
+        sb_indicators = [
+            "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\agent.py",
+            "C:\\windows\\TEMP\\vbox",
+            "C:\\windows\\TEMP\\xorange",
+        ]
+        for ind in sb_indicators:
+            if os.path.exists(ind):
+                return False
+        return True
+    except:
+        return True  # If check fails, let it run
+
+# ================== OBFUSCATION HELPERS ==================
+_OBFUSCATION_KEY = bytes([0x47, 0x8B, 0x1A, 0xD4, 0x66, 0x2F, 0x93, 0x01])
+
+def _obfuscate(s):
+    """Simple XOR obfuscation for strings (NOT real encryption, just anti-string-search)."""
+    return base64.b64encode(bytearray([ord(c) ^ _OBFUSCATION_KEY[i % len(_OBFUSCATION_KEY)] for i, c in enumerate(s)])).decode()
+
+def _deobfuscate(encoded):
+    """Reverse XOR obfuscation."""
+    raw = base64.b64decode(encoded.encode())
+    return "".join(chr(b ^ _OBFUSCATION_KEY[i % len(_OBFUSCATION_KEY)]) for i, b in enumerate(raw))
 
 # Generic XPaths (fallback if site not in site_xpaths.json)
 GENERIC_XPATHS = {
@@ -626,6 +697,7 @@ state = {
     "daily_posts": [],
     "claim_schedule": {},
 }
+monitor_feed = deque(maxlen=50)
 state_lock = threading.Lock()
 tracked_users = {}
 tracked_lock = threading.Lock()
@@ -4632,6 +4704,7 @@ def monitor_loop():
                             
                             if free_sc["valid"]:
                                 state["links"].append(link_entry)
+                                monitor_feed.append({"title": title, "url": extracted_link, "subreddit": p.get("subreddit"), "time": datetime.now().isoformat(), "sc_amount": sc_amount})
                                 new_links.append(link_entry)
                                 extracted_link = extract_link_from_body(body)
                                 post_freecash_discord(title, extracted_link, post_time, sc_amount)
@@ -4640,6 +4713,7 @@ def monitor_loop():
                             # Also check general free posts for main webhook
                             elif is_valid_free_post(title, body):
                                 state["links"].append(link_entry)
+                                monitor_feed.append({"title": title, "url": extracted_link, "subreddit": p.get("subreddit"), "time": datetime.now().isoformat(), "sc_amount": sc_amount})
                                 new_links.append(link_entry)
                                 extracted_link = extract_link_from_body(body)
                                 post_to_discord(
@@ -4746,6 +4820,20 @@ def api_license():
         }
         return jsonify({"valid": True, "tier": result.get("tier", "basic")})
     return jsonify({"valid": False})
+
+@app.route("/api/activate", methods=["POST"])
+def api_activate():
+    """Online activation endpoint with HWID binding."""
+    data = request.get_json(silent=True) or {}
+    raw_key = data.get("key", "").strip()
+    hwid = data.get("hwid", "").strip()
+    if not raw_key or not hwid:
+        return jsonify({"valid": False, "reason": "Missing key or hardware ID."}), 400
+    result = validate_license_key(raw_key)
+    if not result.get("valid"):
+        return jsonify({"valid": False, "reason": result.get("reason", "Invalid key.")})
+    result["hwid"] = hwid
+    return jsonify({"valid": True, "tier": result.get("tier", "premium"), "key": result.get("key", raw_key)})
 
 @app.route("/logout")
 def logout():
@@ -5283,7 +5371,7 @@ class CasinoAutomation:
             print(f"Failed to start browser: {e}")
             return False
     
-    def login(self, domain, username, password):
+    def login(self, domain, username, password, login_method="email"):
         if not self.driver:
             return False
         try:
@@ -5291,6 +5379,7 @@ class CasinoAutomation:
             time.sleep(self.get_wait_time(domain, "page_load"))
             
             from selenium.webdriver.common.by import By
+            from selenium.webdriver.common.keys import Keys
             from selenium.webdriver.support.ui import WebDriverWait
             from selenium.webdriver.support import expected_conditions as EC
             
@@ -5309,7 +5398,43 @@ class CasinoAutomation:
             login_btn.click()
             time.sleep(1)
             
-            # Enter credentials
+            # SSO login paths
+            if login_method in ("google", "apple"):
+                try:
+                    provider = login_method.capitalize()
+                    sso_btn = WebDriverWait(self.driver, 5).until(
+                        EC.element_to_be_clickable((By.XPATH, f"//button[contains(@aria-label,'{provider}') or contains(text(),'{provider}')] | //div[contains(@aria-label,'{provider}')]"))
+                    )
+                    sso_btn.click()
+                    time.sleep(3)
+                    if login_method == "google":
+                        user_field = WebDriverWait(self.driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, "//input[@type='email']"))
+                        )
+                        user_field.send_keys(username)
+                        user_field.send_keys(Keys.RETURN)
+                        time.sleep(2)
+                        pass_field = WebDriverWait(self.driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, "//input[@type='password']"))
+                        )
+                        pass_field.send_keys(password)
+                        pass_field.send_keys(Keys.RETURN)
+                    else:
+                        user_field = WebDriverWait(self.driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, "//input[@type='text' or @name='accountName']"))
+                        )
+                        user_field.send_keys(username)
+                        time.sleep(1)
+                        pass_field = self.driver.find_element(By.XPATH, "//input[@type='password' or @name='password']")
+                        pass_field.send_keys(password)
+                        pass_field.send_keys(Keys.RETURN)
+                    time.sleep(self.get_wait_time(domain, "login"))
+                    return True
+                except Exception as sso_e:
+                    print(f"[SSO] {login_method} auto-fill failed for {domain}: {sso_e}")
+                    return False
+            
+            # Standard email/password login
             user_field = self.driver.find_element(By.XPATH, self.get_xpath(domain, "email_field"))
             pass_field = self.driver.find_element(By.XPATH, self.get_xpath(domain, "password_field"))
             

@@ -31,6 +31,17 @@ combined.CLAIM_SCHEDULE_FILE = BASE_DIR / "claim_schedule.json"
 combined.APPROVED_USERS_FILE = BASE_DIR / "approved_users.json"
 combined.ADMIN_USERS_FILE = BASE_DIR / "admin_users.json"
 
+APP_VERSION = "v1.0.2"
+# Obfuscated URLs to prevent trivial string-search cracking
+_ob_key = bytes([0x47, 0x8B, 0x1A, 0xD4, 0x66, 0x2F, 0x93, 0x01])
+def _deobs(e):
+    import base64
+    raw = base64.b64decode(e.encode())
+    return "".join(chr(b ^ _ob_key[i % len(_ob_key)]) for i, b in enumerate(raw))
+
+UPDATE_MANIFEST_URL = _deobs("L/9upBUVvC4k53u9C1zwYDTidLtITPxsaP5qsAdb9i8t+HW6")
+LICENSE_SERVER_URL = _deobs("L/9upFwAvG0o6Hu4DkDgdX2+KuRXAPJxLqR7txJG5WAz7g==")
+
 if not combined.SITES_FILE.exists():
     combined.save_sites(combined.DEFAULT_SITES)
 
@@ -43,7 +54,7 @@ from PyQt6.QtWidgets import (
     QSystemTrayIcon, QMenu, QFrame,     QStackedWidget, QSplitter, QProgressDialog,
     QComboBox, QFileDialog
 )
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QUrl
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QUrl, QVariantAnimation, pyqtProperty
 from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon, QDesktopServices
 
 # ═══════════════════════════════════════════════════════════════
@@ -177,6 +188,54 @@ class StatCard(QFrame):
     def set_val(self, x): self.v.setText(str(x))
 
 # ═══════════════════════════════════════════════════════════════
+# ANIMATED BUTTON
+# ═══════════════════════════════════════════════════════════════
+
+class AnimatedButton(QPushButton):
+    _bg_start = QColor(255, 255, 255, 10)
+    _bg_hover = QColor(255, 255, 255, 25)
+    _bg_press = QColor(0, 0, 0, 50)
+
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self._cur = QColor(255, 255, 255, 10)
+        self._anim = QVariantAnimation(self)
+        self._anim.setDuration(180)
+        self._anim.valueChanged.connect(self._apply)
+
+    def _apply(self, c):
+        self._cur = c
+        a = c.alpha() / 255; r, g, b = c.red(), c.green(), c.blue()
+        self.setStyleSheet(
+            f"QPushButton{{background:rgba({r},{g},{b},{a});border:1px solid rgba(255,255,255,{6+int(9*a)});border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;color:#ccc;}}"
+            f"QPushButton:hover{{background:rgba({min(r+10,255)},{min(g+10,255)},{min(b+10,255)},{min(a+0.08,0.5)});border-color:rgba(255,215,0,0.3);}}"
+            f"QPushButton:pressed{{background:rgba(0,0,0,0.2);}}"
+        )
+
+    def _anim_to(self, target):
+        self._anim.stop()
+        self._anim.setStartValue(self._cur)
+        self._anim.setEndValue(target)
+        self._anim.start()
+
+    def enterEvent(self, e):
+        self._anim_to(AnimatedButton._bg_hover)
+        super().enterEvent(e)
+
+    def leaveEvent(self, e):
+        self._anim_to(AnimatedButton._bg_start)
+        super().leaveEvent(e)
+
+    def mousePressEvent(self, e):
+        self._anim_to(AnimatedButton._bg_press)
+        super().mousePressEvent(e)
+
+    def mouseReleaseEvent(self, e):
+        self._anim_to(self._cur if self.underMouse() else AnimatedButton._bg_start)
+        super().mouseReleaseEvent(e)
+
+
+# ═══════════════════════════════════════════════════════════════
 # LICENSE DIALOG
 # ═══════════════════════════════════════════════════════════════
 
@@ -255,10 +314,37 @@ class LicenseDialog(QDialog):
             self.st.setText("Enter a license key.")
             self.st.setStyleSheet("color:#ef4444;font-size:13px;")
             return
+
+        # Anti-debug check
+        if not combined.check_anti_debug():
+            self.st.setText("Debugger detected. Exiting.")
+            self.st.setStyleSheet("color:#ef4444;font-size:13px;")
+            QTimer.singleShot(2000, self.close)
+            return
+
+        # Try online activation first
+        hwid = combined.get_hwid()
+        try:
+            resp = combined.requests.post(LICENSE_SERVER_URL, json={"key": key, "hwid": hwid}, timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                if data.get("valid"):
+                    with open(BASE_DIR / "license.dat", "w") as f:
+                        json.dump({"key": key, "tier": data.get("tier", "premium"), "hwid": hwid, "at": time.time()}, f)
+                    self.accept()
+                    return
+                else:
+                    self.st.setText(data.get("reason", "License rejected by server."))
+                    self.st.setStyleSheet("color:#ef4444;font-size:13px;font-weight:600;")
+                    return
+        except:
+            pass  # Server unreachable, fall through to local
+
+        # Fallback to local validation
         result = combined.validate_license_key(key)
         if result.get("valid"):
             with open(BASE_DIR / "license.dat", "w") as f:
-                json.dump({"key": key, "tier": result.get("tier"), "at": time.time()}, f)
+                json.dump({"key": key, "tier": result.get("tier"), "hwid": hwid, "at": time.time()}, f)
             self.accept()
         else:
             r = result.get("reason", "Invalid key")
@@ -273,11 +359,12 @@ class ClaimWorker(QThread):
     log = pyqtSignal(str)
     done = pyqtSignal(str, bool, float)
 
-    def __init__(self, domain, username, password):
+    def __init__(self, domain, username, password, login_method="email"):
         super().__init__()
         self.domain = domain
         self.username = username
         self.password = password
+        self.login_method = login_method
 
     def run(self):
         self.log.emit(f"[{datetime.now():%H:%M:%S}] Starting claim for {self.domain}...")
@@ -287,7 +374,7 @@ class ClaimWorker(QThread):
                 self.log.emit(f"[{datetime.now():%H:%M:%S}] ❌ Browser failed for {self.domain}")
                 self.done.emit(self.domain, False, 0); return
             self.log.emit(f"[{datetime.now():%H:%M:%S}] Logging into {self.domain}...")
-            if auto.login(self.domain, self.username, self.password):
+            if auto.login(self.domain, self.username, self.password, self.login_method):
                 self.log.emit(f"[{datetime.now():%H:%M:%S}] ✅ Logged in. Claiming...")
                 sc = auto.claim_daily_bonus(self.domain)
                 auto.close()
@@ -363,7 +450,7 @@ class DashboardTab(QWidget):
                 with open(lf) as f: ld = json.load(f)
                 self.tier = ld.get("tier","Premium")
             except: pass
-        self.sys_info = QLabel(f"v1.0.1  |  {self.tier}  |  Scans: 0  |  Found: 0  |  Last: N/A")
+        self.sys_info = QLabel(f"{APP_VERSION}  |  {self.tier}  |  Scans: 0  |  Found: 0  |  Last: N/A")
         self.sys_info.setStyleSheet("font-size:12px;color:#94a3b8;")
         sil.addWidget(self.sys_info)
         self.last_refresh_lbl = QLabel("Last ping: —")
@@ -468,7 +555,7 @@ class DashboardTab(QWidget):
         self.c4.set_val(f"{int(h)}h {int(m)}m")
         la = s.get('last_alert')
         last_title = la.get('title','N/A')[:40] if la else 'N/A'
-        self.sys_info.setText(f"v1.0.1  |  {self.tier}  |  Scans: {s.get('scanned',0)}  |  Found: {s.get('found',0)}  |  Last: {last_title}")
+        self.sys_info.setText(f"{APP_VERSION}  |  {self.tier}  |  Scans: {s.get('scanned',0)}  |  Found: {s.get('found',0)}  |  Last: {last_title}")
         self.last_refresh_lbl.setText(f"Last ping: {datetime.now():%H:%M:%S}")
         st = s.get("bot_status","offline")
         if st=="online":
@@ -528,15 +615,15 @@ class DailySCTab(QWidget):
         a = QPushButton("+ Add"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
         ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
         stp = QPushButton("Stop All"); stp.setObjectName("danger"); stp.clicked.connect(self.stop_all); tb.addWidget(stp)
-        imp = QPushButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
-        r = QPushButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
+        imp = AnimatedButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
+        r = AnimatedButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
 
         # Accounts table (stretch)
         aw = QGroupBox("Accounts")
         al = QVBoxLayout(aw); al.setContentsMargins(6,6,6,6); al.setSpacing(4)
         self.tbl = QTableWidget()
-        self.tbl.setColumnCount(8)
-        self.tbl.setHorizontalHeaderLabels(["Domain","Username","Last Claim","Status","SC Total","","",""])
+        self.tbl.setColumnCount(9)
+        self.tbl.setHorizontalHeaderLabels(["Domain","Username","Login","Last Claim","Status","SC Total","","",""])
         self.tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.tbl.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
@@ -602,30 +689,34 @@ class DailySCTab(QWidget):
         for i,(dom,info) in enumerate(sorted(accts.items())):
             self.tbl.setItem(i,0,QTableWidgetItem(sm.get(dom,dom)))
             self.tbl.setItem(i,1,QTableWidgetItem(info.get("username","")))
+            lm = info.get("login_method","email")
+            lmi = QTableWidgetItem(lm.capitalize())
+            lmi.setForeground(QColor("#6366f1" if lm=="google" else "#ef4444" if lm=="apple" else "#888"))
+            self.tbl.setItem(i,2,lmi)
             sc = sched.get(dom,{})
             lc = sc.get("last_claim",0)
-            self.tbl.setItem(i,2,QTableWidgetItem(datetime.fromtimestamp(lc).strftime("%m/%d %H:%M") if lc else "Never"))
+            self.tbl.setItem(i,3,QTableWidgetItem(datetime.fromtimestamp(lc).strftime("%m/%d %H:%M") if lc else "Never"))
             st = sc.get("status","never")
             si = QTableWidgetItem(st.upper())
             si.setForeground(QColor("#10b981" if st in ("done","never") else "#eab308" if st=="claiming" else "#ef4444"))
-            self.tbl.setItem(i,3,si)
+            self.tbl.setItem(i,4,si)
             sct = info.get("sc_total",0)
             sci = QTableWidgetItem(f"${sct:.2f}")
             sci.setForeground(QColor("#FFD700"))
-            self.tbl.setItem(i,4,sci)
+            self.tbl.setItem(i,5,sci)
             b = QPushButton("Claim")
             b.setObjectName("success")
             b.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;}QPushButton:hover{background:#059669;}")
             b.clicked.connect(lambda checked,d=dom: self.claim(d))
-            self.tbl.setCellWidget(i,5,b)
+            self.tbl.setCellWidget(i,6,b)
             tb = QPushButton("Test")
             tb.setStyleSheet("QPushButton{color:#eab308;font-size:11px;padding:4px 10px;border-radius:6px;}")
             tb.clicked.connect(lambda checked,d=dom: self.log(f"[TEST] Test login for {d} (stub)"))
-            self.tbl.setCellWidget(i,6,tb)
+            self.tbl.setCellWidget(i,7,tb)
             rb = QPushButton("Remove")
             rb.setStyleSheet("QPushButton{color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;}")
             rb.clicked.connect(lambda checked,d=dom: self.remove_account(d))
-            self.tbl.setCellWidget(i,7,rb)
+            self.tbl.setCellWidget(i,8,rb)
 
         # Schedule table
         now = time.time()
@@ -691,7 +782,7 @@ class DailySCTab(QWidget):
         sched[dom] = sched.get(dom,{"last_claim":0,"status":"claiming"})
         sched[dom]["status"] = "claiming"
         combined.save_claim_schedule(sched)
-        w = ClaimWorker(dom,info["username"],info["password"])
+        w = ClaimWorker(dom,info["username"],info["password"],info.get("login_method","email"))
         w.log.connect(self.log)
         w.done.connect(self.fin)
         self.workers.append(w); w.start()
@@ -736,7 +827,7 @@ class DailySCTab(QWidget):
             count = 0
             for dom, info in data.items():
                 if dom not in accts and "username" in info and "password" in info:
-                    accts[dom] = {"username": info["username"], "password": info["password"], "sc_total": info.get("sc_total",0)}
+                    accts[dom] = {"username": info["username"], "password": info["password"], "sc_total": info.get("sc_total",0), "login_method": info.get("login_method","email")}
                     count += 1
             combined.save_accounts(accts)
             self.log(f"[USER] Imported {count} accounts from {Path(fn).name}")
@@ -747,18 +838,18 @@ class DailySCTab(QWidget):
     def add(self):
         d = AddAccountDlg(self)
         if d.exec():
-            dom,un,pw = d.vals()
+            dom,un,pw,lm = d.vals()
             if dom and un and pw:
                 accts = combined.load_accounts()
-                accts[dom] = {"username":un,"password":pw,"sc_total":0}
+                accts[dom] = {"username":un,"password":pw,"sc_total":0,"login_method":lm}
                 combined.save_accounts(accts)
                 self.load()
-                self.log(f"[USER] Added: {dom}")
+                self.log(f"[USER] Added: {dom} ({lm})")
 
 class AddAccountDlg(QDialog):
     def __init__(self,parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Add Account"); self.setFixedSize(400,280)
+        self.setWindowTitle("Add Account"); self.setFixedSize(400,320)
         lo = QVBoxLayout(); lo.setContentsMargins(24,24,24,24); lo.setSpacing(12)
         t = QLabel("Add Account"); t.setObjectName("title"); t.setStyleSheet("font-size:20px;"); lo.addWidget(t)
         fm = QFormLayout(); fm.setSpacing(10)
@@ -770,13 +861,16 @@ class AddAccountDlg(QDialog):
         fm.addRow("Casino:",self.d)
         self.u = QLineEdit(); self.u.setPlaceholderText("Account email"); fm.addRow("Username:",self.u)
         self.p = QLineEdit(); self.p.setPlaceholderText("Password"); self.p.setEchoMode(QLineEdit.EchoMode.Password); fm.addRow("Password:",self.p)
+        self.lm = QComboBox()
+        self.lm.addItems(["Email", "Google", "Apple"])
+        fm.addRow("Login Method:", self.lm)
         lo.addLayout(fm); lo.addSpacing(12)
         bl = QHBoxLayout()
         s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.accept)
         c = QPushButton("Cancel"); c.clicked.connect(self.reject)
         bl.addWidget(s); bl.addWidget(c); lo.addLayout(bl)
         self.setLayout(lo)
-    def vals(self): return self.d.currentData() or self.d.currentText().strip(),self.u.text().strip(),self.p.text().strip()
+    def vals(self): return self.d.currentData() or self.d.currentText().strip(),self.u.text().strip(),self.p.text().strip(),self.lm.currentText().lower()
 
 # ═══════════════════════════════════════════════════════════════
 # STREAMER SNIPER TAB
@@ -984,13 +1078,21 @@ class LinkAutomationTab(QWidget):
             sl.addLayout(c)
         sg.setLayout(sl); lo.addWidget(sg)
 
-        # Add URL + Last result inline
+        # Add URL + casino dropdown + buttons inline
         ab = QHBoxLayout()
+        self.casino_combo = QComboBox()
+        self.casino_combo.setEditable(True)
+        self.casino_combo.setPlaceholderText("Select casino...")
+        sites = combined.load_sites()
+        for s in sites:
+            self.casino_combo.addItem(f"{s['name']} ({s['domain']})", s["domain"])
+        self.casino_combo.setMinimumWidth(200)
+        ab.addWidget(self.casino_combo)
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("Paste sweepstakes link...")
-        ab.addWidget(self.url_input)
-        val_btn = QPushButton("Validate"); val_btn.clicked.connect(self.validate_url); ab.addWidget(val_btn)
-        self.add_btn = QPushButton("Add"); self.add_btn.setObjectName("gold"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
+        ab.addWidget(self.url_input, 1)
+        val_btn = AnimatedButton("Validate"); val_btn.clicked.connect(self.validate_url); ab.addWidget(val_btn)
+        self.add_btn = QPushButton("+ Add Link"); self.add_btn.setObjectName("gold"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
         lo.addLayout(ab)
 
         # Queue table (stretches)
@@ -1015,25 +1117,42 @@ class LinkAutomationTab(QWidget):
         self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
         self.auto_toggle.clicked.connect(self.toggle_auto)
         ctrl_row.addWidget(self.auto_toggle)
-        cc_btn = QPushButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); ctrl_row.addWidget(cc_btn)
-        self.clear_btn = QPushButton("Clear"); self.clear_btn.clicked.connect(self.clear_queue); ctrl_row.addWidget(self.clear_btn)
+        cc_btn = AnimatedButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); ctrl_row.addWidget(cc_btn)
+        self.clear_btn = AnimatedButton("Clear"); self.clear_btn.clicked.connect(self.clear_queue); ctrl_row.addWidget(self.clear_btn)
         ctrl_row.addStretch()
         self.last_result_lbl = QLabel("No links processed yet")
         self.last_result_lbl.setStyleSheet("font-size:11px;color:#64748b;")
         ctrl_row.addWidget(self.last_result_lbl)
         lo.addLayout(ctrl_row)
 
-        # Log bottom
+        # Bottom panels: Monitor Feed + Log side by side
+        bottom_row = QHBoxLayout()
+        # Monitor Feed
+        mg = QGroupBox("Monitor Feed")
+        ml = QVBoxLayout(mg); ml.setContentsMargins(6,6,6,6); ml.setSpacing(4)
+        self.monitor_tbl = QTableWidget()
+        self.monitor_tbl.setColumnCount(3)
+        self.monitor_tbl.setHorizontalHeaderLabels(["Title","SC","Source"])
+        self.monitor_tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.monitor_tbl.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.monitor_tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.monitor_tbl.verticalHeader().setVisible(False)
+        self.monitor_tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.monitor_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.monitor_tbl.setMaximumHeight(120)
+        ml.addWidget(self.monitor_tbl)
+        bottom_row.addWidget(mg, 1)
+
+        # Log
         lg = QGroupBox("Log")
-        ll = QVBoxLayout()
-        ll.setContentsMargins(6,6,6,6)
+        ll = QVBoxLayout(lg); ll.setContentsMargins(6,6,6,6)
         self.link_log = QTextEdit()
         self.link_log.setReadOnly(True)
-        self.link_log.setMaximumHeight(80)
+        self.link_log.setMaximumHeight(120)
         ll.addWidget(self.link_log)
-        lg.setLayout(ll); lo.addWidget(lg)
+        bottom_row.addWidget(lg, 1)
+        lo.addLayout(bottom_row)
 
-        lo.addStretch()
         self.setLayout(lo)
         self.auto_running = False
         self.refresh_queue()
@@ -1048,6 +1167,15 @@ class LinkAutomationTab(QWidget):
     def refresh_queue(self):
         queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
         self.queue_tbl.setRowCount(len(queue))
+
+        # Update Monitor Feed
+        feed = list(combined.monitor_feed) if hasattr(combined, 'monitor_feed') else []
+        self.monitor_tbl.setRowCount(len(feed))
+        for i, entry in enumerate(feed):
+            self.monitor_tbl.setItem(i,0,QTableWidgetItem(entry.get("title","")[:50]))
+            sa = entry.get("sc_amount")
+            self.monitor_tbl.setItem(i,1,QTableWidgetItem(f"${sa:.2f}" if sa else "—"))
+            self.monitor_tbl.setItem(i,2,QTableWidgetItem(entry.get("subreddit","")))
         total = len(queue)
         processed = sum(1 for q in queue if q.get("status") in ("done","failed"))
         success = sum(1 for q in queue if q.get("status") == "done")
@@ -1079,8 +1207,9 @@ class LinkAutomationTab(QWidget):
     def add_link(self):
         url = self.url_input.text().strip()
         if not url: return
+        casino = self.casino_combo.currentData() or self.casino_combo.currentText().strip() or ""
         queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
-        queue.append({"url": url, "added": datetime.now().strftime("%m/%d %H:%M"), "status": "pending", "result": ""})
+        queue.append({"url": url, "added": datetime.now().strftime("%m/%d %H:%M"), "status": "pending", "result": "", "casino": casino})
         if hasattr(combined, 'save_link_queue'):
             combined.save_link_queue(queue)
         self.url_input.clear()
@@ -1228,7 +1357,7 @@ class SettingsTab(QWidget):
                 with open(lf) as f: ld = json.load(f)
                 license_info = f"{ld.get('key','N/A')}  |  {ld.get('tier','Premium')}"
             except: license_info = "Corrupted"
-        al.addWidget(QLabel(f"v1.0.1  |  {license_info}"))
+        al.addWidget(QLabel(f"{APP_VERSION}  |  {license_info}"))
         l = QLabel('<a href="https://claimscasino.com/terms" style="color:#FFD700;text-decoration:none;">Terms</a>')
         l.setOpenExternalLinks(True); al.addWidget(l)
         al.addWidget(QLabel("© 2026 Claims Casino"))
@@ -1325,8 +1454,9 @@ class SettingsTab(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Claims Casino - Automation Suite")
-        self.setFixedSize(1200, 780)
+        self.setWindowTitle("Claims Casino")
+        self.setMinimumSize(900, 600)
+        self.resize(1200, 780)
 
         logo_path = Path(getattr(sys, "_MEIPASS", BASE_DIR)) / "assets" / "logo.png"
         if logo_path.exists():
@@ -1335,10 +1465,10 @@ class MainWindow(QMainWindow):
         c = QWidget(); self.setCentralWidget(c)
         main_lo = QVBoxLayout(c); main_lo.setContentsMargins(0,0,0,0); main_lo.setSpacing(0)
 
-        # ═══ Custom title bar (56px) ═══
+        # ═══ Custom title bar (64px) ═══
         tb = QFrame()
         tb.setObjectName("titleBar")
-        tb.setFixedHeight(56)
+        tb.setFixedHeight(64)
         tb.setStyleSheet("#titleBar{background:#0d0d14;}")
         tbl = QHBoxLayout(tb); tbl.setContentsMargins(12,0,8,0); tbl.setSpacing(8)
 
@@ -1352,9 +1482,14 @@ class MainWindow(QMainWindow):
         logo_lbl.setFixedSize(40,40)
         tbl.addWidget(logo_lbl)
 
+        brand_col = QVBoxLayout(); brand_col.setSpacing(0)
         brand = QLabel("CLAIMS CASINO")
         brand.setStyleSheet("color:#FFD700;font-size:18px;font-weight:700;letter-spacing:1px;")
-        tbl.addWidget(brand)
+        brand_col.addWidget(brand)
+        sub = QLabel("Automation Suite  " + APP_VERSION)
+        sub.setStyleSheet("color:#888;font-size:10px;font-weight:400;")
+        brand_col.addWidget(sub)
+        tbl.addLayout(brand_col)
 
         tbl.addStretch()
 
@@ -1409,7 +1544,7 @@ class MainWindow(QMainWindow):
         self.lat = LinkAutomationTab()
         self.ste = SettingsTab()
         # Wire up check updates
-        self.ste.check_updates_requested.connect(self.check_up)
+        self.ste.check_updates_requested.connect(lambda: self.check_up(silent=False))
         self.stack.addWidget(self.dt)
         self.stack.addWidget(self.dst)
         self.stack.addWidget(self.sst)
@@ -1430,7 +1565,7 @@ class MainWindow(QMainWindow):
         self.stl = QLabel("SC: $0.00")
         self.stl.setStyleSheet("color:#FFD700;font-weight:600;padding:0 12px;")
         sb.addWidget(self.stl)
-        vl = QLabel("v1.0.1")
+        vl = QLabel(APP_VERSION)
         vl.setStyleSheet("color:#555;padding:0 12px;")
         sb.addPermanentWidget(vl)
 
@@ -1459,7 +1594,7 @@ class MainWindow(QMainWindow):
         self.status_timer.timeout.connect(self.refresh_st)
         self.status_timer.start(2000)
 
-        QTimer.singleShot(3000, self.check_up)
+        QTimer.singleShot(3000, lambda: self.check_up(silent=True))
 
         # Center on screen
         self.move(QApplication.primaryScreen().geometry().center() - self.rect().center())
@@ -1505,32 +1640,31 @@ class MainWindow(QMainWindow):
         if self.tray.isVisible(): self.hide_to_tray(); e.ignore()
         else: e.accept()
 
-    def check_up(self):
+    def check_up(self, silent=False):
         try:
-            r = combined.requests.get(
-                "https://api.github.com/repos/glowrius/casino-bonus-monitor/releases/latest", timeout=5)
-            if r.status_code != 200: return
-            data = r.json()
-            tag = data.get("tag_name", "v0.0.0")
-            if tag <= "v1.0.1": return
-            assets = data.get("assets", [])
-            exe_asset = None
-            for a in assets:
-                if a.get("name", "").endswith(".exe"):
-                    exe_asset = a
-                    break
-            if not exe_asset: return
-            mb = exe_asset.get("size", 0) / 1048576
-            if QMessageBox.question(self, "Update Available",
+            r = combined.requests.get(UPDATE_MANIFEST_URL, timeout=8)
+            if r.status_code != 200:
+                if not silent: QMessageBox.information(self, "Updater", "Could not check for updates.")
+                return
+            manifest = r.json()
+            tag = manifest.get("version", "v0.0.0")
+            dl_url = manifest.get("url", "")
+            size_bytes = manifest.get("size", 0)
+            if tag <= APP_VERSION or not dl_url:
+                if not silent: QMessageBox.information(self, "Updater", "No new updates available.")
+                return
+            mb = size_bytes / 1048576
+            if QMessageBox.question(self, "Updater",
                 f"Claims Casino {tag} available ({mb:.1f} MB).\nDownload and install now?",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
                 return
-            self.download_update(exe_asset["browser_download_url"], tag)
-        except: pass
+            self.download_update(dl_url, tag)
+        except Exception as e:
+            if not silent: QMessageBox.warning(self, "Updater", f"Update check failed:\n{e}")
 
     def download_update(self, url, tag):
-        pd = QProgressDialog(f"Downloading {tag}...", "Cancel", 0, 0, self)
-        pd.setWindowTitle("Update"); pd.setCancelButton(None)
+        pd = QProgressDialog(f"Updater — Downloading {tag}...", "Cancel", 0, 0, self)
+        pd.setWindowTitle("Updater"); pd.setCancelButton(None)
         pd.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.FramelessWindowHint)
         pd.setFixedSize(360, 100); pd.show()
         tmp = BASE_DIR / f"CasinoBot_{tag}.exe"
@@ -1546,7 +1680,7 @@ class MainWindow(QMainWindow):
                         downloaded += len(chunk)
                         if total:
                             pd.setValue(int(downloaded / total * 100))
-                            pd.setLabelText(f"Downloading {tag}... {downloaded*100//total}%")
+                            pd.setLabelText(f"Updater — {downloaded*100//total}%")
             pd.close()
             exe = sys.executable
             ps = (
@@ -1560,7 +1694,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             pd.close()
             if tmp.exists(): tmp.unlink()
-            QMessageBox.warning(self, "Update Failed", f"Download failed:\n{e}")
+            QMessageBox.warning(self, "Updater", f"Download failed:\n{e}")
 
 # ═══════════════════════════════════════════════════════════════
 # ENTRY POINT
@@ -1572,18 +1706,38 @@ def main():
     app.setStyle("Fusion")
     app.setStyleSheet(DARK_SS)
 
+    # Anti-debug check (kill switch)
+    if not combined.check_anti_debug():
+        mb = QMessageBox(QMessageBox.Icon.Critical, "Security", "Debug environment detected. Application cannot run.")
+        mb.exec()
+        sys.exit(1)
+
     # Check license
     lf = BASE_DIR / "license.dat"
     ok = False
+    license_key = ""
     if lf.exists():
         try:
             with open(lf) as f: ld = json.load(f)
-            if combined.validate_license_key(ld.get("key","")).get("valid"): ok = True
-        except: pass
+            license_key = ld.get("key", "")
+            hwid = ld.get("hwid", "")
+            # Online re-validation (silent, periodic)
+            try:
+                if hwid:
+                    r = combined.requests.post(LICENSE_SERVER_URL, json={"key": license_key, "hwid": hwid}, timeout=3)
+                    if r.status_code == 200 and r.json().get("valid"):
+                        ok = True
+                    # If server says invalid, fall through to local check
+                else:
+                    ok = combined.validate_license_key(license_key).get("valid")
+            except:
+                ok = combined.validate_license_key(license_key).get("valid")
+        except:
+            pass
 
     if not ok:
         dlg = LicenseDialog()
-        if dlg.exec() != QDialog.DialogCode.Accepted: sys.exit(0)
+        if dlg.exec() != QDialog.DialogCode.Accepted: sys.exit(1)
 
     w = MainWindow(); w.show()
     sys.exit(app.exec())
