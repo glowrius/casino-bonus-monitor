@@ -907,7 +907,7 @@ class MainWindow(QMainWindow):
         self.stl = QLabel("SC: $0.00")
         self.stl.setStyleSheet("color:#FFD700;font-weight:600;padding:0 12px;")
         sb.addWidget(self.stl)
-        vl = QLabel("v1.0.0")
+        vl = QLabel("v1.0.1")
         vl.setStyleSheet("color:#555;padding:0 12px;")
         sb.addPermanentWidget(vl)
 
@@ -993,7 +993,7 @@ class MainWindow(QMainWindow):
             if r.status_code != 200: return
             data = r.json()
             tag = data.get("tag_name", "v0.0.0")
-            if tag <= "v1.0.0": return
+            if tag <= "v1.0.1": return
             assets = data.get("assets", [])
             exe_asset = None
             for a in assets:
