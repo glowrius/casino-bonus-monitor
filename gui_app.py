@@ -51,75 +51,106 @@ from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
 # ═══════════════════════════════════════════════════════════════
 
 DARK_SS = """
-QMainWindow, QDialog { background: #111114; color: #e0e0e8; }
-QWidget { background: #111114; color: #e0e0e8; }
-QListWidget {
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #1a1a1e, stop:1 #141418);
-    border: none; border-right: 1px solid rgba(255,255,255,0.04); border-bottom-left-radius: 12px;
-    color: #888; font-size: 14px; font-weight: 600; outline: none;
-    padding: 8px 0; min-width: 200px; max-width: 200px;
+QMainWindow, QDialog { background: #0d0d12; color: #e2e8f0; }
+QWidget { background: #0d0d12; color: #e2e8f0; }
+
+/* ---- Sidebar ---- */
+#sidebar { background: #121216; border: none; border-right: 1px solid rgba(255,255,255,0.06); min-width: 200px; max-width: 200px; }
+#sidebar QPushButton {
+    background: transparent; color: #94a3b8; border: none; border-radius: 0; text-align: left;
+    padding: 14px 20px; font-size: 13px; font-weight: 600; border-left: 3px solid transparent;
 }
-QListWidget::item { padding: 14px 20px; border-left: 3px solid transparent; }
-QListWidget::item:selected {
+#sidebar QPushButton:hover { background: rgba(255,255,255,0.03); color: #cbd5e1; border-left: 3px solid rgba(255,215,0,0.3); }
+#sidebar QPushButton:checked {
     background: rgba(255,215,0,0.08); color: #FFD700; border-left: 3px solid #FFD700;
 }
-QListWidget::item:hover:!selected {
-    background: rgba(255,255,255,0.03); color: #ccc; border-left: 3px solid rgba(255,215,0,0.3);
-}
+#sidebar #navsep { background: rgba(255,255,255,0.06); max-height: 1px; min-height: 1px; margin: 4px 16px; }
+
+/* ---- Buttons ---- */
 QPushButton {
-    background: rgba(42,42,46,0.6); color: #f0efed; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px; padding: 10px 24px; font-size: 13px; font-weight: 600;
+    background: rgba(30,30,38,0.8); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; padding: 10px 22px; font-size: 13px; font-weight: 600;
 }
-QPushButton:hover { background: rgba(255,255,255,0.1); border-color: #FFD700; }
+QPushButton:hover { background: rgba(40,40,50,0.9); border-color: rgba(255,215,0,0.4); }
 QPushButton:pressed { background: rgba(0,0,0,0.3); }
+QPushButton:disabled { background: rgba(255,255,255,0.03); color: #475569; border-color: rgba(255,255,255,0.04); }
 QPushButton#gold {
-    background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FFD700, stop:1 #FFB300);
-    color: #111114; border: none; font-weight: 700;
+    background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FFD700, stop:1 #F59E0B);
+    color: #0a0a0f; border: none; font-weight: 700;
 }
-QPushButton#gold:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ffe44d, stop:1 #FFC107); }
-QPushButton#danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+QPushButton#gold:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ffe44d, stop:1 #fbbf24); }
+QPushButton#danger { background: #ef4444; color: #fff; border: none; }
 QPushButton#danger:hover { background: #dc2626; }
-QPushButton#success { background: #22c55e; color: #fff; border-color: #22c55e; }
-QPushButton#success:hover { background: #16a34a; }
-QPushButton:disabled { background: rgba(255,255,255,0.03); color: #555; border-color: rgba(255,255,255,0.04); }
+QPushButton#success { background: #10b981; color: #fff; border: none; }
+QPushButton#success:hover { background: #059669; }
+
+/* ---- Inputs ---- */
 QLineEdit {
-    background: rgba(28,28,33,0.8); color: #f0efed; border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px; padding: 10px 14px; font-size: 14px;
+    background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 10px 14px; font-size: 13px;
 }
-QLineEdit:focus { border-color: #FFD700; }
-QTableWidget {
-    background: rgba(28,28,33,0.6); color: #e0e0e8; border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px; gridline-color: rgba(255,255,255,0.04); font-size: 13px;
-}
-QTableWidget::item { padding: 8px; }
-QTableWidget::item:selected { background: rgba(255,215,0,0.1); color: #FFD700; }
-QHeaderView::section {
-    background: rgba(34,34,38,0.8); color: #FFD700; padding: 10px; border: none;
-    border-bottom: 2px solid #FFD700; font-weight: 700; font-size: 12px;
-}
-QLabel#title { font-size: 24px; font-weight: 800; }
-QLabel#subtitle { font-size: 14px; color: #888; }
-QLabel#statv { font-size: 28px; font-weight: 800; }
-QLabel#statl { font-size: 12px; color: #888; letter-spacing: 1px; }
-QCheckBox { color: #e0e0e8; font-size: 13px; spacing: 8px; }
-QCheckBox::indicator { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(28,28,33,0.6); }
-QCheckBox::indicator:checked { background: #FFD700; border-color: #FFD700; }
-QSpinBox { background: rgba(28,28,33,0.8); color: #f0efed; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; font-size: 13px; }
+QLineEdit:focus { border-color: #FFD700; border-width: 2px; }
+QSpinBox { background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px; font-size: 13px; }
 QSpinBox:focus { border-color: #FFD700; }
-QGroupBox {
-    border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; margin-top: 16px;
-    padding: 20px 16px 16px; font-weight: 700; font-size: 13px; color: #FFD700;
-    background: rgba(28,28,33,0.4);
+QCheckBox { color: #94a3b8; font-size: 13px; spacing: 8px; }
+QCheckBox::indicator { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.12); border-radius: 4px; background: rgba(22,22,30,0.8); }
+QCheckBox::indicator:checked { background: #FFD700; border-color: #FFD700; }
+
+/* ---- Tables ---- */
+QTableWidget {
+    background: rgba(20,20,28,0.7); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; gridline-color: rgba(255,255,255,0.03); font-size: 13px;
 }
-QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 8px; }
-QTextEdit { background: rgba(10,10,14,0.8); color: #b0b0b8; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; font-family: Consolas,Courier New,monospace; font-size: 12px; }
-QStatusBar { background: rgba(28,28,33,0.85); color: #888; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+QTableWidget::item { padding: 8px 10px; }
+QTableWidget::item:selected { background: rgba(255,215,0,0.08); color: #FFD700; }
+QTableWidget::item:hover { background: rgba(255,255,255,0.03); }
+QHeaderView::section {
+    background: rgba(18,18,24,0.9); color: #FFD700; padding: 10px 12px; border: none;
+    border-bottom: 2px solid rgba(255,215,0,0.6); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+/* ---- Labels ---- */
+QLabel#title { font-size: 22px; font-weight: 800; color: #f1f5f9; letter-spacing: -0.5px; }
+QLabel#statv { font-size: 28px; font-weight: 800; }
+QLabel#statl { font-size: 11px; color: #64748b; letter-spacing: 1px; text-transform: uppercase; }
+
+/* ---- Group Boxes ---- */
+QGroupBox {
+    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-top: 14px;
+    padding: 18px 14px 14px; font-weight: 600; font-size: 11px; color: #94a3b8;
+    background: rgba(20,20,28,0.55);
+    text-transform: uppercase; letter-spacing: 1px;
+}
+QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #94a3b8; }
+
+/* ---- Text (Logs) ---- */
+QTextEdit {
+    background: #0a0a10; color: #94a3b8; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px; font-family: Consolas,'Courier New',monospace; font-size: 12px;
+}
+
+/* ---- Status Bar ---- */
+QStatusBar { background: rgba(16,16,22,0.9); color: #64748b; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
 QStatusBar::item { border: none; }
-QScrollBar:vertical { background: rgba(28,28,33,0.4); width: 8px; border-radius: 4px; }
-QScrollBar::handle:vertical { background: rgba(255,255,255,0.15); border-radius: 4px; min-height: 30px; }
-QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.25); }
+
+/* ---- Scrollbars ---- */
+QScrollBar:vertical { background: transparent; width: 6px; border-radius: 3px; }
+QScrollBar::handle:vertical { background: rgba(255,255,255,0.12); border-radius: 3px; min-height: 24px; }
+QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.2); }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
+
+/* ---- Splitter ---- */
 QSplitter::handle { background: rgba(255,255,255,0.06); width: 1px; }
+
+/* ---- Combo Box ---- */
+QComboBox {
+    background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; padding: 8px 12px; font-size: 13px; min-height: 20px;
+}
+QComboBox:focus { border-color: #FFD700; }
+QComboBox::drop-down { border: none; width: 28px; }
+QComboBox::down-arrow { image: none; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #94a3b8; margin-right: 8px; }
+QComboBox QAbstractItemView { background: #1a1a24; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); selection-background-color: rgba(255,215,0,0.15); selection-color: #FFD700; }
 """
 
 # ═══════════════════════════════════════════════════════════════
@@ -127,21 +158,17 @@ QSplitter::handle { background: rgba(255,255,255,0.06); width: 1px; }
 # ═══════════════════════════════════════════════════════════════
 
 class StatCard(QFrame):
-    def __init__(self, label, initial="0", color="#22c55e"):
+    def __init__(self, label, initial="0", color="#10b981"):
         super().__init__()
         self.setObjectName("sc")
-        self.setStyleSheet(f"#sc{{background:rgba(28,28,33,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:20px;}}"
-                           f"#sc:hover{{border-color:#FFD700;}}")
+        self.setStyleSheet(f"#sc{{background:rgba(22,22,34,0.65);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;}}"
+                           f"#sc:hover{{border-color:rgba(255,215,0,0.3);background:rgba(22,22,34,0.8);}}")
         lo = QVBoxLayout()
-        lo.setContentsMargins(16, 12, 16, 12)
-        lo.setSpacing(4)
+        lo.setContentsMargins(14, 10, 14, 10)
+        lo.setSpacing(2)
         self.v = QLabel(initial)
         self.v.setObjectName("statv")
-        g = f"background:linear-gradient(135deg,{color},{color});-webkit-background-clip:text;" if color == "#FFD700" else ""
-        if g:
-            self.v.setStyleSheet(f"font-size:34px;font-weight:800;color:{color};")
-        else:
-            self.v.setStyleSheet(f"font-size:34px;font-weight:800;color:{color};")
+        self.v.setStyleSheet(f"font-size:30px;font-weight:800;color:{color};")
         lo.addWidget(self.v)
         l = QLabel(label)
         l.setObjectName("statl")
@@ -301,25 +328,25 @@ class DashboardTab(QWidget):
         self.c1 = StatCard("Total SC Claimed", "$0.00", "#22c55e")
         self.c2 = StatCard("Claims Today", "0")
         self.c3 = StatCard("Alerts Sent", "0")
-        self.c4 = StatCard("Uptime", "0h 0m")
+        self.c4 = StatCard("Uptime", "0h 0m", "#6366f1")
         g.addWidget(self.c1); g.addWidget(self.c2); g.addWidget(self.c3); g.addWidget(self.c4)
         lo.addLayout(g)
 
-        # Master control
-        mc = QGroupBox("Master Control")
+        # Control center
+        mc = QGroupBox("Dashboard")
         mcl = QVBoxLayout()
-        self.master_btn = QPushButton("START ALL SYSTEMS")
+        self.master_btn = QPushButton("Start All")
         self.master_btn.setObjectName("success")
-        self.master_btn.setStyleSheet("QPushButton{background:#22c55e;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#16a34a;}")
+        self.master_btn.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#059669;}")
         self.master_btn.clicked.connect(self.toggle_master)
         mcl.addWidget(self.master_btn)
         # Service indicators
         sind = QHBoxLayout()
         sind.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.inds = {}
-        for name in ["Reddit Monitor","Daily SC","Streamer Sniper","Link Auto"]:
-            b = QLabel(f"● {name}")
-            b.setStyleSheet("color:#555;font-size:12px;padding:4px 12px;")
+        for name in ["Scanner","Claims","Streamer","Links"]:
+            b = QLabel(f"\u25cf {name}")
+            b.setStyleSheet("color:#475569;font-size:12px;padding:4px 12px;")
             self.inds[name] = b
             sind.addWidget(b)
         mcl.addLayout(sind)
@@ -371,50 +398,42 @@ class DashboardTab(QWidget):
 
     def set_indicator(self, name, on):
         if name in self.inds:
-            self.inds[name].setStyleSheet(f"color:#{'22c55e' if on else '555'};font-size:12px;padding:4px 12px;")
+            self.inds[name].setStyleSheet(f"color:#{'10b981' if on else '475569'};font-size:12px;padding:4px 12px;")
 
     def toggle_master(self):
         if self.running: self.stop_master()
         else: self.start_master()
 
     def start_master(self):
-        self.log("[MASTER] Starting ALL systems...")
+        self.log("[MASTER] Starting...")
         self.running = True
-        self.master_btn.setText("STOP ALL SYSTEMS")
+        self.master_btn.setText("Stop All")
         self.master_btn.setStyleSheet("QPushButton{background:#ef4444;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#dc2626;}")
-        # Start Reddit monitor
         for fn in [combined.monitor_loop, combined.daily_freebies_loop]:
             t = threading.Thread(target=fn, daemon=True); t.start(); self.threads.append(t)
-        self.set_indicator("Reddit Monitor", True)
-        # Start Daily SC claim scheduler
+        self.set_indicator("Scanner", True)
         t = threading.Thread(target=combined.claim_scheduler_loop, daemon=True); t.start(); self.threads.append(t)
-        self.set_indicator("Daily SC", True)
-        # Start Streamer Sniper
+        self.set_indicator("Claims", True)
         if hasattr(combined, 'monitor_streamer_loop'):
             t = threading.Thread(target=combined.monitor_streamer_loop, daemon=True); t.start(); self.threads.append(t)
-        self.set_indicator("Streamer Sniper", True)
-        # Start Link Auto processor
+        self.set_indicator("Streamer", True)
         if hasattr(combined, 'process_queue_loop'):
             t = threading.Thread(target=combined.process_queue_loop, daemon=True); t.start(); self.threads.append(t)
-        self.set_indicator("Link Auto", True)
+        self.set_indicator("Links", True)
         with combined.state_lock:
             combined.state["bot_status"] = "online"; combined.state["status"] = "online"
-        self.log("[MASTER] ✅ All systems active")
-        self.log("[MASTER]   Reddit Monitor — scanning subreddits every 60s")
-        self.log("[MASTER]   Daily SC — auto-claiming on 24h cooldown")
-        self.log("[MASTER]   Streamer Sniper — monitoring streamers every 60s")
-        self.log("[MASTER]   Link Auto — processing queue every 30s")
+        self.log("[MASTER] All systems running")
 
     def stop_master(self):
-        self.log("[MASTER] Stopping all systems...")
+        self.log("[MASTER] Stopping...")
         self.running = False
-        self.master_btn.setText("START ALL SYSTEMS")
-        self.master_btn.setStyleSheet("QPushButton{background:#22c55e;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#16a34a;}")
+        self.master_btn.setText("Start All")
+        self.master_btn.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#059669;}")
         with combined.state_lock:
             combined.state["bot_status"] = "offline"; combined.state["status"] = "offline"
         for name in self.inds:
             self.set_indicator(name, False)
-        self.log("[MASTER] ❌ All systems stopped")
+        self.log("[MASTER] Stopped")
 
     def refresh(self):
         with combined.state_lock:
@@ -428,9 +447,9 @@ class DashboardTab(QWidget):
         self.mi.setText(f"Scans: {s.get('scanned',0)} | Found: {s.get('found',0)} | Last: {(la.get('title','N/A')[:40] if la else 'N/A')}")
         st = s.get("bot_status","offline")
         if st=="online":
-            self.set_indicator("Reddit Monitor", True)
+            self.set_indicator("Scanner", True)
         else:
-            self.set_indicator("Reddit Monitor", False)
+            self.set_indicator("Scanner", False)
 
 # ═══════════════════════════════════════════════════════════════
 # DAILY SC TAB (Accounts + Schedule + Log merged)
@@ -465,9 +484,9 @@ class DailySCTab(QWidget):
 
         # Toolbar
         tb = QHBoxLayout(); tb.setSpacing(8)
-        a = QPushButton("+ ADD ACCOUNT"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
-        ca = QPushButton("CLAIM ALL"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
-        r = QPushButton("REFRESH"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
+        a = QPushButton("+ Add"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
+        ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
+        r = QPushButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
 
         # Splitter: Account table top, Schedule + Log bottom
         sp = QSplitter(Qt.Orientation.Vertical)
@@ -554,12 +573,12 @@ class DailySCTab(QWidget):
             sci = QTableWidgetItem(f"${sct:.2f}")
             sci.setForeground(QColor("#FFD700"))
             self.tbl.setItem(i,4,sci)
-            b = QPushButton("CLAIM NOW")
+            b = QPushButton("Claim")
             b.setObjectName("success")
-            b.setStyleSheet("QPushButton{background:#22c55e;color:#fff;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;}QPushButton:hover{background:#16a34a;}")
+            b.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;}QPushButton:hover{background:#059669;}")
             b.clicked.connect(lambda checked,d=dom: self.claim(d))
             self.tbl.setCellWidget(i,5,b)
-            rb = QPushButton("REMOVE")
+            rb = QPushButton("Remove")
             rb.setStyleSheet("QPushButton{color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;}")
             rb.clicked.connect(lambda checked,d=dom: self.remove_account(d))
             self.tbl.setCellWidget(i,6,rb)
@@ -663,8 +682,8 @@ class AddAccountDlg(QDialog):
         self.p = QLineEdit(); self.p.setPlaceholderText("Password"); self.p.setEchoMode(QLineEdit.EchoMode.Password); fm.addRow("Password:",self.p)
         lo.addLayout(fm); lo.addSpacing(12)
         bl = QHBoxLayout()
-        s = QPushButton("SAVE"); s.setObjectName("gold"); s.clicked.connect(self.accept)
-        c = QPushButton("CANCEL"); c.clicked.connect(self.reject)
+        s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.accept)
+        c = QPushButton("Cancel"); c.clicked.connect(self.reject)
         bl.addWidget(s); bl.addWidget(c); lo.addLayout(bl)
         self.setLayout(lo)
     def vals(self): return self.d.currentData() or self.d.currentText().strip(),self.u.text().strip(),self.p.text().strip()
@@ -682,22 +701,15 @@ class StreamerSniperTab(QWidget):
         t = QLabel("Streamer Sniper")
         t.setObjectName("title"); lo.addWidget(t)
 
-        # Info frame
-        ig = QGroupBox("How It Works")
-        il = QVBoxLayout()
-        il.addWidget(QLabel("Add Kick/Twitch streamers to monitor. The sniper checks if they are live every 60s and "
-                            "can auto-claim bonuses when they go online. Toggle below to start/stop monitoring."))
-        self.sniper_stats = QLabel("Monitored: 0 | Online: 0 | Alerts: 0")
-        self.sniper_stats.setStyleSheet("font-size:13px;color:#b0b0b8;")
-        il.addWidget(self.sniper_stats)
-        ig.setLayout(il); lo.addWidget(ig)
+        self.sniper_stats = QLabel("Monitored: 0  \u00b7  Online: 0  \u00b7  Alerts: 0")
+        self.sniper_stats.setStyleSheet("font-size:13px;color:#94a3b8;padding:4px 0;")
 
         tb = QHBoxLayout(); tb.setSpacing(8)
-        self.sniper_tgl = QPushButton("START SNIPER")
+        tb.addWidget(self.sniper_stats); tb.addStretch()
+        self.sniper_tgl = QPushButton("Watch")
         self.sniper_tgl.setObjectName("success")
         self.sniper_tgl.clicked.connect(self.toggle_sniper)
         tb.addWidget(self.sniper_tgl)
-        tb.addStretch()
         lo.addLayout(tb)
 
         # Streamer list
@@ -713,8 +725,8 @@ class StreamerSniperTab(QWidget):
         self.streamer_list.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         sl.addWidget(self.streamer_list)
         ab = QHBoxLayout()
-        self.sadd = QPushButton("+ ADD STREAMER"); self.sadd.setObjectName("gold"); self.sadd.clicked.connect(self.add_streamer)
-        self.srm = QPushButton("REMOVE"); self.srm.clicked.connect(self.remove_streamer)
+        self.sadd = QPushButton("+ Add"); self.sadd.setObjectName("gold"); self.sadd.clicked.connect(self.add_streamer)
+        self.srm = QPushButton("Remove"); self.srm.clicked.connect(self.remove_streamer)
         ab.addWidget(self.sadd); ab.addWidget(self.srm); ab.addStretch()
         sl.addLayout(ab)
         sg.setLayout(sl); lo.addWidget(sg)
@@ -748,11 +760,11 @@ class StreamerSniperTab(QWidget):
             self.streamer_list.setItem(i,1,QTableWidgetItem(s.get("username","")))
             status = s.get("status","idle")
             si = QTableWidgetItem(status)
-            si.setForeground(QColor("#22c55e" if status=="live" else "#eab308" if status=="idle" else "#888"))
+            si.setForeground(QColor("#10b981" if status=="live" else "#eab308" if status=="idle" else "#475569"))
             self.streamer_list.setItem(i,2,si)
             self.streamer_list.setItem(i,3,QTableWidgetItem(s.get("last_seen","Never")))
             if status == "live": online += 1
-        self.sniper_stats.setText(f"Monitored: {len(streamers)} | Online: {online} | Alerts: 0")
+        self.sniper_stats.setText(f"Monitored: {len(streamers)}  \u00b7  Online: {online}  \u00b7  Alerts: 0")
 
     def add_streamer(self):
         dlg = QDialog(self); dlg.setWindowTitle("Add Streamer"); dlg.setFixedSize(360,220)
@@ -762,8 +774,8 @@ class StreamerSniperTab(QWidget):
         lo.addWidget(QLabel("Platform:"))
         plat = QComboBox(); plat.addItems(["Kick", "Twitch"]); lo.addWidget(plat)
         bl = QHBoxLayout()
-        ok = QPushButton("ADD"); ok.setObjectName("gold"); ok.clicked.connect(dlg.accept)
-        no = QPushButton("CANCEL"); no.clicked.connect(dlg.reject)
+        ok = QPushButton("Add"); ok.setObjectName("gold"); ok.clicked.connect(dlg.accept)
+        no = QPushButton("Cancel"); no.clicked.connect(dlg.reject)
         bl.addWidget(ok); bl.addWidget(no); lo.addLayout(bl)
         if dlg.exec():
             u = un.text().strip()
@@ -791,18 +803,18 @@ class StreamerSniperTab(QWidget):
     def toggle_sniper(self):
         if self.sniper_running:
             self.sniper_running = False
-            self.sniper_tgl.setText("START SNIPER")
+            self.sniper_tgl.setText("Watch")
             self.sniper_tgl.setObjectName("success"); self.sniper_tgl.style().unpolish(self.sniper_tgl); self.sniper_tgl.style().polish(self.sniper_tgl)
             self.log("[SNIPER] Stopped")
         else:
             self.sniper_running = True
-            self.sniper_tgl.setText("STOP SNIPER")
+            self.sniper_tgl.setText("Stop Watching")
             self.sniper_tgl.setObjectName("danger"); self.sniper_tgl.style().unpolish(self.sniper_tgl); self.sniper_tgl.style().polish(self.sniper_tgl)
-            self.log("[SNIPER] Starting streamer monitoring...")
+            self.log("[SNIPER] Watching...")
             if hasattr(combined, 'monitor_streamer_loop'):
                 t = threading.Thread(target=combined.monitor_streamer_loop, daemon=True)
                 t.start(); self.sniper_threads.append(t)
-            self.log("[SNIPER] ✅ Streamer sniper active")
+            self.log("[SNIPER] Active")
 
 # ═══════════════════════════════════════════════════════════════
 # LINK AUTOMATION TAB
@@ -835,7 +847,7 @@ class LinkAutomationTab(QWidget):
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("Paste sweepstakes link to auto-process...")
         ab.addWidget(self.url_input)
-        self.add_btn = QPushButton("ADD LINK")
+        self.add_btn = QPushButton("Add")
         self.add_btn.setObjectName("gold")
         self.add_btn.clicked.connect(self.add_link)
         ab.addWidget(self.add_btn)
@@ -854,15 +866,15 @@ class LinkAutomationTab(QWidget):
         lo.addWidget(self.queue_tbl)
 
         tb = QHBoxLayout()
-        self.process_btn = QPushButton("PROCESS QUEUE")
+        self.process_btn = QPushButton("Process All")
         self.process_btn.setObjectName("success")
         self.process_btn.clicked.connect(self.process_queue)
         tb.addWidget(self.process_btn)
-        self.auto_toggle = QPushButton("AUTO-PROCESS: OFF")
-        self.auto_toggle.setStyleSheet("QPushButton{background:#333;color:#888;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;}QPushButton:hover{background:#444;}")
+        self.auto_toggle = QPushButton("Auto")
+        self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
         self.auto_toggle.clicked.connect(self.toggle_auto)
         tb.addWidget(self.auto_toggle)
-        self.clear_btn = QPushButton("CLEAR ALL")
+        self.clear_btn = QPushButton("Clear")
         self.clear_btn.clicked.connect(self.clear_queue)
         tb.addWidget(self.clear_btn)
         tb.addStretch()
@@ -939,17 +951,16 @@ class LinkAutomationTab(QWidget):
     def toggle_auto(self):
         self.auto_running = not self.auto_running
         if self.auto_running:
-            self.auto_toggle.setText("AUTO-PROCESS: ON")
-            self.auto_toggle.setStyleSheet("QPushButton{background:#22c55e;color:#fff;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;}QPushButton:hover{background:#16a34a;}")
-            # Check if backend loop exists
+            self.auto_toggle.setText("Auto: On")
+            self.auto_toggle.setStyleSheet("QPushButton{background:#10b981;color:#fff;border:1px solid #10b981;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#059669;}")
             if hasattr(combined, 'process_queue_loop'):
                 t = threading.Thread(target=combined.process_queue_loop, daemon=True)
                 t.start()
-            self.log("[LINK] Auto-processing enabled")
+            self.log("[LINK] Auto on")
         else:
-            self.auto_toggle.setText("AUTO-PROCESS: OFF")
-            self.auto_toggle.setStyleSheet("QPushButton{background:#333;color:#888;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:700;}QPushButton:hover{background:#444;}")
-            self.log("[LINK] Auto-processing disabled")
+            self.auto_toggle.setText("Auto")
+            self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
+            self.log("[LINK] Auto off")
 
     def process_queue(self):
         queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
@@ -994,7 +1005,7 @@ class SettingsTab(QWidget):
         bl.addRow("Check interval:",self.sp)
         bg.setLayout(bl); lo.addWidget(bg)
 
-        s = QPushButton("SAVE SETTINGS"); s.setObjectName("gold"); s.clicked.connect(self.save); lo.addWidget(s)
+        s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.save); lo.addWidget(s)
 
         ag = QGroupBox("About & License")
         al = QVBoxLayout(); al.setSpacing(8)
@@ -1013,8 +1024,8 @@ class SettingsTab(QWidget):
         ag.setLayout(al); lo.addWidget(ag)
 
         bb = QHBoxLayout(); bb.setSpacing(10)
-        cu = QPushButton("CHECK FOR UPDATES"); cu.setObjectName("gold"); cu.clicked.connect(self.check_updates_requested.emit)
-        su = QPushButton("JOIN COMMUNITY"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support"))
+        cu = QPushButton("Check Updates"); cu.setObjectName("gold"); cu.clicked.connect(self.check_updates_requested.emit)
+        su = QPushButton("Community"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support"))
         bb.addWidget(cu); bb.addWidget(su); bb.addStretch(); lo.addLayout(bb)
 
         lo.addStretch(); self.setLayout(lo)
@@ -1078,11 +1089,32 @@ class MainWindow(QMainWindow):
         body = QWidget()
         bl = QHBoxLayout(body); bl.setContentsMargins(0,0,0,0); bl.setSpacing(0)
 
-        self.sidebar = QListWidget()
-        self.sidebar.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        for item in ["\U0001f4ca  Dashboard", "\U0001f3b0  Daily SC", "\U0001f3ac  Streamer Sniper", "\U0001f517  Link Automation", "\u2699  Settings"]:
-            self.sidebar.addItem(item)
-        bl.addWidget(self.sidebar)
+        # Sidebar: custom layout with nav pinned above, Settings pinned to bottom
+        sidebar_w = QWidget()
+        sidebar_w.setObjectName("sidebar")
+        sl = QVBoxLayout(sidebar_w); sl.setContentsMargins(0,0,0,0); sl.setSpacing(0)
+
+        nav_items = ["\U0001f4ca  Dashboard", "\U0001f3b0  Daily SC", "\U0001f3ac  Streamer Sniper", "\U0001f517  Link Automation"]
+        self.nav_btns = []
+        for i, text in enumerate(nav_items):
+            b = QPushButton(text)
+            b.setCheckable(True)
+            b.clicked.connect(lambda checked, idx=i: self.on_page_change(idx))
+            sl.addWidget(b)
+            self.nav_btns.append(b)
+
+        sl.addStretch()
+
+        sep = QFrame()
+        sep.setObjectName("navsep")
+        sl.addWidget(sep)
+
+        self.settings_btn = QPushButton("\u2699  Settings")
+        self.settings_btn.setCheckable(True)
+        self.settings_btn.clicked.connect(lambda: self.on_page_change(4))
+        sl.addWidget(self.settings_btn)
+
+        bl.addWidget(sidebar_w)
 
         self.stack = QStackedWidget()
         self.dt = DashboardTab()
@@ -1098,8 +1130,7 @@ class MainWindow(QMainWindow):
         self.stack.addWidget(self.lat)
         self.stack.addWidget(self.ste)
         bl.addWidget(self.stack)
-        self.sidebar.setCurrentRow(0)
-        self.sidebar.currentRowChanged.connect(self.on_page_change)
+        self.on_page_change(0)
 
         main_lo.addWidget(body)
 
@@ -1148,8 +1179,11 @@ class MainWindow(QMainWindow):
         self.move(QApplication.primaryScreen().geometry().center() - self.rect().center())
 
     def on_page_change(self, idx):
-        if idx < 0: return
+        if idx < 0 or idx >= self.stack.count(): return
         self.stack.setCurrentIndex(idx)
+        for i, btn in enumerate(self.nav_btns):
+            btn.setChecked(i == idx)
+        self.settings_btn.setChecked(idx == 4)
         w = self.stack.currentWidget()
         if w:
             ef = QGraphicsOpacityEffect(w)
