@@ -40,11 +40,11 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QTabWidget, QTableWidget,
     QTableWidgetItem, QHeaderView, QDialog, QMessageBox, QTextEdit,
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
-    QSystemTrayIcon, QMenu, QFrame, QListWidget, QStackedWidget, QSplitter, QProgressDialog, QGraphicsOpacityEffect,
-    QComboBox
+    QSystemTrayIcon, QMenu, QFrame,     QListWidget, QStackedWidget, QSplitter, QProgressDialog, QGraphicsOpacityEffect,
+    QComboBox, QFileDialog
 )
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve
-from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve, QUrl
+from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon, QDesktopServices
 
 # ═══════════════════════════════════════════════════════════════
 # STYLESHEET (Website Theme)
@@ -362,10 +362,25 @@ class DashboardTab(QWidget):
                 with open(lf) as f: ld = json.load(f)
                 tier = ld.get("tier","Premium")
             except: pass
-        self.sys_info = QLabel(f"Version: v1.0.1 | License: {tier} | Data: {BASE_DIR}")
-        self.sys_info.setStyleSheet("font-size:13px;color:#b0b0b8;")
+        self.sys_info = QLabel(f"Version: v1.0.1 | License: {tier} | Builds: {BASE_DIR}")
+        self.sys_info.setStyleSheet("font-size:13px;color:#94a3b8;")
         sil.addWidget(self.sys_info)
+        self.last_refresh_lbl = QLabel("Last ping: —")
+        self.last_refresh_lbl.setStyleSheet("font-size:12px;color:#64748b;")
+        sil.addWidget(self.last_refresh_lbl)
         sig.setLayout(sil); lo.addWidget(sig)
+
+        # Quick Access
+        qag = QGroupBox("Quick Access")
+        qal = QHBoxLayout(); qal.setSpacing(10)
+        open_btn = QPushButton("Open Data Folder")
+        open_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(str(BASE_DIR))))
+        qal.addWidget(open_btn)
+        check_btn = QPushButton("Check Now")
+        check_btn.clicked.connect(self.force_check)
+        qal.addWidget(check_btn)
+        qal.addStretch()
+        qag.setLayout(qal); lo.addWidget(qag)
 
         mg = QGroupBox("Monitoring Status")
         ml = QVBoxLayout()
@@ -377,6 +392,14 @@ class DashboardTab(QWidget):
 
         lg = QGroupBox("Activity Log")
         ll = QVBoxLayout()
+        hl = QHBoxLayout()
+        hl.addWidget(QLabel("System events & alerts"))
+        hl.addStretch()
+        cls = QPushButton("Clear")
+        cls.setFixedWidth(80)
+        cls.clicked.connect(lambda: self.logv.clear())
+        hl.addWidget(cls)
+        ll.addLayout(hl)
         self.logv = QTextEdit()
         self.logv.setReadOnly(True)
         self.logv.setMaximumHeight(160)
@@ -435,6 +458,15 @@ class DashboardTab(QWidget):
             self.set_indicator(name, False)
         self.log("[MASTER] Stopped")
 
+    def force_check(self):
+        self.log("[DASH] Manual scan triggered")
+        try:
+            t = threading.Thread(target=combined.monitor_loop, daemon=True)
+            t.start()
+            self.log("[DASH] Scan dispatched")
+        except Exception as e:
+            self.log(f"[DASH] Scan failed: {e}")
+
     def refresh(self):
         with combined.state_lock:
             s = dict(combined.state)
@@ -445,6 +477,7 @@ class DashboardTab(QWidget):
         self.c4.set_val(f"{int(h)}h {int(m)}m")
         la = s.get('last_alert')
         self.mi.setText(f"Scans: {s.get('scanned',0)} | Found: {s.get('found',0)} | Last: {(la.get('title','N/A')[:40] if la else 'N/A')}")
+        self.last_refresh_lbl.setText(f"Last ping: {datetime.now():%H:%M:%S}")
         st = s.get("bot_status","offline")
         if st=="online":
             self.set_indicator("Scanner", True)
@@ -471,7 +504,7 @@ class DailySCTab(QWidget):
         sg = QGroupBox("Summary")
         sl = QHBoxLayout()
         self.daily_stat_labels = []
-        for label, color in [("Total Accounts","#888"),("Total SC","#FFD700"),("Pending","#eab308"),("Success Rate","#22c55e")]:
+        for label, color in [("Total Accounts","#888"),("Total SC","#FFD700"),("Pending","#eab308"),("Success Rate","#10b981"),("Coverage","#6366f1")]:
             c = QVBoxLayout()
             c.setAlignment(Qt.AlignmentFlag.AlignCenter)
             lbl = QLabel("0")
@@ -482,10 +515,28 @@ class DailySCTab(QWidget):
             sl.addLayout(c)
         sg.setLayout(sl); lo.addWidget(sg)
 
+        # Next Claims frame
+        ng = QGroupBox("Upcoming Claims")
+        nl = QVBoxLayout()
+        self.next_tbl = QTableWidget()
+        self.next_tbl.setColumnCount(3)
+        self.next_tbl.setHorizontalHeaderLabels(["Casino","Ready In","Status"])
+        self.next_tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.next_tbl.verticalHeader().setVisible(False)
+        self.next_tbl.setMaximumHeight(120)
+        self.next_tbl.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        self.next_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        nl.addWidget(self.next_tbl)
+        ng.setLayout(nl); lo.addWidget(ng)
+
         # Toolbar
         tb = QHBoxLayout(); tb.setSpacing(8)
         a = QPushButton("+ Add"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
         ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
+        stp = QPushButton("Stop All")
+        stp.setObjectName("danger"); stp.clicked.connect(self.stop_all)
+        tb.addWidget(stp)
+        imp = QPushButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
         r = QPushButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
 
         # Splitter: Account table top, Schedule + Log bottom
@@ -495,14 +546,15 @@ class DailySCTab(QWidget):
         aw = QGroupBox("Accounts")
         al = QVBoxLayout(aw); al.setContentsMargins(12,12,12,12); al.setSpacing(6)
         self.tbl = QTableWidget()
-        self.tbl.setColumnCount(7)
-        self.tbl.setHorizontalHeaderLabels(["Domain","Username","Last Claim","Status","SC Total","",""])
+        self.tbl.setColumnCount(8)
+        self.tbl.setHorizontalHeaderLabels(["Domain","Username","Last Claim","Status","SC Total","","",""])
         self.tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.tbl.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
         self.tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
         self.tbl.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
         self.tbl.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
         self.tbl.horizontalHeader().setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents)
+        self.tbl.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeMode.ResizeToContents)
         self.tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.tbl.verticalHeader().setVisible(False)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -551,11 +603,13 @@ class DailySCTab(QWidget):
         success_count = sum(1 for d,s in sched.items() if s.get("status")=="done")
         total_claims = len([d for d,s in sched.items() if s.get("last_claim",0)>0])
         rate = f"{success_count/max(total_claims,1)*100:.0f}%" if total_claims else "—"
+        coverage = f"{len(accts)}/{len(sites)}"
 
         self.daily_stat_labels[0].setText(str(len(accts)))
         self.daily_stat_labels[1].setText(f"${total_sc:.2f}")
         self.daily_stat_labels[2].setText(str(pending))
         self.daily_stat_labels[3].setText(rate)
+        self.daily_stat_labels[4].setText(coverage)
 
         # Account table
         self.tbl.setRowCount(len(accts))
@@ -567,7 +621,7 @@ class DailySCTab(QWidget):
             self.tbl.setItem(i,2,QTableWidgetItem(datetime.fromtimestamp(lc).strftime("%m/%d %H:%M") if lc else "Never"))
             st = sc.get("status","never")
             si = QTableWidgetItem(st.upper())
-            si.setForeground(QColor("#22c55e" if st in ("done","never") else "#eab308" if st=="claiming" else "#ef4444"))
+            si.setForeground(QColor("#10b981" if st in ("done","never") else "#eab308" if st=="claiming" else "#ef4444"))
             self.tbl.setItem(i,3,si)
             sct = info.get("sc_total",0)
             sci = QTableWidgetItem(f"${sct:.2f}")
@@ -578,15 +632,20 @@ class DailySCTab(QWidget):
             b.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;}QPushButton:hover{background:#059669;}")
             b.clicked.connect(lambda checked,d=dom: self.claim(d))
             self.tbl.setCellWidget(i,5,b)
+            tb = QPushButton("Test")
+            tb.setStyleSheet("QPushButton{color:#eab308;font-size:11px;padding:4px 10px;border-radius:6px;}")
+            tb.clicked.connect(lambda checked,d=dom: self.log(f"[TEST] Test login for {d} (stub)"))
+            self.tbl.setCellWidget(i,6,tb)
             rb = QPushButton("Remove")
             rb.setStyleSheet("QPushButton{color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;}")
             rb.clicked.connect(lambda checked,d=dom: self.remove_account(d))
-            self.tbl.setCellWidget(i,6,rb)
+            self.tbl.setCellWidget(i,7,rb)
 
         # Schedule table
         now = time.time()
         doms = set(sm.keys()); doms.update(sched.keys())
         self.schtbl.setRowCount(len(doms))
+        ready_list = []
         for i,dom in enumerate(sorted(doms)):
             self.schtbl.setItem(i,0,QTableWidgetItem(sm.get(dom,dom)))
             s = sched.get(dom,{})
@@ -598,17 +657,30 @@ class DailySCTab(QWidget):
                 else: r=int(nc-now); h,m=divmod(r,3600); m//=60; ns=f"{h}h {m}m"
             else: ns = "Ready Now"
             ni = QTableWidgetItem(ns)
-            ni.setForeground(QColor("#22c55e" if ns=="Ready Now" else "#eab308"))
+            ni.setForeground(QColor("#10b981" if ns=="Ready Now" else "#eab308"))
             self.schtbl.setItem(i,2,ni)
             st = s.get("status","never")
             si = QTableWidgetItem(st.upper())
-            si.setForeground(QColor("#22c55e" if st in ("done","never") else "#eab308" if st=="claiming" else "#ef4444"))
+            si.setForeground(QColor("#10b981" if st in ("done","never") else "#eab308" if st=="claiming" else "#ef4444"))
             self.schtbl.setItem(i,3,si)
             if lc:
                 pct = min(100,int(((now-lc)/86400)*100))
                 bar = "█"*(pct//5)+"░"*(20-pct//5)
                 self.schtbl.setItem(i,4,QTableWidgetItem(f"{pct}% {bar}"))
             else: self.schtbl.setItem(i,4,QTableWidgetItem("—"))
+            # Collect for upcoming claims
+            if ns != "Ready Now" and st != "claiming" and dom in accts:
+                ready_list.append((ns, sm.get(dom,dom), s.get("status","never")))
+
+        # Next Claims table (top 3 soonest)
+        ready_list.sort()
+        self.next_tbl.setRowCount(min(len(ready_list), 3))
+        for i, (time_left, casino, status) in enumerate(ready_list[:3]):
+            self.next_tbl.setItem(i,0,QTableWidgetItem(casino))
+            self.next_tbl.setItem(i,1,QTableWidgetItem(time_left))
+            si = QTableWidgetItem(status.upper())
+            si.setForeground(QColor("#eab308"))
+            self.next_tbl.setItem(i,2,si)
 
     def remove_account(self, dom):
         if QMessageBox.question(self,"Remove Account",f"Remove {dom}?",
@@ -643,6 +715,20 @@ class DailySCTab(QWidget):
         for dom in accts:
             self.claim(dom)
 
+    def stop_all(self):
+        for w in self.workers:
+            if w.isRunning():
+                w.terminate()
+                w.wait()
+        self.workers.clear()
+        sched = combined.load_claim_schedule()
+        for dom in sched:
+            if sched[dom].get("status") == "claiming":
+                sched[dom]["status"] = "never"
+        combined.save_claim_schedule(sched)
+        self.log("[USER] Stopped all pending claims")
+        self.load()
+
     def fin(self, dom, ok, sc):
         if ok:
             with combined.state_lock:
@@ -653,6 +739,24 @@ class DailySCTab(QWidget):
                 accts[dom]["sc_total"] = round(accts[dom].get("sc_total",0)+sc,2)
                 combined.save_accounts(accts)
         self.load()
+
+    def import_accts(self):
+        fn, _ = QFileDialog.getOpenFileName(self, "Import Accounts", str(BASE_DIR), "JSON Files (*.json)")
+        if not fn: return
+        try:
+            with open(fn) as f: data = json.load(f)
+            if not isinstance(data, dict): raise ValueError("Expected dict")
+            accts = combined.load_accounts()
+            count = 0
+            for dom, info in data.items():
+                if dom not in accts and "username" in info and "password" in info:
+                    accts[dom] = {"username": info["username"], "password": info["password"], "sc_total": info.get("sc_total",0)}
+                    count += 1
+            combined.save_accounts(accts)
+            self.log(f"[USER] Imported {count} accounts from {Path(fn).name}")
+            self.load()
+        except Exception as e:
+            QMessageBox.warning(self, "Import Failed", str(e))
 
     def add(self):
         d = AddAccountDlg(self)
@@ -701,7 +805,7 @@ class StreamerSniperTab(QWidget):
         t = QLabel("Streamer Sniper")
         t.setObjectName("title"); lo.addWidget(t)
 
-        self.sniper_stats = QLabel("Monitored: 0  \u00b7  Online: 0  \u00b7  Alerts: 0")
+        self.sniper_stats = QLabel("Monitored: 0  \u00b7  Online: 0  \u00b7  Checks: 0")
         self.sniper_stats.setStyleSheet("font-size:13px;color:#94a3b8;padding:4px 0;")
 
         tb = QHBoxLayout(); tb.setSpacing(8)
@@ -710,6 +814,9 @@ class StreamerSniperTab(QWidget):
         self.sniper_tgl.setObjectName("success")
         self.sniper_tgl.clicked.connect(self.toggle_sniper)
         tb.addWidget(self.sniper_tgl)
+        refresh_btn = QPushButton("Refresh All")
+        refresh_btn.clicked.connect(self.force_refresh)
+        tb.addWidget(refresh_btn)
         lo.addLayout(tb)
 
         # Streamer list
@@ -727,9 +834,24 @@ class StreamerSniperTab(QWidget):
         ab = QHBoxLayout()
         self.sadd = QPushButton("+ Add"); self.sadd.setObjectName("gold"); self.sadd.clicked.connect(self.add_streamer)
         self.srm = QPushButton("Remove"); self.srm.clicked.connect(self.remove_streamer)
-        ab.addWidget(self.sadd); ab.addWidget(self.srm); ab.addStretch()
+        exp = QPushButton("Export"); exp.clicked.connect(self.export_streamers)
+        ab.addWidget(self.sadd); ab.addWidget(self.srm); ab.addWidget(exp); ab.addStretch()
         sl.addLayout(ab)
         sg.setLayout(sl); lo.addWidget(sg)
+
+        # Detection History
+        dg = QGroupBox("Detection History")
+        dl = QVBoxLayout()
+        self.detect_tbl = QTableWidget()
+        self.detect_tbl.setColumnCount(3)
+        self.detect_tbl.setHorizontalHeaderLabels(["Time","Platform","Username"])
+        self.detect_tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+        self.detect_tbl.verticalHeader().setVisible(False)
+        self.detect_tbl.setMaximumHeight(120)
+        self.detect_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.detect_tbl.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
+        dl.addWidget(self.detect_tbl)
+        dg.setLayout(dl); lo.addWidget(dg)
 
         lg = QGroupBox("Sniper Log")
         ll = QVBoxLayout()
@@ -742,6 +864,8 @@ class StreamerSniperTab(QWidget):
         self.setLayout(lo)
         self.sniper_running = False
         self.sniper_threads = []
+        self.check_count = 0
+        self.detections = []
         self.refresh_streamers()
         self.sniper_timer = QTimer()
         self.sniper_timer.timeout.connect(self.refresh_streamers)
@@ -755,6 +879,7 @@ class StreamerSniperTab(QWidget):
         streamers = combined.load_streamers() if hasattr(combined, 'load_streamers') else []
         self.streamer_list.setRowCount(len(streamers))
         online = 0
+        self.check_count += 1
         for i, s in enumerate(streamers):
             self.streamer_list.setItem(i,0,QTableWidgetItem(s.get("platform","Kick")))
             self.streamer_list.setItem(i,1,QTableWidgetItem(s.get("username","")))
@@ -763,8 +888,37 @@ class StreamerSniperTab(QWidget):
             si.setForeground(QColor("#10b981" if status=="live" else "#eab308" if status=="idle" else "#475569"))
             self.streamer_list.setItem(i,2,si)
             self.streamer_list.setItem(i,3,QTableWidgetItem(s.get("last_seen","Never")))
-            if status == "live": online += 1
-        self.sniper_stats.setText(f"Monitored: {len(streamers)}  \u00b7  Online: {online}  \u00b7  Alerts: 0")
+            if status == "live":
+                online += 1
+                # Log new detection
+                if not self.detections or self.detections[-1].get("username") != s.get("username") or self.detections[-1].get("timestamp","") < datetime.now().strftime("%Y-%m-%d %H:%M"):
+                    self.detections.append({"timestamp": datetime.now().strftime("%H:%M:%S"), "platform": s.get("platform",""), "username": s.get("username","")})
+                    if len(self.detections) > 20: self.detections = self.detections[-20:]
+        self.sniper_stats.setText(f"Monitored: {len(streamers)}  \u00b7  Online: {online}  \u00b7  Checks: {self.check_count}")
+        # Update detection history table
+        self.detect_tbl.setRowCount(min(len(self.detections), 10))
+        for i, d in enumerate(self.detections[-10:]):
+            self.detect_tbl.setItem(i,0,QTableWidgetItem(d.get("timestamp","")))
+            self.detect_tbl.setItem(i,1,QTableWidgetItem(d.get("platform","")))
+            self.detect_tbl.setItem(i,2,QTableWidgetItem(d.get("username","")))
+
+    def force_refresh(self):
+        self.log("[SNIPER] Refreshing all streamers...")
+        if hasattr(combined, 'monitor_streamer_loop'):
+            t = threading.Thread(target=combined.monitor_streamer_loop, daemon=True)
+            t.start()
+        self.refresh_streamers()
+        self.log("[SNIPER] Refresh complete")
+
+    def export_streamers(self):
+        streamers = combined.load_streamers() if hasattr(combined, 'load_streamers') else []
+        fn, _ = QFileDialog.getSaveFileName(self, "Export Streamers", str(BASE_DIR / "streamers_export.json"), "JSON Files (*.json)")
+        if not fn: return
+        try:
+            with open(fn, 'w') as f: json.dump(streamers, f, indent=2)
+            self.log(f"[SNIPER] Exported {len(streamers)} streamers to {Path(fn).name}")
+        except Exception as e:
+            self.log(f"[SNIPER] Export failed: {e}")
 
     def add_streamer(self):
         dlg = QDialog(self); dlg.setWindowTitle("Add Streamer"); dlg.setFixedSize(360,220)
@@ -833,7 +987,7 @@ class LinkAutomationTab(QWidget):
         sg = QGroupBox("Link Stats")
         sl = QHBoxLayout()
         self.link_stats_labels = []
-        for label, color in [("Total Links","#888"),("Processed","#eab308"),("Successful","#22c55e"),("Failed","#ef4444")]:
+        for label, color in [("Total","#888"),("Processed","#eab308"),("Success","#10b981"),("Failed","#ef4444"),("Rate","#6366f1")]:
             c = QVBoxLayout()
             c.addWidget(QLabel("0"))
             c.addWidget(QLabel(label))
@@ -842,11 +996,23 @@ class LinkAutomationTab(QWidget):
             sl.addLayout(c)
         sg.setLayout(sl); lo.addWidget(sg)
 
+        # Last Result info
+        lrg = QGroupBox("Last Result")
+        lrl = QHBoxLayout()
+        self.last_result_lbl = QLabel("No links processed yet")
+        self.last_result_lbl.setStyleSheet("font-size:12px;color:#94a3b8;")
+        lrl.addWidget(self.last_result_lbl)
+        lrl.addStretch()
+        lrg.setLayout(lrl); lo.addWidget(lrg)
+
         # Add URL
         ab = QHBoxLayout()
         self.url_input = QLineEdit()
         self.url_input.setPlaceholderText("Paste sweepstakes link to auto-process...")
         ab.addWidget(self.url_input)
+        val_btn = QPushButton("Validate")
+        val_btn.clicked.connect(self.validate_url)
+        ab.addWidget(val_btn)
         self.add_btn = QPushButton("Add")
         self.add_btn.setObjectName("gold")
         self.add_btn.clicked.connect(self.add_link)
@@ -874,9 +1040,13 @@ class LinkAutomationTab(QWidget):
         self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
         self.auto_toggle.clicked.connect(self.toggle_auto)
         tb.addWidget(self.auto_toggle)
+        cc_btn = QPushButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); tb.addWidget(cc_btn)
         self.clear_btn = QPushButton("Clear")
         self.clear_btn.clicked.connect(self.clear_queue)
         tb.addWidget(self.clear_btn)
+        self.queue_counter = QLabel("")
+        self.queue_counter.setStyleSheet("font-size:12px;color:#64748b;padding:0 8px;")
+        tb.addWidget(self.queue_counter)
         tb.addStretch()
         lo.addLayout(tb)
 
@@ -906,19 +1076,28 @@ class LinkAutomationTab(QWidget):
         processed = sum(1 for q in queue if q.get("status") in ("done","failed"))
         success = sum(1 for q in queue if q.get("status") == "done")
         failed = sum(1 for q in queue if q.get("status") == "failed")
+        rate = f"{success/max(processed,1)*100:.0f}%" if processed else "—"
         self.link_stats_labels[0].setText(str(total))
         self.link_stats_labels[1].setText(str(processed))
         self.link_stats_labels[2].setText(str(success))
         self.link_stats_labels[3].setText(str(failed))
+        self.link_stats_labels[4].setText(rate)
+        # Last result
+        done_items = [q for q in queue if q.get("status") in ("done","failed")]
+        if done_items:
+            last = done_items[-1]
+            self.last_result_lbl.setText(f"{last.get('url','')[:50]} — {last.get('result','')}")
+        # Counter
+        self.queue_counter.setText(f"Showing {len(queue)} item{'s' if len(queue)!=1 else ''}")
         for i, item in enumerate(queue):
             self.queue_tbl.setItem(i,0,QTableWidgetItem(item.get("url","")[:60]))
             self.queue_tbl.setItem(i,1,QTableWidgetItem(item.get("added","")))
             st = item.get("status","pending")
             si = QTableWidgetItem(st)
-            si.setForeground(QColor("#22c55e" if st=="done" else "#ef4444" if st=="failed" else "#eab308" if st=="processing" else "#888"))
+            si.setForeground(QColor("#10b981" if st=="done" else "#ef4444" if st=="failed" else "#eab308" if st=="processing" else "#64748b"))
             self.queue_tbl.setItem(i,2,si)
             self.queue_tbl.setItem(i,3,QTableWidgetItem(item.get("result","")))
-            rb = QPushButton("REMOVE")
+            rb = QPushButton("Remove")
             rb.setStyleSheet("QPushButton{color:#ef4444;font-size:11px;padding:4px 10px;border-radius:6px;}")
             rb.clicked.connect(lambda checked, idx=i: self.remove_link(idx))
             self.queue_tbl.setCellWidget(i,4,rb)
@@ -941,6 +1120,27 @@ class LinkAutomationTab(QWidget):
             if hasattr(combined, 'save_link_queue'):
                 combined.save_link_queue(queue)
             self.refresh_queue()
+
+    def validate_url(self):
+        url = self.url_input.text().strip()
+        if not url: return
+        self.log(f"[LINK] Validating {url[:50]}...")
+        try:
+            r = combined.requests.get(url, timeout=8, headers={"User-Agent": combined.USER_AGENT})
+            if r.status_code == 200:
+                self.log(f"[LINK] ✅ Valid — HTTP {r.status_code}")
+            else:
+                self.log(f"[LINK] ⚠ HTTP {r.status_code}")
+        except Exception as e:
+            self.log(f"[LINK] ❌ {e}")
+
+    def clear_completed(self):
+        queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
+        remaining = [q for q in queue if q.get("status") not in ("done","failed")]
+        if hasattr(combined, 'save_link_queue'):
+            combined.save_link_queue(remaining)
+        self.refresh_queue()
+        self.log(f"[LINK] Cleared {len(queue)-len(remaining)} completed items")
 
     def clear_queue(self):
         if hasattr(combined, 'save_link_queue'):
@@ -1007,6 +1207,42 @@ class SettingsTab(QWidget):
 
         s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.save); lo.addWidget(s)
 
+        # Data Management
+        dg = QGroupBox("Data")
+        dl = QHBoxLayout(); dl.setSpacing(10)
+        exp_btn = QPushButton("Export All"); exp_btn.clicked.connect(self.export_data)
+        imp_btn = QPushButton("Import All"); imp_btn.clicked.connect(self.import_data)
+        cc_btn = QPushButton("Clear Cache"); cc_btn.clicked.connect(self.clear_cache)
+        dl.addWidget(exp_btn); dl.addWidget(imp_btn); dl.addWidget(cc_btn); dl.addStretch()
+        dg.setLayout(dl); lo.addWidget(dg)
+
+        # Notifications
+        ng = QGroupBox("Notifications")
+        nl = QVBoxLayout()
+        whl = QHBoxLayout()
+        self.webhook_input = QLineEdit()
+        self.webhook_input.setPlaceholderText("Discord webhook URL (optional)")
+        whl.addWidget(self.webhook_input)
+        test_wh = QPushButton("Test"); test_wh.clicked.connect(self.test_webhook)
+        whl.addWidget(test_wh)
+        nl.addLayout(whl)
+        ng.setLayout(nl); lo.addWidget(ng)
+
+        # Advanced
+        ag2 = QGroupBox("Advanced")
+        al2 = QVBoxLayout()
+        self.debug_cb = QCheckBox("Debug logging")
+        self.debug_cb.setChecked(False)
+        al2.addWidget(self.debug_cb)
+        self.verbose_cb = QCheckBox("Verbose output")
+        self.verbose_cb.setChecked(False)
+        al2.addWidget(self.verbose_cb)
+        reset_btn = QPushButton("Reset All Data")
+        reset_btn.setObjectName("danger")
+        reset_btn.clicked.connect(self.reset_all)
+        al2.addWidget(reset_btn)
+        ag2.setLayout(al2); lo.addWidget(ag2)
+
         ag = QGroupBox("About & License")
         al = QVBoxLayout(); al.setSpacing(8)
         lf = BASE_DIR / "license.dat"
@@ -1034,6 +1270,77 @@ class SettingsTab(QWidget):
         combined.HEADLESS_MODE = self.hc.isChecked()
         combined.CHECK_INTERVAL = self.sp.value()
         QMessageBox.information(self,"Saved","Settings saved.")
+
+    def export_data(self):
+        fn, _ = QFileDialog.getSaveFileName(self, "Export All Data", str(BASE_DIR / "backup.json"), "JSON Files (*.json)")
+        if not fn: return
+        try:
+            data = {
+                "accounts": combined.load_accounts(),
+                "schedule": combined.load_claim_schedule(),
+                "streamers": combined.load_streamers() if hasattr(combined, 'load_streamers') else [],
+                "queue": combined.load_link_queue() if hasattr(combined, 'load_link_queue') else [],
+                "exported_at": datetime.now().isoformat()
+            }
+            with open(fn, 'w') as f: json.dump(data, f, indent=2)
+            QMessageBox.information(self, "Exported", f"All data exported to {Path(fn).name}")
+        except Exception as e:
+            QMessageBox.warning(self, "Export Failed", str(e))
+
+    def import_data(self):
+        fn, _ = QFileDialog.getOpenFileName(self, "Import All Data", str(BASE_DIR), "JSON Files (*.json)")
+        if not fn: return
+        try:
+            with open(fn) as f: data = json.load(f)
+            if "accounts" in data:
+                combined.save_accounts(data["accounts"])
+            if "schedule" in data:
+                combined.save_claim_schedule(data["schedule"])
+            if "streamers" in data and hasattr(combined, 'save_streamers'):
+                combined.save_streamers(data["streamers"])
+            if "queue" in data and hasattr(combined, 'save_link_queue'):
+                combined.save_link_queue(data["queue"])
+            QMessageBox.information(self, "Imported", f"Data restored from {Path(fn).name}")
+        except Exception as e:
+            QMessageBox.warning(self, "Import Failed", str(e))
+
+    def clear_cache(self):
+        count = 0
+        for f in BASE_DIR.glob("*.dat"):
+            try: f.unlink(); count += 1
+            except: pass
+        for f in BASE_DIR.glob("*.tmp"):
+            try: f.unlink(); count += 1
+            except: pass
+        QMessageBox.information(self, "Cache Cleared", f"Removed {count} temp files")
+
+    def test_webhook(self):
+        url = self.webhook_input.text().strip()
+        if not url: return
+        try:
+            r = combined.requests.post(url, json={"content": "Claims Casino test ping"}, timeout=8)
+            if r.status_code in (200, 204):
+                QMessageBox.information(self, "Webhook", "Test sent successfully")
+            else:
+                QMessageBox.warning(self, "Webhook", f"HTTP {r.status_code}")
+        except Exception as e:
+            QMessageBox.warning(self, "Webhook", str(e))
+
+    def reset_all(self):
+        if QMessageBox.question(self, "Reset",
+            "Clear ALL accounts, schedule, streamers, and queue?\nThis cannot be undone.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
+            return
+        if QMessageBox.question(self, "Confirm",
+            "Are you absolutely sure?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) != QMessageBox.StandardButton.Yes:
+            return
+        combined.save_accounts({})
+        combined.save_claim_schedule({})
+        if hasattr(combined, 'save_streamers'):
+            combined.save_streamers([])
+        if hasattr(combined, 'save_link_queue'):
+            combined.save_link_queue([])
+        QMessageBox.information(self, "Reset", "All data cleared")
 
 # ═══════════════════════════════════════════════════════════════
 # MAIN WINDOW
