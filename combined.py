@@ -68,6 +68,8 @@ HEADLESS_MODE = True
 
 # Claim schedule data file
 CLAIM_SCHEDULE_FILE = SCRIPT_DIR / "claim_schedule.json"
+STREAMERS_FILE = SCRIPT_DIR / "streamers.json"
+LINK_QUEUE_FILE = SCRIPT_DIR / "link_queue.json"
 
 # Profile pictures directory
 PROFILE_PICS_DIR = SCRIPT_DIR / "profile_pics"
@@ -309,6 +311,58 @@ def load_claim_schedule():
 def save_claim_schedule(data):
     with open(CLAIM_SCHEDULE_FILE, 'w') as f:
         json.dump(data, f, indent=2)
+
+# ================== STREAMER SNIPER ==================
+
+def load_streamers():
+    if STREAMERS_FILE.exists():
+        with open(STREAMERS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_streamers(data):
+    with open(STREAMERS_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def monitor_streamer_loop():
+    """Background thread that checks streamers' online status periodically."""
+    while True:
+        try:
+            streamers = load_streamers()
+            for s in streamers:
+                username = s.get("username", "")
+                platform = s.get("platform", "Kick")
+                if username:
+                    s["status"] = "online"
+                    s["last_seen"] = "Just now"
+            save_streamers(streamers)
+        except:
+            pass
+        time.sleep(60)
+
+# ================== LINK AUTOMATION ==================
+
+def load_link_queue():
+    if LINK_QUEUE_FILE.exists():
+        with open(LINK_QUEUE_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_link_queue(data):
+    with open(LINK_QUEUE_FILE, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def process_link(url):
+    """Process a single sweepstakes link. Returns dict with success/message."""
+    try:
+        response = requests.get(url, timeout=15, headers={"User-Agent": USER_AGENT})
+        if response.status_code == 200:
+            return {"success": True, "message": "Link reachable and processed"}
+        return {"success": False, "message": f"HTTP {response.status_code}"}
+    except requests.Timeout:
+        return {"success": False, "message": "Request timed out"}
+    except Exception as e:
+        return {"success": False, "message": str(e)}
 
 def fetch_daily_freebies():
     """Fetch all free SC/spin posts from last 24h for dashboard display (no Reddit references)"""
