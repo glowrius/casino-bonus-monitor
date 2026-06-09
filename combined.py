@@ -325,17 +325,31 @@ def save_streamers(data):
         json.dump(data, f, indent=2)
 
 def monitor_streamer_loop():
-    """Background thread that checks streamers' online status periodically."""
+    """Background thread that checks streamers' online status via HTTP reachability."""
     while True:
         try:
             streamers = load_streamers()
+            changed = False
             for s in streamers:
                 username = s.get("username", "")
                 platform = s.get("platform", "Kick")
-                if username:
-                    s["status"] = "online"
-                    s["last_seen"] = "Just now"
-            save_streamers(streamers)
+                if not username:
+                    continue
+                url = f"https://kick.com/api/v2/channels/{username}" if platform.lower() == "kick" else f"https://api.twitch.tv/helix/streams?user_login={username}"
+                old_status = s.get("status", "idle")
+                try:
+                    resp = requests.get(url, timeout=8, headers={"User-Agent": USER_AGENT})
+                    if resp.status_code == 200:
+                        s["status"] = "live"
+                        s["last_seen"] = "Just now"
+                    else:
+                        s["status"] = "offline"
+                except:
+                    s["status"] = "offline"
+                if s["status"] != old_status:
+                    changed = True
+            if changed:
+                save_streamers(streamers)
         except:
             pass
         time.sleep(60)
@@ -355,14 +369,36 @@ def save_link_queue(data):
 def process_link(url):
     """Process a single sweepstakes link. Returns dict with success/message."""
     try:
-        response = requests.get(url, timeout=15, headers={"User-Agent": USER_AGENT})
+        casino_domains = ["chumbacasino", "pulsz", "stake", "sweepslots", "funrize", "sportzino", "mcluck", "wowvegas", "luckyland", "high5", "scratchful", "fortunejack", "betpanda"]
+        detected = next((c for c in casino_domains if c in url.lower()), "unknown")
+        response = requests.get(url, timeout=15, headers={"User-Agent": USER_AGENT}, allow_redirects=True)
         if response.status_code == 200:
-            return {"success": True, "message": "Link reachable and processed"}
-        return {"success": False, "message": f"HTTP {response.status_code}"}
+            return {"success": True, "message": f"Processed ({detected})", "casino": detected}
+        return {"success": False, "message": f"HTTP {response.status_code} ({detected})", "casino": detected}
     except requests.Timeout:
-        return {"success": False, "message": "Request timed out"}
+        return {"success": False, "message": "Request timed out", "casino": "unknown"}
     except Exception as e:
-        return {"success": False, "message": str(e)}
+        return {"success": False, "message": str(e), "casino": "unknown"}
+
+def process_queue_loop():
+    """Background thread that continuously processes pending links in the queue."""
+    while True:
+        try:
+            queue = load_link_queue()
+            pending = [i for i, q in enumerate(queue) if q.get("status") == "pending"]
+            if pending:
+                for idx in pending[:5]:
+                    item = queue[idx]
+                    item["status"] = "processing"
+                    save_link_queue(queue)
+                    result = process_link(item["url"])
+                    item["status"] = "done" if result.get("success") else "failed"
+                    item["result"] = result.get("message", "Unknown")
+                    item["casino"] = result.get("casino", "unknown")
+                    save_link_queue(queue)
+        except:
+            pass
+        time.sleep(30)
 
 def fetch_daily_freebies():
     """Fetch all free SC/spin posts from last 24h for dashboard display (no Reddit references)"""
