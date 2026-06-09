@@ -300,10 +300,7 @@ class DashboardTab(QWidget):
         self.tgl.setObjectName("success")
         self.tgl.clicked.connect(self.toggle)
         c.addWidget(self.tgl)
-        self.fld = QPushButton("FLOOD DISCORD")
-        self.fld.setObjectName("gold")
-        self.fld.clicked.connect(self.flood)
-        c.addWidget(self.fld)
+
         lo.addLayout(c)
 
         mg = QGroupBox("Monitoring Status")
@@ -351,13 +348,6 @@ class DashboardTab(QWidget):
         self.stlbl.setText("● OFFLINE")
         self.stlbl.setStyleSheet("color:#ef4444;font-size:16px;font-weight:700;")
         self.logfn("[SYSTEM] ❌ Monitoring stopped")
-
-    def flood(self):
-        self.logfn("[SYSTEM] Flooding Discord...")
-        threading.Thread(target=self._flood, daemon=True).start()
-    def _flood(self):
-        p = combined.flood_discord_last_24h()
-        self.logfn(f"[SYSTEM] ✅ Flood done — {p} alerts posted")
 
     def refresh(self):
         with combined.state_lock:
@@ -568,13 +558,6 @@ class SettingsTab(QWidget):
         lo = QVBoxLayout(); lo.setContentsMargins(24,24,24,24); lo.setSpacing(20)
         t = QLabel("Settings"); t.setObjectName("title"); lo.addWidget(t)
 
-        wg = QGroupBox("Discord Webhooks")
-        wl = QFormLayout(); wl.setSpacing(8)
-        self.lw = QLineEdit(combined.LIVE_WEBHOOK); wl.addRow("Live:",self.lw)
-        self.fw = QLineEdit(combined.FREECASH_WEBHOOK); wl.addRow("Free SC:",self.fw)
-        self.cw = QLineEdit(combined.CLAIMS_WEBHOOK); wl.addRow("Claims:",self.cw)
-        wg.setLayout(wl); lo.addWidget(wg)
-
         bg = QGroupBox("Bot Behavior")
         bl = QFormLayout(); bl.setSpacing(8)
         self.hc = QCheckBox("Headless mode (invisible browser)")
@@ -607,9 +590,6 @@ class SettingsTab(QWidget):
         lo.addStretch(); self.setLayout(lo)
 
     def save(self):
-        combined.LIVE_WEBHOOK = self.lw.text().strip()
-        combined.FREECASH_WEBHOOK = self.fw.text().strip()
-        combined.CLAIMS_WEBHOOK = self.cw.text().strip()
         combined.HEADLESS_MODE = self.hc.isChecked()
         combined.CHECK_INTERVAL = self.sp.value()
         QMessageBox.information(self,"Saved","Settings saved.")
