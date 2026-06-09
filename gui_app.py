@@ -194,25 +194,44 @@ class StatCard(QFrame):
 # ═══════════════════════════════════════════════════════════════
 
 class AnimatedButton(QPushButton):
-    _bg_start = QColor(255, 255, 255, 10)
-    _bg_hover = QColor(255, 255, 255, 25)
-    _bg_press = QColor(0, 0, 0, 50)
+    VARIANTS = {
+        "default": {"normal": QColor(255, 255, 255, 10), "hover": QColor(255, 255, 255, 25), "press": QColor(0, 0, 0, 50)},
+        "gold":    {"normal": QColor(255, 215, 0, 220),  "hover": QColor(255, 215, 0, 255), "press": QColor(180, 140, 0, 255)},
+        "success": {"normal": QColor(5, 150, 105, 220),  "hover": QColor(5, 150, 105, 255), "press": QColor(3, 100, 70, 255)},
+        "danger":  {"normal": QColor(220, 38, 38, 220),  "hover": QColor(220, 38, 38, 255), "press": QColor(150, 20, 20, 255)},
+    }
 
-    def __init__(self, text="", parent=None):
+    def __init__(self, text="", parent=None, variant="default"):
         super().__init__(text, parent)
-        self._cur = QColor(255, 255, 255, 10)
+        self._variant = variant
+        v = self.VARIANTS.get(variant, self.VARIANTS["default"])
+        self._cur = QColor(v["normal"])
         self._anim = QVariantAnimation(self)
         self._anim.setDuration(180)
         self._anim.valueChanged.connect(self._apply)
+        self._apply(self._cur)
 
     def _apply(self, c):
         self._cur = c
-        a = c.alpha() / 255; r, g, b = c.red(), c.green(), c.blue()
-        self.setStyleSheet(
-            f"QPushButton{{background:rgba({r},{g},{b},{a});border:1px solid rgba(255,255,255,{6+int(9*a)});border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;color:#ccc;}}"
-            f"QPushButton:hover{{background:rgba({min(r+10,255)},{min(g+10,255)},{min(b+10,255)},{min(a+0.08,0.5)});border-color:rgba(255,215,0,0.3);}}"
-            f"QPushButton:pressed{{background:rgba(0,0,0,0.2);}}"
-        )
+        a = c.alpha() / 255.0; r, g, b = c.red(), c.green(), c.blue()
+        if self._variant == "gold":
+            self.setStyleSheet(
+                f"QPushButton{{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 rgba({r},{g},{b},{a}),stop:1 rgba({max(r-10,0)},{max(g-50,0)},{max(b-150,0)},{a}));color:#0a0a0f;border:none;font-weight:600;border-radius:8px;padding:8px 18px;font-size:13px;}}"
+                f"QPushButton:hover{{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 rgba({min(r+20,255)},{min(g+10,255)},{min(b+60,255)},{min(a+0.1,1)}),stop:1 rgba({min(r-5,255)},{min(g-40,255)},{min(b-130,255)},{min(a+0.1,1)}));}}"
+                f"QPushButton:pressed{{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 rgba({max(r-40,0)},{max(g-30,0)},{max(b-20,0)},{a}),stop:1 rgba({max(r-60,0)},{max(g-80,0)},{max(b-160,0)},{a}));}}"
+            )
+        elif self._variant in ("success", "danger"):
+            self.setStyleSheet(
+                f"QPushButton{{background:rgba({r},{g},{b},{a});color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:600;}}"
+                f"QPushButton:hover{{background:rgba({min(r+15,255)},{min(g+15,255)},{min(b+15,255)},{min(a+0.08,1)});}}"
+                f"QPushButton:pressed{{background:rgba({max(r-30,0)},{max(g-30,0)},{max(b-30,0)},{a});}}"
+            )
+        else:
+            self.setStyleSheet(
+                f"QPushButton{{background:rgba({r},{g},{b},{a});border:1px solid rgba(255,255,255,{6+int(9*a)});border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;color:#ccc;}}"
+                f"QPushButton:hover{{background:rgba({min(r+10,255)},{min(g+10,255)},{min(b+10,255)},{min(a+0.08,0.5)});border-color:rgba(255,215,0,0.3);}}"
+                f"QPushButton:pressed{{background:rgba(0,0,0,0.2);}}"
+            )
 
     def _anim_to(self, target):
         self._anim.stop()
@@ -221,19 +240,23 @@ class AnimatedButton(QPushButton):
         self._anim.start()
 
     def enterEvent(self, e):
-        self._anim_to(AnimatedButton._bg_hover)
+        v = self.VARIANTS.get(self._variant, self.VARIANTS["default"])
+        self._anim_to(QColor(v["hover"]))
         super().enterEvent(e)
 
     def leaveEvent(self, e):
-        self._anim_to(AnimatedButton._bg_start)
+        v = self.VARIANTS.get(self._variant, self.VARIANTS["default"])
+        self._anim_to(QColor(v["normal"]))
         super().leaveEvent(e)
 
     def mousePressEvent(self, e):
-        self._anim_to(AnimatedButton._bg_press)
+        v = self.VARIANTS.get(self._variant, self.VARIANTS["default"])
+        self._anim_to(QColor(v["press"]))
         super().mousePressEvent(e)
 
     def mouseReleaseEvent(self, e):
-        self._anim_to(self._cur if self.underMouse() else AnimatedButton._bg_start)
+        v = self.VARIANTS.get(self._variant, self.VARIANTS["default"])
+        self._anim_to(QColor(v["hover"] if self.underMouse() else v["normal"]))
         super().mouseReleaseEvent(e)
 
 
@@ -459,9 +482,8 @@ class DashboardTab(QWidget):
         # Control center
         mc = QGroupBox("Dashboard")
         mcl = QVBoxLayout()
-        self.master_btn = QPushButton("Start All")
-        self.master_btn.setObjectName("success")
-        self.master_btn.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#059669;}")
+        self.master_btn = AnimatedButton("Start All", variant="success")
+        self.master_btn.setStyleSheet("font-size:15px;font-weight:700;padding:14px 32px;border-radius:10px;")
         self.master_btn.clicked.connect(self.toggle_master)
         mcl.addWidget(self.master_btn)
         # Service indicators
@@ -496,21 +518,21 @@ class DashboardTab(QWidget):
         sig.setLayout(sil); row.addWidget(sig)
         qag = QGroupBox("Quick Access")
         qal = QHBoxLayout(); qal.setSpacing(8)
-        open_btn = QPushButton("Open Data Folder")
+        open_btn = AnimatedButton("Open Data Folder")
         open_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(str(BASE_DIR))))
         qal.addWidget(open_btn)
-        check_btn = QPushButton("Check Now")
+        check_btn = AnimatedButton("Check Now")
         check_btn.clicked.connect(self.force_check)
         qal.addWidget(check_btn)
         qag.setLayout(qal); row.addWidget(qag)
         lo.addLayout(row)
 
         lg = QGroupBox("Activity Log")
-        ll = QVBoxLayout()
+        ll = QVBoxLayout(lg); ll.setContentsMargins(8, 8, 8, 8); ll.setSpacing(6)
         hl = QHBoxLayout()
         hl.addWidget(QLabel("Log"))
         hl.addStretch()
-        cls = QPushButton("Clear")
+        cls = AnimatedButton("Clear")
         cls.setFixedWidth(70)
         cls.clicked.connect(lambda: self.logv.clear())
         hl.addWidget(cls)
@@ -519,7 +541,6 @@ class DashboardTab(QWidget):
         self.logv.setReadOnly(True)
         self.logv.setMaximumHeight(100)
         ll.addWidget(self.logv)
-        lg.setLayout(ll)
         lo.addWidget(lg)
         lo.addStretch()
         self.setLayout(lo)
@@ -546,7 +567,9 @@ class DashboardTab(QWidget):
         self.log("[MASTER] Starting...")
         self.running = True
         self.master_btn.setText("Stop All")
-        self.master_btn.setStyleSheet("QPushButton{background:#ef4444;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#dc2626;}")
+        self.master_btn._variant = "danger"
+        self.master_btn._anim_to(AnimatedButton.VARIANTS["danger"]["normal"])
+        self.master_btn.setStyleSheet("font-size:15px;font-weight:700;padding:14px 32px;border-radius:10px;")
         for fn in [combined.monitor_loop, combined.daily_freebies_loop]:
             t = threading.Thread(target=fn, daemon=True); t.start(); self.threads.append(t)
         self.set_indicator("Scanner", True)
@@ -566,7 +589,9 @@ class DashboardTab(QWidget):
         self.log("[MASTER] Stopping...")
         self.running = False
         self.master_btn.setText("Start All")
-        self.master_btn.setStyleSheet("QPushButton{background:#10b981;color:#fff;border-radius:10px;padding:14px 32px;font-size:15px;font-weight:700;}QPushButton:hover{background:#059669;}")
+        self.master_btn._variant = "success"
+        self.master_btn._anim_to(AnimatedButton.VARIANTS["success"]["normal"])
+        self.master_btn.setStyleSheet("font-size:15px;font-weight:700;padding:14px 32px;border-radius:10px;")
         with combined.state_lock:
             combined.state["bot_status"] = "offline"; combined.state["status"] = "offline"
         for name in self.inds:
@@ -617,17 +642,20 @@ class DailySCTab(QWidget):
         lo.addWidget(t)
 
         # Summary + Upcoming Claims row
-        sum_row = QHBoxLayout()
+        sum_row = QHBoxLayout(); sum_row.setSpacing(12)
         sg = QGroupBox("Summary")
-        sl = QHBoxLayout()
+        sl = QHBoxLayout(); sl.setSpacing(16); sl.setContentsMargins(10, 8, 10, 8)
         self.daily_stat_labels = []
         for label, color in [("Total","#888"),("SC","#FFD700"),("Pending","#eab308"),("Rate","#10b981"),("Coverage","#6366f1")]:
             c = QVBoxLayout()
             c.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            c.setSpacing(4)
             lbl = QLabel("0")
             lbl.setStyleSheet(f"font-size:18px;font-weight:700;color:{color};")
             c.addWidget(lbl)
-            c.addWidget(QLabel(label))
+            ll = QLabel(label)
+            ll.setStyleSheet("font-size:10px;color:#666;")
+            c.addWidget(ll)
             self.daily_stat_labels.append(lbl)
             sl.addLayout(c)
         sg.setLayout(sl); sum_row.addWidget(sg)
@@ -647,13 +675,14 @@ class DailySCTab(QWidget):
         ng.setLayout(nl); sum_row.addWidget(ng, 1)
         lo.addLayout(sum_row)
 
-        # Toolbar
+        # Toolbar — gold/green/red left, neutral right
         tb = QHBoxLayout(); tb.setSpacing(8)
-        a = AnimatedButton("+ Add"); a.setObjectName("gold"); a.setStyleSheet("QPushButton#gold{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFD700,stop:1 #F59E0B);color:#0a0a0f;border:none;font-weight:600;}QPushButton#gold:hover{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #ffe44d,stop:1 #fbbf24);}"); a.clicked.connect(self.add); tb.addWidget(a)
-        ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
-        stp = QPushButton("Stop All"); stp.setObjectName("danger"); stp.clicked.connect(self.stop_all); tb.addWidget(stp)
+        a = AnimatedButton("+ Add", variant="gold"); a.clicked.connect(self.add); tb.addWidget(a)
+        ca = AnimatedButton("Claim All", variant="success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
+        stp = AnimatedButton("Stop All", variant="danger"); stp.clicked.connect(self.stop_all); tb.addWidget(stp)
+        tb.addStretch()
         imp = AnimatedButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
-        r = AnimatedButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
+        r = AnimatedButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); lo.addLayout(tb)
 
         # Accounts table (stretch)
         aw = QGroupBox("Accounts")
@@ -676,7 +705,7 @@ class DailySCTab(QWidget):
 
         # Schedule + Log bottom
         bw = QGroupBox("Schedule & Log")
-        bl = QVBoxLayout(bw); bl.setContentsMargins(6,6,6,6); bl.setSpacing(4)
+        bl = QVBoxLayout(bw); bl.setContentsMargins(8, 8, 8, 8); bl.setSpacing(6)
         self.schtbl = QTableWidget()
         self.schtbl.setColumnCount(5)
         self.schtbl.setHorizontalHeaderLabels(["Casino","Last Claim","Next Claim","Status","Cooldown"])
@@ -927,11 +956,10 @@ class StreamerSniperTab(QWidget):
 
         tb = QHBoxLayout(); tb.setSpacing(8)
         tb.addWidget(self.sniper_stats); tb.addStretch()
-        self.sniper_tgl = QPushButton("Watch")
-        self.sniper_tgl.setObjectName("success")
+        self.sniper_tgl = AnimatedButton("Watch", variant="success")
         self.sniper_tgl.clicked.connect(self.toggle_sniper)
         tb.addWidget(self.sniper_tgl)
-        refresh_btn = QPushButton("Refresh All")
+        refresh_btn = AnimatedButton("Refresh All")
         refresh_btn.clicked.connect(self.force_refresh)
         tb.addWidget(refresh_btn)
         lo.addLayout(tb)
@@ -949,18 +977,17 @@ class StreamerSniperTab(QWidget):
         self.streamer_list.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         sl.addWidget(self.streamer_list)
         ab = QHBoxLayout()
-        self.sadd = QPushButton("+ Add"); self.sadd.setObjectName("gold"); self.sadd.clicked.connect(self.add_streamer)
-        self.srm = QPushButton("Remove"); self.srm.clicked.connect(self.remove_streamer)
-        exp = QPushButton("Export"); exp.clicked.connect(self.export_streamers)
+        self.sadd = AnimatedButton("+ Add", variant="gold"); self.sadd.clicked.connect(self.add_streamer)
+        self.srm = AnimatedButton("Remove"); self.srm.clicked.connect(self.remove_streamer)
+        exp = AnimatedButton("Export"); exp.clicked.connect(self.export_streamers)
         ab.addWidget(self.sadd); ab.addWidget(self.srm); ab.addWidget(exp); ab.addStretch()
         sl.addLayout(ab)
         sg.setLayout(sl); lo.addWidget(sg)
 
         # Detection History + Log side by side
-        bot_row = QHBoxLayout()
+        bot_row = QHBoxLayout(); bot_row.setSpacing(12)
         dg = QGroupBox("Detections")
-        dl = QVBoxLayout()
-        dl.setContentsMargins(6,6,6,6)
+        dl = QVBoxLayout(dg); dl.setContentsMargins(8, 8, 8, 8); dl.setSpacing(4)
         self.detect_tbl = QTableWidget()
         self.detect_tbl.setColumnCount(3)
         self.detect_tbl.setHorizontalHeaderLabels(["Time","Platform","Username"])
@@ -969,14 +996,13 @@ class StreamerSniperTab(QWidget):
         self.detect_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.detect_tbl.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         dl.addWidget(self.detect_tbl)
-        dg.setLayout(dl); bot_row.addWidget(dg)
+        bot_row.addWidget(dg)
         lg = QGroupBox("Log")
-        ll = QVBoxLayout()
-        ll.setContentsMargins(6,6,6,6)
+        ll = QVBoxLayout(lg); ll.setContentsMargins(8, 8, 8, 8); ll.setSpacing(4)
         self.sniper_log = QTextEdit()
         self.sniper_log.setReadOnly(True)
         ll.addWidget(self.sniper_log)
-        lg.setLayout(ll); bot_row.addWidget(lg)
+        bot_row.addWidget(lg)
         lo.addLayout(bot_row)
 
         lo.addStretch()
@@ -1077,12 +1103,14 @@ class StreamerSniperTab(QWidget):
         if self.sniper_running:
             self.sniper_running = False
             self.sniper_tgl.setText("Watch")
-            self.sniper_tgl.setObjectName("success"); self.sniper_tgl.style().unpolish(self.sniper_tgl); self.sniper_tgl.style().polish(self.sniper_tgl)
+            self.sniper_tgl._variant = "success"
+            self.sniper_tgl._anim_to(AnimatedButton.VARIANTS["success"]["normal"])
             self.log("[SNIPER] Stopped")
         else:
             self.sniper_running = True
             self.sniper_tgl.setText("Stop Watching")
-            self.sniper_tgl.setObjectName("danger"); self.sniper_tgl.style().unpolish(self.sniper_tgl); self.sniper_tgl.style().polish(self.sniper_tgl)
+            self.sniper_tgl._variant = "danger"
+            self.sniper_tgl._anim_to(AnimatedButton.VARIANTS["danger"]["normal"])
             self.log("[SNIPER] Watching...")
             if hasattr(combined, 'monitor_streamer_loop'):
                 t = threading.Thread(target=combined.monitor_streamer_loop, daemon=True)
@@ -1129,7 +1157,7 @@ class LinkAutomationTab(QWidget):
         self.url_input.setPlaceholderText("Paste sweepstakes link...")
         ab.addWidget(self.url_input, 1)
         val_btn = AnimatedButton("Validate"); val_btn.clicked.connect(self.validate_url); ab.addWidget(val_btn)
-        self.add_btn = AnimatedButton("+ Add Link"); self.add_btn.setObjectName("gold"); self.add_btn.setStyleSheet("QPushButton#gold{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFD700,stop:1 #F59E0B);color:#0a0a0f;border:none;font-weight:600;}QPushButton#gold:hover{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #ffe44d,stop:1 #fbbf24);}"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
+        self.add_btn = AnimatedButton("+ Add Link", variant="gold"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
         lo.addLayout(ab)
 
         # Queue table (stretches)
@@ -1146,12 +1174,10 @@ class LinkAutomationTab(QWidget):
 
         # Controls row
         ctrl_row = QHBoxLayout()
-        self.process_btn = QPushButton("Process All")
-        self.process_btn.setObjectName("success")
+        self.process_btn = AnimatedButton("Process All", variant="success")
         self.process_btn.clicked.connect(self.process_queue)
         ctrl_row.addWidget(self.process_btn)
-        self.auto_toggle = QPushButton("Auto")
-        self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
+        self.auto_toggle = AnimatedButton("Auto")
         self.auto_toggle.clicked.connect(self.toggle_auto)
         ctrl_row.addWidget(self.auto_toggle)
         cc_btn = AnimatedButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); ctrl_row.addWidget(cc_btn)
@@ -1174,8 +1200,7 @@ class LinkAutomationTab(QWidget):
         self.discord_channel.setPlaceholderText("Channel ID")
         self.discord_channel.setFixedWidth(140)
         dwl.addWidget(self.discord_channel)
-        self.discord_watch_btn = QPushButton("Watch")
-        self.discord_watch_btn.setObjectName("success")
+        self.discord_watch_btn = AnimatedButton("Watch", variant="success")
         self.discord_watch_btn.clicked.connect(self.toggle_discord_watch)
         dwl.addWidget(self.discord_watch_btn)
         self.discord_status = QLabel("")
@@ -1306,23 +1331,24 @@ class LinkAutomationTab(QWidget):
         self.auto_running = not self.auto_running
         if self.auto_running:
             self.auto_toggle.setText("Auto: On")
-            self.auto_toggle.setStyleSheet("QPushButton{background:#10b981;color:#fff;border:1px solid #10b981;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#059669;}")
+            self.auto_toggle._variant = "success"
+            self.auto_toggle._anim_to(AnimatedButton.VARIANTS["success"]["normal"])
             if hasattr(combined, 'process_queue_loop'):
                 t = threading.Thread(target=combined.process_queue_loop, daemon=True)
                 t.start()
             self.log("[LINK] Auto on")
         else:
             self.auto_toggle.setText("Auto")
-            self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
+            self.auto_toggle._variant = "default"
+            self.auto_toggle._anim_to(AnimatedButton.VARIANTS["default"]["normal"])
             self.log("[LINK] Auto off")
 
     def toggle_discord_watch(self):
         if self.discord_watching:
             self.discord_watching = False
             self.discord_watch_btn.setText("Watch")
-            self.discord_watch_btn.setObjectName("success")
-            self.discord_watch_btn.style().unpolish(self.discord_watch_btn)
-            self.discord_watch_btn.style().polish(self.discord_watch_btn)
+            self.discord_watch_btn._variant = "success"
+            self.discord_watch_btn._anim_to(AnimatedButton.VARIANTS["success"]["normal"])
             self.discord_status.setText("")
             self.log("[LINK] Discord watcher stopped")
         else:
@@ -1333,9 +1359,8 @@ class LinkAutomationTab(QWidget):
                 return
             self.discord_watching = True
             self.discord_watch_btn.setText("Stop")
-            self.discord_watch_btn.setObjectName("danger")
-            self.discord_watch_btn.style().unpolish(self.discord_watch_btn)
-            self.discord_watch_btn.style().polish(self.discord_watch_btn)
+            self.discord_watch_btn._variant = "danger"
+            self.discord_watch_btn._anim_to(AnimatedButton.VARIANTS["danger"]["normal"])
             self.discord_status.setText("Watching...")
             self.log("[LINK] Discord watcher started")
             def watch():
@@ -1386,12 +1411,12 @@ class SettingsTab(QWidget):
         self.webhook_input = QLineEdit()
         self.webhook_input.setPlaceholderText("Discord webhook URL")
         whl.addWidget(self.webhook_input)
-        test_wh = QPushButton("Test"); test_wh.clicked.connect(self.test_webhook); whl.addWidget(test_wh)
+        test_wh = AnimatedButton("Test"); test_wh.clicked.connect(self.test_webhook); whl.addWidget(test_wh)
         nl.addLayout(whl)
         ng.setLayout(nl); top_row.addWidget(ng)
         lo.addLayout(top_row)
 
-        s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.save)
+        s = AnimatedButton("Save", variant="gold"); s.clicked.connect(self.save)
         lo.addWidget(s)
 
         # Data + Advanced row
@@ -1399,9 +1424,9 @@ class SettingsTab(QWidget):
         dg = QGroupBox("Data")
         dl = QHBoxLayout(); dl.setSpacing(6)
         dl.setContentsMargins(6,6,6,6)
-        exp_btn = QPushButton("Export All"); exp_btn.clicked.connect(self.export_data); dl.addWidget(exp_btn)
-        imp_btn = QPushButton("Import All"); imp_btn.clicked.connect(self.import_data); dl.addWidget(imp_btn)
-        cc_btn = QPushButton("Clear Cache"); cc_btn.clicked.connect(self.clear_cache); dl.addWidget(cc_btn)
+        exp_btn = AnimatedButton("Export All"); exp_btn.clicked.connect(self.export_data); dl.addWidget(exp_btn)
+        imp_btn = AnimatedButton("Import All"); imp_btn.clicked.connect(self.import_data); dl.addWidget(imp_btn)
+        cc_btn = AnimatedButton("Clear Cache"); cc_btn.clicked.connect(self.clear_cache); dl.addWidget(cc_btn)
         dg.setLayout(dl); mid_row.addWidget(dg)
 
         ag2 = QGroupBox("Advanced")
@@ -1409,15 +1434,15 @@ class SettingsTab(QWidget):
         al2.setContentsMargins(6,6,6,6)
         self.debug_cb = QCheckBox("Debug"); self.debug_cb.setChecked(False); al2.addWidget(self.debug_cb)
         self.verbose_cb = QCheckBox("Verbose"); self.verbose_cb.setChecked(False); al2.addWidget(self.verbose_cb)
-        reset_btn = QPushButton("Reset All"); reset_btn.setObjectName("danger"); reset_btn.clicked.connect(self.reset_all); al2.addWidget(reset_btn)
+        reset_btn = AnimatedButton("Reset All", variant="danger"); reset_btn.clicked.connect(self.reset_all); al2.addWidget(reset_btn)
         ag2.setLayout(al2); mid_row.addWidget(ag2)
         lo.addLayout(mid_row)
 
         # About + bottom buttons
-        bot_row = QHBoxLayout()
+        bot_row = QHBoxLayout(); bot_row.setSpacing(12)
         ag = QGroupBox("About")
-        al = QHBoxLayout(); al.setSpacing(10)
-        al.setContentsMargins(6,6,6,6)
+        al = QHBoxLayout(ag); al.setSpacing(14)
+        al.setContentsMargins(10, 8, 10, 8)
         lf = BASE_DIR / "license.dat"
         license_info = "No license"
         if lf.exists():
@@ -1429,11 +1454,12 @@ class SettingsTab(QWidget):
         l = QLabel('<a href="https://claimscasino.com/terms" style="color:#FFD700;text-decoration:none;">Terms</a>')
         l.setOpenExternalLinks(True); al.addWidget(l)
         al.addWidget(QLabel("© 2026 Claims Casino"))
-        ag.setLayout(al); bot_row.addWidget(ag)
+        bot_row.addWidget(ag)
+        ag.setMinimumHeight(42)
 
         bb = QHBoxLayout(); bb.setSpacing(8)
-        cu = QPushButton("Check Updates"); cu.setObjectName("gold"); cu.clicked.connect(self.check_updates_requested.emit); bb.addWidget(cu)
-        su = QPushButton("Community"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support")); bb.addWidget(su)
+        cu = AnimatedButton("Check Updates", variant="gold"); cu.clicked.connect(self.check_updates_requested.emit); bb.addWidget(cu)
+        su = AnimatedButton("Community"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support")); bb.addWidget(su)
         bot_row.addLayout(bb)
         lo.addLayout(bot_row)
         lo.addStretch()
@@ -1550,14 +1576,16 @@ class MainWindow(QMainWindow):
         logo_lbl.setFixedSize(40,40)
         tbl.addWidget(logo_lbl)
 
-        brand_col = QVBoxLayout(); brand_col.setSpacing(0)
+        brand_frame = QWidget()
+        brand_frame.setStyleSheet("background:transparent;")
+        bfl = QVBoxLayout(brand_frame); bfl.setContentsMargins(0, 8, 0, 6); bfl.setSpacing(0)
         brand = QLabel("CLAIMS CASINO")
         brand.setStyleSheet("color:#FFD700;font-size:18px;font-weight:700;letter-spacing:1px;")
-        brand_col.addWidget(brand)
+        bfl.addWidget(brand)
         sub = QLabel("Automation Suite  " + APP_VERSION)
         sub.setStyleSheet("color:#888;font-size:10px;font-weight:400;")
-        brand_col.addWidget(sub)
-        tbl.addLayout(brand_col)
+        bfl.addWidget(sub)
+        tbl.addWidget(brand_frame)
 
         tbl.addStretch()
 
