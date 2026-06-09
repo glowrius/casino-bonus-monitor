@@ -13,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Build exe
-        run: pyinstaller --onefile --windowed --icon=assets/icon.ico --name CasinoBot --add-data "combined.py;." --add-data "sites.json;." --add-data "license_keys.json;." --add-data "site_xpaths.json;." gui_app.py
+        run: python -m PyInstaller --onefile --windowed --icon=assets/icon.ico --add-data "license_keys.json;." --name "CasinoBot" gui_app.py
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         with:
