@@ -2,4 +2,5 @@ PyQt6>=6.6
 requests>=2.31
 selenium>=4.15
 webdriver-manager>=4.0
+flask>=3.0
 pyinstaller>=6.0
