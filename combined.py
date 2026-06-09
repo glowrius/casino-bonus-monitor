@@ -16,7 +16,39 @@ import re
 import base64
 import subprocess
 import requests
-from flask import Flask, jsonify, request, send_from_directory, make_response, session, redirect, url_for
+try:
+    from flask import Flask, jsonify, request, send_from_directory, make_response, session, redirect, url_for
+except ImportError:
+    class _FlaskStub:
+        def __init__(self, name):
+            self.secret_key = None
+            self.after_request = lambda f: f
+        def route(self, rule, **options):
+            return lambda f: f
+        def run(self, *a, **kw): pass
+    Flask = _FlaskStub
+    def jsonify(*a, **kw):
+        return type("_Resp", (), {"status_code": 200, "headers": {}, "set_cookie": lambda *a, **kw: None})()
+    class _Req:
+        method = "GET"
+        args = {}
+        form = {}
+        cookies = {}
+        @staticmethod
+        def get_json(silent=False):
+            return {}
+        @staticmethod
+        def headers():
+            return {}
+    request = _Req()
+    def send_from_directory(*a, **kw): return ""
+    def make_response(*a, **kw): return ""
+    class _Session(dict):
+        def get(self, k, d=None):
+            return super().get(k, d)
+    session = _Session()
+    def redirect(*a, **kw): return ""
+    def url_for(*a, **kw): return ""
 
 # ================== CONFIGURATION ==================
 SCRIPT_DIR = Path(__file__).parent
@@ -437,19 +469,101 @@ def save_link_queue(data):
     with open(LINK_QUEUE_FILE, 'w') as f:
         json.dump(data, f, indent=2)
 
-def process_link(url):
-    """Process a single sweepstakes link. Returns dict with success/message."""
+def process_link(url, progress_callback=None):
+    """Process a single sweepstakes link using Selenium.
+    Extracts domain, looks up stored credentials, logs in, and claims daily bonus.
+    Returns dict with success/message and optional sc_amount.
+    """
+    def _progress(msg, pct=None):
+        if progress_callback:
+            progress_callback(msg, pct)
+
     try:
-        casino_domains = ["chumbacasino", "pulsz", "stake", "sweepslots", "funrize", "sportzino", "mcluck", "wowvegas", "luckyland", "high5", "scratchful", "fortunejack", "betpanda"]
-        detected = next((c for c in casino_domains if c in url.lower()), "unknown")
-        response = requests.get(url, timeout=15, headers={"User-Agent": USER_AGENT}, allow_redirects=True)
-        if response.status_code == 200:
-            return {"success": True, "message": f"Processed ({detected})", "casino": detected}
-        return {"success": False, "message": f"HTTP {response.status_code} ({detected})", "casino": detected}
-    except requests.Timeout:
-        return {"success": False, "message": "Request timed out", "casino": "unknown"}
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        domain = parsed.netloc.replace("www.", "")
+
+        # Look up site config
+        sites = load_sites()
+        site = next((s for s in sites if s["domain"] == domain or domain.endswith(s["domain"])), None)
+        casino_name = site["name"] if site else domain
+        _progress(f"Processing {casino_name}...", 5)
+
+        # Look up credentials
+        accounts = load_accounts()
+        acct_domain = None
+        for d in accounts:
+            if d in domain or domain in d:
+                acct_domain = d
+                break
+        if not acct_domain:
+            return {"success": False, "message": f"No credentials for {casino_name}", "casino": domain}
+
+        account = accounts[acct_domain]
+        _progress(f"Logging into {casino_name}...", 20)
+
+        auto = CasinoAutomation(headless=HEADLESS_MODE)
+        if not auto.start():
+            return {"success": False, "message": "Browser failed to start", "casino": domain}
+
+        if not auto.login(acct_domain, account["username"], account["password"], account.get("login_method", "email")):
+            auto.close()
+            return {"success": False, "message": f"Login failed for {casino_name}", "casino": domain}
+
+        _progress(f"Claiming at {casino_name}...", 60)
+        sc = auto.claim_daily_bonus(acct_domain)
+        auto.close()
+
+        if sc > 0:
+            accts = load_accounts()
+            if acct_domain in accts:
+                accts[acct_domain]["sc_total"] = round(accts[acct_domain].get("sc_total", 0) + sc, 2)
+                save_accounts(accts)
+            with state_lock:
+                state["claimed"] += 1
+                state["sc_total"] = round(state["sc_total"] + sc, 2)
+            _progress(f"Claimed {sc} SC at {casino_name} \u2713", 100)
+            return {"success": True, "message": f"Claimed {sc} SC", "casino": domain, "sc_amount": sc}
+        else:
+            _progress(f"No SC available at {casino_name}", 100)
+            return {"success": False, "message": "No SC available", "casino": domain}
+
     except Exception as e:
+        _progress(f"Error: {e}", 100)
         return {"success": False, "message": str(e), "casino": "unknown"}
+
+def discord_watch_loop(bot_token, channel_id, log_callback=None):
+    """Poll a Discord channel for new messages containing sweepstakes links and add to queue."""
+    def _log(msg):
+        if log_callback: log_callback(msg)
+    seen_ids = set()
+    api_url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
+    headers = {"Authorization": f"Bot {bot_token}", "Content-Type": "application/json"}
+    while True:
+        try:
+            resp = requests.get(api_url, headers=headers, params={"limit": 10}, timeout=10)
+            if resp.status_code == 200:
+                messages = resp.json()
+                for msg in messages:
+                    mid = msg.get("id")
+                    if mid in seen_ids:
+                        continue
+                    seen_ids.add(mid)
+                    content = msg.get("content", "")
+                    # Extract URLs from message
+                    urls = re.findall(r'https?://[^\s<>"{}|\\^`\[\]]+', content)
+                    for url in urls:
+                        if any(dom in url.lower() for dom in ["casino", "sweep", "spin", "bonus", "claim", "pulsz", "chumba", "stake", "sportzino", "mcluck", "wowvegas", "luckyland", "high5"]):
+                            queue = load_link_queue()
+                            if not any(q["url"] == url for q in queue):
+                                queue.append({"url": url, "added": datetime.now().strftime("%m/%d %H:%M"), "status": "pending", "result": "", "casino": "discord"})
+                                save_link_queue(queue)
+                                _log(f"Added from Discord: {url[:50]}...")
+            else:
+                _log(f"Discord API error: HTTP {resp.status_code}")
+        except Exception as e:
+            _log(f"Discord poll error: {e}")
+        time.sleep(30)
 
 def process_queue_loop():
     """Background thread that continuously processes pending links in the queue."""

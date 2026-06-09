@@ -1,76 +1,62 @@
 # Session Summary
 
 ## Goal
-Maintain a crypto membership purchase site (GitHub Pages) + desktop GUI app ("Claims Casino - Automation Suite") for auto-claiming sweepstakes casino bonuses, with license-key activation and GitHub Releases auto-updater.
+Desktop GUI app ("Claims Casino - Automation Suite") for auto-claiming sweepstakes casino bonuses, with license-key activation, HWID-bound licensing, cloud updater via update.json, Selenium-based link automation, Reddit monitoring with Discord webhooks.
 
-## Site Details
-- Dark theme, gold accents, Inter font, floating orbs, fade-in animations, glass-effect cards, 120×120 logo.webp
-- Multi-crypto: BTC, ETH, USDC, USDT, SOL, BNB (3-column grid)
-- Pricing: $299.99/mo Monthly, $4999.99 Lifetime, $349.99/mo Elite
-- Payment: confirm → invoice + QR + live BTC price → polls mempool.space every 15s
-- Nav: fixed glass nav with profile icon → dropdown (Profile/Payments/Settings/Log Out) or Login/Signup modal
-
-## What's Built
-
-### Site (`docs/index.html`)
-- Hero with coinflip logo animation (backface-visibility + transform-style: 3d)
-- Benefits section (4 profit cards), How It Works (3 steps), FAQ accordion
-- Crypto payment grid: BTC, ETH, USDC, USDT, SOL, BNB (dot+ticker style)
-- Pricing cards with hover scale 1.03, gold badges, z-index fix
-- Testimonials grid: 13 images from Discord with gradient overlay showing win amount + caption
-- Profile dropdown: when logged in, click avatar → dropdown with Profile/Payments/Settings/Log Out
-- Profile modal: email, member since, total payments/spent
-- Payments modal: reads `localStorage.claims_casino_payments` array, shows invoice/plan/amount/date/status
-- Settings modal: email notifications toggle (stored in localStorage)
-- Auth: email/password signup/login via localStorage, data migration from old format
-- Footer: `support@claimscasino.com` + copyright, no external links
-- Responsive: mobile testimonial breakpoints, crypto grid stays 3-col
-- Reload-to-top: `scrollRestoration='manual'` + load/pageshow listeners
+## What's Built (Core Changes)
 
 ### Desktop App (`gui_app.py`)
-- PyQt6, renamed "Claims Casino - Automation Suite"
-- LicenseDialog: frameless 600×480, draggable, validates against `license_keys.json`
-- MainWindow: frameless 1200×780, custom 44px title bar (minimize/close), drag-move
-- Sidebar (QListWidget) + QStackedWidget replaces QTabWidget
-- Fade transition on page change via QGraphicsOpacityEffect + QPropertyAnimation
-- Tray icon with context menu
-- Auto-updater: checks GitHub Releases, downloads exe with QProgressDialog, PowerShell swap relaunch
-- TOS hyperlink in Settings About section
+- **AnimatedButton class**: `QVariantAnimation`-powered QPushButton with 180ms hover/press fade (Import, Refresh, Validate, Clear Done, Clear, + Add, + Add Link, etc.)
+- **Expandable window**: `setMinimumSize(900,600)` + `resize(1200,780)`
+- **SSO login**: `CasinoAutomation.login()` accepts `login_method` ("email"/"google"/"apple") with auto-fill
+- **Add Account dialog**: Login Method dropdown (Email/Google/Apple), `vals()` returns 4-tuple
+- **Login Method column**: Daily SC table shows colored method badges (purple=Google, red=Apple, grey=Email)
+- **Link Automation**: Casino dropdown from `sites.json` next to URL input, button renamed "+ Add Link"
+- **Visual progress panel**: QProgressBar + status label replaces Monitor Feed table; Log is collapsible (QGroupBox checkable)
+- **ProcessQueueWorker QThread**: Background queue processing with progress signals, keeps UI responsive
+- **Discord Watcher**: Configurable bot token + channel ID, polls Discord API for links and auto-queues them
+- **Cloud updater**: Fetches `update.json` manifest from `claimscasino.com` instead of GitHub API
+- **Online activation**: LicenseDialog tries online activation first, falls back to local `license_keys.json`
+- **Anti-debug startup**: `check_anti_debug()` runs at startup, kills if debugger detected
+- **String obfuscation**: API URLs XOR+base64 encoded to prevent trivial string-search cracking
+- **License re-validation**: At startup, re-validates existing license online
+- **Version**: `v1.1.0`
 
-### Testimonial Numbers (OCR'd from images)
-| Image | Amount | Source |
-|-------|--------|--------|
-| t1.png | +$51.06 | Sportzino SC balance |
-| t2.png | +$50.00 | yayz referral bonus |
-| t3.png | +$31.50 | Rebet settings page |
-| t4.png | +$24.70 | Prize Redemption |
-| t5.png | +$87.35 | Success page (generic) |
-| t6.png | +$45.00 | Dogg Cash page |
-| t7.jpg | +$112.42 | Sportzino slots (generic) |
-| t8.jpg | +$63.88 | KYC verification page |
-| t9.jpg | +$28.50 | sweepjungle lobby |
-| t10.jpg | +$53.87 | Lonestar SC balance |
-| t11.jpg | +$21.31 | Rebet Inc win |
-| t12.jpg | +$7.17 | Rebet Cash pick win |
-| t13.jpg | +$22.77 | Redemption to card |
+### Core Logic (`combined.py`)
+- **Flask optional**: try/except ImportError with stub classes — EXE no longer needs Flask bundled
+- **HWID**: `get_hwid()` generates 32-char SHA-256 fingerprint (CPU ID + disk serial + MAC + hostname)
+- **Anti-debug**: Detects debuggers (x64dbg, IDA, ProcessHacker), sandbox artifacts, VM indicators
+- **Obfuscation helpers**: `_obfuscate()` / `_deobfuscate()` with XOR+base64
+- **`process_link()` rewrite**: Full Selenium-based claiming — extracts domain, looks up credentials, logs in, claims, updates SC total (replaced simple HTTP GET)
+- **`discord_watch_loop()`**: Polls Discord channel via REST API, extracts URLs, auto-adds to link queue
+- **`site_xpaths.json`**: Per-domain XPath overrides for cookie acceptance, login, wallet, claim button, etc.
+- **`monitor_feed` deque**: `deque(maxlen=50)` populated in `monitor_loop` for Reddit post tracking
+- **`/api/activate` endpoint**: Flask activation endpoint for online key validation
 
-### License Keys
-- 10 premium 16-char keys in `license_keys.json`, stored in `dist/` + bundled via PyInstaller
-- Format: `XXXX-XXXX-XXXX-XXXX`, normalized (uppercase, strip dashes)
-- Old deprecated keys: `GOLD-DEPR-2024-XXXX`, `PLAT-DEPR-2024-XXXX`
+### Activation Server (`activation_server.py`)
+- Standalone Flask server: `/api/activate` (key+HWID), `/api/validate`, `/api/revoke`, `/api/add-key`, `/api/list-keys`, `/api/status`
+- Licenses stored in `licenses.json`
+- Admin key via `ACTIVATION_ADMIN_KEY` env var
 
 ### Build
-- PyInstaller: `python -m PyInstaller --onefile --windowed --icon=assets/icon.ico --add-data "license_keys.json;." --name "CasinoBot" gui_app.py`
-- EXE ~50MB, in `dist/CasinoBot.exe` (gitignored)
-- GitHub Actions: `.github/workflows/build.yml` auto-builds on tag push
+- **CasinoBot.spec**: PyInstaller config with hidden imports (`flask`, `selenium`, `webdriver_manager`), excludes (`wmi`), datas (`activation_server.py`, `site_xpaths.json`, `license_keys.json`, `logo.png`)
+- **scripts/setup.iss**: Inno Setup v1.1.0, no launch checkbox (Flags: nowait skipifsilent), auto-launches on finish, cert auto-install
+- **CI**: `.github/workflows/build.yml` uses `CasinoBot.spec`
+- **EXE**: ~48-50 MB one-file build
 
-## Git Log
-- `88b6f70` - Profile dropdown menu
-- `1a42f7a` - Testimonial numbers updated (OCR-extracted)
-- `314c767` - Remove temp script
-- `746b407` - Profile/Payments/Settings modals, fixed t4 aspect, payment history
+### Config Files
+- `site_xpaths.json` — Per-domain XPath selectors for claim automation (DEFAULT + 10 major casinos)
+- `sites.json` — 81 sweepstakes casino definitions (S/A/B tiers)
 
-## Pending / Blocked
-- HTTPS: set custom domain `claimscasino.com` in GitHub Pages Settings
-- DNS propagation for `claimscasino.com`
-- Tag `v1.0.1` to trigger auto-updater build
+## Next Steps
+1. Upload `CasinoBot-Setup-1.1.0.exe` to Discord channel `#1493302662974935072`
+2. Edit `docs/update.json` with Discord CDN URL and correct byte size
+3. Deploy `activation_server.py` to cloud host (Render/Railway/VPS)
+4. Add more per-site XPaths to `site_xpaths.json` for better claim coverage
+5. Build browser step recorder for sites where generic XPaths fail
+
+## Key Constraints
+- `gui_app.py` line 34: `APP_VERSION = "v1.1.0"`
+- Obfuscated URLs use key `bytes([0x47, 0x8B, 0x1A, 0xD4, 0x66, 0x2F, 0x93, 0x01])`
+- Flask is optional — bundled stubs when not installed
+- Windows PowerShell path quoting issues: use `-workdir` or single quotes for paths with spaces

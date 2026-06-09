@@ -2,7 +2,7 @@
 ; Inno Setup 6 Script
 
 #define MyAppName "Claims Casino Automation Suite"
-#define MyAppVersion "1.0.2"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "Claims Casino 2026"
 #define MyAppURL "https://claimscasino.com"
 #define MyAppExeName "CasinoBot.exe"

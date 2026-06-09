@@ -5,7 +5,7 @@ a = Analysis(
     ['gui_app.py'],
     pathex=[],
     binaries=[],
-    datas=[('assets/logo.png', 'assets'), ('license_keys.json', '.'), ('activation_server.py', '.')],
+    datas=[('assets/logo.png', 'assets'), ('license_keys.json', '.'), ('activation_server.py', '.'), ('site_xpaths.json', '.')],
     hiddenimports=['flask', 'selenium', 'webdriver_manager'],
     hookspath=[],
     hooksconfig={},

@@ -31,7 +31,7 @@ combined.CLAIM_SCHEDULE_FILE = BASE_DIR / "claim_schedule.json"
 combined.APPROVED_USERS_FILE = BASE_DIR / "approved_users.json"
 combined.ADMIN_USERS_FILE = BASE_DIR / "admin_users.json"
 
-APP_VERSION = "v1.0.2"
+APP_VERSION = "v1.1.0"
 # Obfuscated URLs to prevent trivial string-search cracking
 _ob_key = bytes([0x47, 0x8B, 0x1A, 0xD4, 0x66, 0x2F, 0x93, 0x01])
 def _deobs(e):
@@ -51,7 +51,7 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QTabWidget, QTableWidget,
     QTableWidgetItem, QHeaderView, QDialog, QMessageBox, QTextEdit,
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
-    QSystemTrayIcon, QMenu, QFrame,     QStackedWidget, QSplitter, QProgressDialog,
+    QSystemTrayIcon, QMenu, QFrame,     QStackedWidget, QSplitter, QProgressDialog, QProgressBar,
     QComboBox, QFileDialog
 )
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QUrl, QVariantAnimation, pyqtProperty
@@ -86,6 +86,8 @@ QPushButton {
 QPushButton:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,215,0,0.3); }
 QPushButton:pressed { background: rgba(0,0,0,0.2); }
 QPushButton:disabled { background: rgba(255,255,255,0.02); color: #555; border-color: rgba(255,255,255,0.03); }
+QProgressBar { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; text-align: center; color: #e8e8ed; font-size: 11px; min-height: 18px; max-height: 18px; }
+QProgressBar::chunk { background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #FFD700, stop:1 #F59E0B); border-radius: 5px; }
 QPushButton#gold {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FFD700, stop:1 #F59E0B);
     color: #0a0a0f; border: none; font-weight: 600;
@@ -396,6 +398,41 @@ class ClaimWorker(QThread):
             self.done.emit(self.domain, False, 0)
 
 # ═══════════════════════════════════════════════════════════════
+# LINK PROCESS WORKER THREAD
+# ═══════════════════════════════════════════════════════════════
+
+class ProcessQueueWorker(QThread):
+    progress = pyqtSignal(int, str)
+    link_done = pyqtSignal(int, str, str)
+    finished = pyqtSignal()
+
+    def __init__(self, queue, parent=None):
+        super().__init__(parent)
+        self.queue = queue
+
+    def run(self):
+        total = len(self.queue)
+        for i, item in enumerate(self.queue):
+            if item.get("status") == "done":
+                continue
+            pct = int((i / max(total, 1)) * 100)
+            self.progress.emit(pct, f"[{i+1}/{total}] {item.get('url','')[:50]}...")
+            item["status"] = "processing"
+            combined.save_link_queue(self.queue)
+            try:
+                result = combined.process_link(item["url"])
+                item["status"] = "done" if result.get("success") else "failed"
+                item["result"] = result.get("message", "Unknown")
+            except Exception as e:
+                item["status"] = "failed"
+                item["result"] = str(e)
+            combined.save_link_queue(self.queue)
+            self.link_done.emit(i, item["status"], item["result"])
+            time.sleep(1.5)
+        self.progress.emit(100, f"Queue complete \u2014 {total} links processed")
+        self.finished.emit()
+
+# ═══════════════════════════════════════════════════════════════
 # DASHBOARD TAB
 # ═══════════════════════════════════════════════════════════════
 
@@ -612,7 +649,7 @@ class DailySCTab(QWidget):
 
         # Toolbar
         tb = QHBoxLayout(); tb.setSpacing(8)
-        a = QPushButton("+ Add"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
+        a = AnimatedButton("+ Add"); a.setObjectName("gold"); a.setStyleSheet("QPushButton#gold{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFD700,stop:1 #F59E0B);color:#0a0a0f;border:none;font-weight:600;}QPushButton#gold:hover{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #ffe44d,stop:1 #fbbf24);}"); a.clicked.connect(self.add); tb.addWidget(a)
         ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
         stp = QPushButton("Stop All"); stp.setObjectName("danger"); stp.clicked.connect(self.stop_all); tb.addWidget(stp)
         imp = AnimatedButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
@@ -1092,7 +1129,7 @@ class LinkAutomationTab(QWidget):
         self.url_input.setPlaceholderText("Paste sweepstakes link...")
         ab.addWidget(self.url_input, 1)
         val_btn = AnimatedButton("Validate"); val_btn.clicked.connect(self.validate_url); ab.addWidget(val_btn)
-        self.add_btn = QPushButton("+ Add Link"); self.add_btn.setObjectName("gold"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
+        self.add_btn = AnimatedButton("+ Add Link"); self.add_btn.setObjectName("gold"); self.add_btn.setStyleSheet("QPushButton#gold{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFD700,stop:1 #F59E0B);color:#0a0a0f;border:none;font-weight:600;}QPushButton#gold:hover{background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #ffe44d,stop:1 #fbbf24);}"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
         lo.addLayout(ab)
 
         # Queue table (stretches)
@@ -1125,26 +1162,47 @@ class LinkAutomationTab(QWidget):
         ctrl_row.addWidget(self.last_result_lbl)
         lo.addLayout(ctrl_row)
 
-        # Bottom panels: Monitor Feed + Log side by side
-        bottom_row = QHBoxLayout()
-        # Monitor Feed
-        mg = QGroupBox("Monitor Feed")
-        ml = QVBoxLayout(mg); ml.setContentsMargins(6,6,6,6); ml.setSpacing(4)
-        self.monitor_tbl = QTableWidget()
-        self.monitor_tbl.setColumnCount(3)
-        self.monitor_tbl.setHorizontalHeaderLabels(["Title","SC","Source"])
-        self.monitor_tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        self.monitor_tbl.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-        self.monitor_tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        self.monitor_tbl.verticalHeader().setVisible(False)
-        self.monitor_tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
-        self.monitor_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        self.monitor_tbl.setMaximumHeight(120)
-        ml.addWidget(self.monitor_tbl)
-        bottom_row.addWidget(mg, 1)
+        # Discord Watcher row
+        dw_row = QHBoxLayout()
+        dwg = QGroupBox("Discord Watcher")
+        dwl = QHBoxLayout(dwg); dwl.setContentsMargins(6,4,6,4); dwl.setSpacing(6)
+        self.discord_token = QLineEdit()
+        self.discord_token.setPlaceholderText("Discord bot token")
+        self.discord_token.setEchoMode(QLineEdit.EchoMode.Password)
+        dwl.addWidget(self.discord_token)
+        self.discord_channel = QLineEdit()
+        self.discord_channel.setPlaceholderText("Channel ID")
+        self.discord_channel.setFixedWidth(140)
+        dwl.addWidget(self.discord_channel)
+        self.discord_watch_btn = QPushButton("Watch")
+        self.discord_watch_btn.setObjectName("success")
+        self.discord_watch_btn.clicked.connect(self.toggle_discord_watch)
+        dwl.addWidget(self.discord_watch_btn)
+        self.discord_status = QLabel("")
+        self.discord_status.setStyleSheet("font-size:11px;color:#64748b;")
+        dwl.addWidget(self.discord_status)
+        dwl.addStretch()
+        lo.addWidget(dwg)
 
-        # Log
+        # Bottom panels: Automation Progress + Log (collapsible)
+        bottom_row = QHBoxLayout()
+        # Progress Panel
+        pg = QGroupBox("Automation Progress")
+        pl = QVBoxLayout(pg); pl.setContentsMargins(8,8,8,8); pl.setSpacing(6)
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setTextVisible(True)
+        pl.addWidget(self.progress_bar)
+        self.progress_status = QLabel("Ready \u2014 add links to queue and press Process All")
+        self.progress_status.setStyleSheet("font-size:12px;color:#64748b;padding:2px 0;")
+        pl.addWidget(self.progress_status)
+        bottom_row.addWidget(pg, 1)
+
+        # Log (collapsible)
         lg = QGroupBox("Log")
+        lg.setCheckable(True)
+        lg.setChecked(False)
         ll = QVBoxLayout(lg); ll.setContentsMargins(6,6,6,6)
         self.link_log = QTextEdit()
         self.link_log.setReadOnly(True)
@@ -1155,6 +1213,8 @@ class LinkAutomationTab(QWidget):
 
         self.setLayout(lo)
         self.auto_running = False
+        self.discord_watching = False
+        self.discord_thread = None
         self.refresh_queue()
         self.link_timer = QTimer()
         self.link_timer.timeout.connect(self.refresh_queue)
@@ -1167,15 +1227,6 @@ class LinkAutomationTab(QWidget):
     def refresh_queue(self):
         queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
         self.queue_tbl.setRowCount(len(queue))
-
-        # Update Monitor Feed
-        feed = list(combined.monitor_feed) if hasattr(combined, 'monitor_feed') else []
-        self.monitor_tbl.setRowCount(len(feed))
-        for i, entry in enumerate(feed):
-            self.monitor_tbl.setItem(i,0,QTableWidgetItem(entry.get("title","")[:50]))
-            sa = entry.get("sc_amount")
-            self.monitor_tbl.setItem(i,1,QTableWidgetItem(f"${sa:.2f}" if sa else "—"))
-            self.monitor_tbl.setItem(i,2,QTableWidgetItem(entry.get("subreddit","")))
         total = len(queue)
         processed = sum(1 for q in queue if q.get("status") in ("done","failed"))
         success = sum(1 for q in queue if q.get("status") == "done")
@@ -1265,28 +1316,45 @@ class LinkAutomationTab(QWidget):
             self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
             self.log("[LINK] Auto off")
 
+    def toggle_discord_watch(self):
+        if self.discord_watching:
+            self.discord_watching = False
+            self.discord_watch_btn.setText("Watch")
+            self.discord_watch_btn.setObjectName("success")
+            self.discord_watch_btn.style().unpolish(self.discord_watch_btn)
+            self.discord_watch_btn.style().polish(self.discord_watch_btn)
+            self.discord_status.setText("")
+            self.log("[LINK] Discord watcher stopped")
+        else:
+            token = self.discord_token.text().strip()
+            channel = self.discord_channel.text().strip()
+            if not token or not channel:
+                QMessageBox.warning(self, "Discord Watcher", "Enter bot token and channel ID first.")
+                return
+            self.discord_watching = True
+            self.discord_watch_btn.setText("Stop")
+            self.discord_watch_btn.setObjectName("danger")
+            self.discord_watch_btn.style().unpolish(self.discord_watch_btn)
+            self.discord_watch_btn.style().polish(self.discord_watch_btn)
+            self.discord_status.setText("Watching...")
+            self.log("[LINK] Discord watcher started")
+            def watch():
+                combined.discord_watch_loop(token, channel, lambda msg: self.log(f"[DISCORD] {msg}"))
+            self.discord_thread = threading.Thread(target=watch, daemon=True)
+            self.discord_thread.start()
+
     def process_queue(self):
         queue = combined.load_link_queue() if hasattr(combined, 'load_link_queue') else []
         if not queue: return
         self.log(f"[LINK] Processing {len(queue)} links...")
-        for i, item in enumerate(queue):
-            if item.get("status") == "done": continue
-            item["status"] = "processing"
-            if hasattr(combined, 'save_link_queue'):
-                combined.save_link_queue(queue)
-            self.refresh_queue()
-            try:
-                result = combined.process_link(item["url"]) if hasattr(combined, 'process_link') else {"success": True, "message": "Stub - link processed"}
-                item["status"] = "done" if result.get("success") else "failed"
-                item["result"] = result.get("message", result.get("error", "Unknown"))
-            except Exception as e:
-                item["status"] = "failed"
-                item["result"] = str(e)
-            if hasattr(combined, 'save_link_queue'):
-                combined.save_link_queue(queue)
-            self.refresh_queue()
-            self.log(f"[LINK] {item['status'].upper()}: {item['url'][:40]} -> {item['result'][:60]}")
-        self.log("[LINK] Queue processing complete")
+        self.progress_bar.setValue(0)
+        self.progress_status.setText("Starting queue processing...")
+        self.process_btn.setEnabled(False)
+        self.worker = ProcessQueueWorker(queue)
+        self.worker.progress.connect(lambda p, m: (self.progress_bar.setValue(p), self.progress_status.setText(m)))
+        self.worker.link_done.connect(lambda i, st, rs: self.log(f"[LINK] {st.upper()}: {queue[i]['url'][:40]} -> {rs[:60]}"))
+        self.worker.finished.connect(lambda: (self.refresh_queue(), self.process_btn.setEnabled(True)))
+        self.worker.start()
 
 # ═══════════════════════════════════════════════════════════════
 # SETTINGS TAB
