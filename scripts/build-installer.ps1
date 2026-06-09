@@ -24,10 +24,17 @@ if (-not $iscc) {
   exit 1
 }
 
-if (-not (Test-Path "$projectRoot\build\CasinoBot.exe")) {
-  Write-Error "CasinoBot.exe not found in build/. Run scripts\build.ps1 first."
+# Try dist/ first, then build/
+$exePath = "$projectRoot\dist\CasinoBot.exe"
+if (-not (Test-Path $exePath)) {
+  $exePath = "$projectRoot\build\CasinoBot.exe"
+}
+if (-not (Test-Path $exePath)) {
+  Write-Error "CasinoBot.exe not found. Run PyInstaller build first."
   exit 1
 }
+# Copy exe into build/ for Inno Setup
+Copy-Item -Path $exePath -Destination "$projectRoot\build\CasinoBot.exe" -Force
 
 if (-not (Test-Path "$projectRoot\build")) {
   New-Item -ItemType Directory -Path "$projectRoot\build" -Force | Out-Null

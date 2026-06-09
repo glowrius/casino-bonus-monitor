@@ -40,10 +40,10 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QLineEdit, QTabWidget, QTableWidget,
     QTableWidgetItem, QHeaderView, QDialog, QMessageBox, QTextEdit,
     QCheckBox, QSpinBox, QGroupBox, QFormLayout, QStatusBar,
-    QSystemTrayIcon, QMenu, QFrame,     QListWidget, QStackedWidget, QSplitter, QProgressDialog, QGraphicsOpacityEffect,
+    QSystemTrayIcon, QMenu, QFrame,     QStackedWidget, QSplitter, QProgressDialog,
     QComboBox, QFileDialog
 )
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QPropertyAnimation, QEasingCurve, QUrl
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QUrl
 from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase, QIcon, QDesktopServices
 
 # ═══════════════════════════════════════════════════════════════
@@ -51,106 +51,106 @@ from PyQt6.QtGui import QFont, QColor, QAction, QPixmap, QPainter, QFontDatabase
 # ═══════════════════════════════════════════════════════════════
 
 DARK_SS = """
-QMainWindow, QDialog { background: #0d0d12; color: #e2e8f0; }
-QWidget { background: #0d0d12; color: #e2e8f0; }
+QMainWindow, QDialog { background: #0a0a0f; color: #e8e8ed; }
+QWidget { background: transparent; color: #e8e8ed; }
+QFrame, QGroupBox, QTabWidget, QStackedWidget { background: transparent; }
 
 /* ---- Sidebar ---- */
-#sidebar { background: #121216; border: none; border-right: 1px solid rgba(255,255,255,0.06); min-width: 200px; max-width: 200px; }
+#sidebar { background: #0d0d14; border: none; border-right: 1px solid rgba(255,255,255,0.04); min-width: 200px; max-width: 200px; }
 #sidebar QPushButton {
-    background: transparent; color: #94a3b8; border: none; border-radius: 0; text-align: left;
-    padding: 14px 20px; font-size: 13px; font-weight: 600; border-left: 3px solid transparent;
+    background: transparent; color: #888; border: none; border-radius: 0; text-align: left;
+    padding: 12px 20px; font-size: 13px; font-weight: 500; border-left: 2px solid transparent;
 }
-#sidebar QPushButton:hover { background: rgba(255,255,255,0.03); color: #cbd5e1; border-left: 3px solid rgba(255,215,0,0.3); }
+#sidebar QPushButton:hover { background: rgba(255,255,255,0.02); color: #bbb; }
 #sidebar QPushButton:checked {
-    background: rgba(255,215,0,0.08); color: #FFD700; border-left: 3px solid #FFD700;
+    background: rgba(255,215,0,0.05); color: #FFD700; border-left: 2px solid #FFD700;
 }
-#sidebar #navsep { background: rgba(255,255,255,0.06); max-height: 1px; min-height: 1px; margin: 4px 16px; }
+#sidebar #navsep { background: rgba(255,255,255,0.05); max-height: 1px; min-height: 1px; margin: 4px 16px; }
 
 /* ---- Buttons ---- */
 QPushButton {
-    background: rgba(30,30,38,0.8); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; padding: 10px 22px; font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,0.04); color: #ccc; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500;
 }
-QPushButton:hover { background: rgba(40,40,50,0.9); border-color: rgba(255,215,0,0.4); }
-QPushButton:pressed { background: rgba(0,0,0,0.3); }
-QPushButton:disabled { background: rgba(255,255,255,0.03); color: #475569; border-color: rgba(255,255,255,0.04); }
+QPushButton:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,215,0,0.3); }
+QPushButton:pressed { background: rgba(0,0,0,0.2); }
+QPushButton:disabled { background: rgba(255,255,255,0.02); color: #555; border-color: rgba(255,255,255,0.03); }
 QPushButton#gold {
     background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #FFD700, stop:1 #F59E0B);
-    color: #0a0a0f; border: none; font-weight: 700;
+    color: #0a0a0f; border: none; font-weight: 600;
 }
 QPushButton#gold:hover { background: qlineargradient(x1:0,y1:0,x2:1,y2:1, stop:0 #ffe44d, stop:1 #fbbf24); }
-QPushButton#danger { background: #ef4444; color: #fff; border: none; }
-QPushButton#danger:hover { background: #dc2626; }
-QPushButton#success { background: #10b981; color: #fff; border: none; }
-QPushButton#success:hover { background: #059669; }
+QPushButton#danger { background: #dc2626; color: #fff; border: none; }
+QPushButton#danger:hover { background: #b91c1c; }
+QPushButton#success { background: #059669; color: #fff; border: none; }
+QPushButton#success:hover { background: #047857; }
 
 /* ---- Inputs ---- */
 QLineEdit {
-    background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 10px 14px; font-size: 13px;
+    background: rgba(255,255,255,0.03); color: #e8e8ed; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; padding: 8px 12px; font-size: 13px;
 }
-QLineEdit:focus { border-color: #FFD700; border-width: 2px; }
-QSpinBox { background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px; font-size: 13px; }
+QLineEdit:focus { border-color: #FFD700; }
+QSpinBox { background: rgba(255,255,255,0.03); color: #e8e8ed; border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
 QSpinBox:focus { border-color: #FFD700; }
-QCheckBox { color: #94a3b8; font-size: 13px; spacing: 8px; }
-QCheckBox::indicator { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.12); border-radius: 4px; background: rgba(22,22,30,0.8); }
+QCheckBox { color: #888; font-size: 13px; spacing: 8px; }
+QCheckBox::indicator { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.15); border-radius: 4px; background: transparent; }
 QCheckBox::indicator:checked { background: #FFD700; border-color: #FFD700; }
 
 /* ---- Tables ---- */
 QTableWidget {
-    background: rgba(20,20,28,0.7); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px; gridline-color: rgba(255,255,255,0.03); font-size: 13px;
+    background: rgba(255,255,255,0.02); color: #e8e8ed; border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px; gridline-color: rgba(255,255,255,0.02); font-size: 13px;
 }
-QTableWidget::item { padding: 8px 10px; }
-QTableWidget::item:selected { background: rgba(255,215,0,0.08); color: #FFD700; }
-QTableWidget::item:hover { background: rgba(255,255,255,0.03); }
+QTableWidget::item { padding: 6px 8px; }
+QTableWidget::item:selected { background: rgba(255,215,0,0.06); color: #FFD700; }
+QTableWidget::item:hover { background: rgba(255,255,255,0.02); }
 QHeaderView::section {
-    background: rgba(18,18,24,0.9); color: #FFD700; padding: 10px 12px; border: none;
-    border-bottom: 2px solid rgba(255,215,0,0.6); font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+    background: rgba(0,0,0,0.3); color: #FFD700; padding: 8px 10px; border: none;
+    border-bottom: 1px solid rgba(255,215,0,0.3); font-weight: 600; font-size: 11px;
 }
 
 /* ---- Labels ---- */
-QLabel#title { font-size: 22px; font-weight: 800; color: #f1f5f9; letter-spacing: -0.5px; }
-QLabel#statv { font-size: 28px; font-weight: 800; }
-QLabel#statl { font-size: 11px; color: #64748b; letter-spacing: 1px; text-transform: uppercase; }
+QLabel#title { font-size: 20px; font-weight: 700; color: #f0f0f5; }
+QLabel#statv { font-size: 26px; font-weight: 700; }
+QLabel#statl { font-size: 11px; color: #666; }
 
 /* ---- Group Boxes ---- */
 QGroupBox {
-    border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; margin-top: 14px;
-    padding: 18px 14px 14px; font-weight: 600; font-size: 11px; color: #94a3b8;
-    background: rgba(20,20,28,0.55);
-    text-transform: uppercase; letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; margin-top: 10px;
+    padding: 10px 10px 8px; font-weight: 500; font-size: 11px; color: #888;
+    background: rgba(255,255,255,0.015);
 }
-QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #94a3b8; }
+QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; color: #888; }
 
 /* ---- Text (Logs) ---- */
 QTextEdit {
-    background: #0a0a10; color: #94a3b8; border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px; padding: 10px; font-family: Consolas,'Courier New',monospace; font-size: 12px;
+    background: #06060a; color: #888; border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 6px; padding: 8px; font-family: Consolas,'Courier New',monospace; font-size: 12px;
 }
 
 /* ---- Status Bar ---- */
-QStatusBar { background: rgba(16,16,22,0.9); color: #64748b; border-top: 1px solid rgba(255,255,255,0.04); font-size: 12px; }
+QStatusBar { background: rgba(0,0,0,0.4); color: #666; border-top: 1px solid rgba(255,255,255,0.03); font-size: 12px; }
 QStatusBar::item { border: none; }
 
 /* ---- Scrollbars ---- */
-QScrollBar:vertical { background: transparent; width: 6px; border-radius: 3px; }
-QScrollBar::handle:vertical { background: rgba(255,255,255,0.12); border-radius: 3px; min-height: 24px; }
-QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.2); }
+QScrollBar:vertical { background: transparent; width: 6px; }
+QScrollBar::handle:vertical { background: rgba(255,255,255,0.08); border-radius: 3px; min-height: 24px; }
+QScrollBar::handle:vertical:hover { background: rgba(255,255,255,0.15); }
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
 
 /* ---- Splitter ---- */
-QSplitter::handle { background: rgba(255,255,255,0.06); width: 1px; }
+QSplitter::handle { background: rgba(255,255,255,0.05); width: 1px; }
 
 /* ---- Combo Box ---- */
 QComboBox {
-    background: rgba(22,22,30,0.9); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; padding: 8px 12px; font-size: 13px; min-height: 20px;
+    background: rgba(255,255,255,0.03); color: #e8e8ed; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; padding: 6px 10px; font-size: 13px; min-height: 20px;
 }
 QComboBox:focus { border-color: #FFD700; }
-QComboBox::drop-down { border: none; width: 28px; }
-QComboBox::down-arrow { image: none; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #94a3b8; margin-right: 8px; }
-QComboBox QAbstractItemView { background: #1a1a24; color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); selection-background-color: rgba(255,215,0,0.15); selection-color: #FFD700; }
+QComboBox::drop-down { border: none; width: 24px; }
+QComboBox::down-arrow { image: none; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #888; margin-right: 6px; }
+QComboBox QAbstractItemView { background: #14141e; color: #e8e8ed; border: 1px solid rgba(255,255,255,0.08); selection-background-color: rgba(255,215,0,0.1); selection-color: #FFD700; }
 """
 
 # ═══════════════════════════════════════════════════════════════
@@ -316,15 +316,15 @@ class DashboardTab(QWidget):
     def __init__(self):
         super().__init__()
         lo = QVBoxLayout()
-        lo.setContentsMargins(24, 24, 24, 24)
-        lo.setSpacing(20)
+        lo.setContentsMargins(16, 16, 16, 16)
+        lo.setSpacing(14)
 
         t = QLabel("Dashboard")
         t.setObjectName("title")
         lo.addWidget(t)
 
         g = QHBoxLayout()
-        g.setSpacing(16)
+        g.setSpacing(12)
         self.c1 = StatCard("Total SC Claimed", "$0.00", "#22c55e")
         self.c2 = StatCard("Claims Today", "0")
         self.c3 = StatCard("Alerts Sent", "0")
@@ -352,57 +352,48 @@ class DashboardTab(QWidget):
         mcl.addLayout(sind)
         mc.setLayout(mcl); lo.addWidget(mc)
 
-        # System Info
-        sig = QGroupBox("System Info")
+        # System & Quick Access
+        row = QHBoxLayout()
+        sig = QGroupBox("System")
         sil = QVBoxLayout()
         lf = BASE_DIR / "license.dat"
-        tier = "Premium"
+        self.tier = "Premium"
         if lf.exists():
             try:
                 with open(lf) as f: ld = json.load(f)
-                tier = ld.get("tier","Premium")
+                self.tier = ld.get("tier","Premium")
             except: pass
-        self.sys_info = QLabel(f"Version: v1.0.1 | License: {tier} | Builds: {BASE_DIR}")
-        self.sys_info.setStyleSheet("font-size:13px;color:#94a3b8;")
+        self.sys_info = QLabel(f"v1.0.1  |  {self.tier}  |  Scans: 0  |  Found: 0  |  Last: N/A")
+        self.sys_info.setStyleSheet("font-size:12px;color:#94a3b8;")
         sil.addWidget(self.sys_info)
         self.last_refresh_lbl = QLabel("Last ping: —")
-        self.last_refresh_lbl.setStyleSheet("font-size:12px;color:#64748b;")
+        self.last_refresh_lbl.setStyleSheet("font-size:11px;color:#64748b;")
         sil.addWidget(self.last_refresh_lbl)
-        sig.setLayout(sil); lo.addWidget(sig)
-
-        # Quick Access
+        sig.setLayout(sil); row.addWidget(sig)
         qag = QGroupBox("Quick Access")
-        qal = QHBoxLayout(); qal.setSpacing(10)
+        qal = QHBoxLayout(); qal.setSpacing(8)
         open_btn = QPushButton("Open Data Folder")
         open_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(str(BASE_DIR))))
         qal.addWidget(open_btn)
         check_btn = QPushButton("Check Now")
         check_btn.clicked.connect(self.force_check)
         qal.addWidget(check_btn)
-        qal.addStretch()
-        qag.setLayout(qal); lo.addWidget(qag)
-
-        mg = QGroupBox("Monitoring Status")
-        ml = QVBoxLayout()
-        self.mi = QLabel("Scans: 0 | Found: 0 | Last: N/A")
-        self.mi.setStyleSheet("font-size:13px;color:#b0b0b8;")
-        ml.addWidget(self.mi)
-        mg.setLayout(ml)
-        lo.addWidget(mg)
+        qag.setLayout(qal); row.addWidget(qag)
+        lo.addLayout(row)
 
         lg = QGroupBox("Activity Log")
         ll = QVBoxLayout()
         hl = QHBoxLayout()
-        hl.addWidget(QLabel("System events & alerts"))
+        hl.addWidget(QLabel("Log"))
         hl.addStretch()
         cls = QPushButton("Clear")
-        cls.setFixedWidth(80)
+        cls.setFixedWidth(70)
         cls.clicked.connect(lambda: self.logv.clear())
         hl.addWidget(cls)
         ll.addLayout(hl)
         self.logv = QTextEdit()
         self.logv.setReadOnly(True)
-        self.logv.setMaximumHeight(160)
+        self.logv.setMaximumHeight(100)
         ll.addWidget(self.logv)
         lg.setLayout(ll)
         lo.addWidget(lg)
@@ -476,7 +467,8 @@ class DashboardTab(QWidget):
         u = s.get('runtime',0); h,m = divmod(u,3600); m//=60
         self.c4.set_val(f"{int(h)}h {int(m)}m")
         la = s.get('last_alert')
-        self.mi.setText(f"Scans: {s.get('scanned',0)} | Found: {s.get('found',0)} | Last: {(la.get('title','N/A')[:40] if la else 'N/A')}")
+        last_title = la.get('title','N/A')[:40] if la else 'N/A'
+        self.sys_info.setText(f"v1.0.1  |  {self.tier}  |  Scans: {s.get('scanned',0)}  |  Found: {s.get('found',0)}  |  Last: {last_title}")
         self.last_refresh_lbl.setText(f"Last ping: {datetime.now():%H:%M:%S}")
         st = s.get("bot_status","offline")
         if st=="online":
@@ -493,58 +485,55 @@ class DailySCTab(QWidget):
         super().__init__()
         self.workers = []
         lo = QVBoxLayout()
-        lo.setContentsMargins(24, 24, 24, 24)
-        lo.setSpacing(14)
+        lo.setContentsMargins(16, 16, 16, 16)
+        lo.setSpacing(12)
 
         t = QLabel("Daily SC")
         t.setObjectName("title")
         lo.addWidget(t)
 
-        # Summary stats row
+        # Summary + Upcoming Claims row
+        sum_row = QHBoxLayout()
         sg = QGroupBox("Summary")
         sl = QHBoxLayout()
         self.daily_stat_labels = []
-        for label, color in [("Total Accounts","#888"),("Total SC","#FFD700"),("Pending","#eab308"),("Success Rate","#10b981"),("Coverage","#6366f1")]:
+        for label, color in [("Total","#888"),("SC","#FFD700"),("Pending","#eab308"),("Rate","#10b981"),("Coverage","#6366f1")]:
             c = QVBoxLayout()
             c.setAlignment(Qt.AlignmentFlag.AlignCenter)
             lbl = QLabel("0")
-            lbl.setStyleSheet(f"font-size:22px;font-weight:700;color:{color};")
+            lbl.setStyleSheet(f"font-size:18px;font-weight:700;color:{color};")
             c.addWidget(lbl)
             c.addWidget(QLabel(label))
             self.daily_stat_labels.append(lbl)
             sl.addLayout(c)
-        sg.setLayout(sl); lo.addWidget(sg)
+        sg.setLayout(sl); sum_row.addWidget(sg)
 
-        # Next Claims frame
-        ng = QGroupBox("Upcoming Claims")
+        ng = QGroupBox("Upcoming")
         nl = QVBoxLayout()
+        nl.setContentsMargins(6,6,6,6)
         self.next_tbl = QTableWidget()
         self.next_tbl.setColumnCount(3)
         self.next_tbl.setHorizontalHeaderLabels(["Casino","Ready In","Status"])
         self.next_tbl.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.next_tbl.verticalHeader().setVisible(False)
-        self.next_tbl.setMaximumHeight(120)
+        self.next_tbl.setMaximumHeight(80)
         self.next_tbl.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         self.next_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         nl.addWidget(self.next_tbl)
-        ng.setLayout(nl); lo.addWidget(ng)
+        ng.setLayout(nl); sum_row.addWidget(ng, 1)
+        lo.addLayout(sum_row)
 
         # Toolbar
         tb = QHBoxLayout(); tb.setSpacing(8)
         a = QPushButton("+ Add"); a.setObjectName("gold"); a.clicked.connect(self.add); tb.addWidget(a)
         ca = QPushButton("Claim All"); ca.setObjectName("success"); ca.clicked.connect(self.claim_all); tb.addWidget(ca)
-        stp = QPushButton("Stop All")
-        stp.setObjectName("danger"); stp.clicked.connect(self.stop_all)
-        tb.addWidget(stp)
+        stp = QPushButton("Stop All"); stp.setObjectName("danger"); stp.clicked.connect(self.stop_all); tb.addWidget(stp)
         imp = QPushButton("Import"); imp.clicked.connect(self.import_accts); tb.addWidget(imp)
         r = QPushButton("Refresh"); r.clicked.connect(self.load); tb.addWidget(r); tb.addStretch(); lo.addLayout(tb)
 
-        # Splitter: Account table top, Schedule + Log bottom
-        sp = QSplitter(Qt.Orientation.Vertical)
-
-        # --- Account Table ---
+        # Accounts table (stretch)
         aw = QGroupBox("Accounts")
-        al = QVBoxLayout(aw); al.setContentsMargins(12,12,12,12); al.setSpacing(6)
+        al = QVBoxLayout(aw); al.setContentsMargins(6,6,6,6); al.setSpacing(4)
         self.tbl = QTableWidget()
         self.tbl.setColumnCount(8)
         self.tbl.setHorizontalHeaderLabels(["Domain","Username","Last Claim","Status","SC Total","","",""])
@@ -559,11 +548,11 @@ class DailySCTab(QWidget):
         self.tbl.verticalHeader().setVisible(False)
         self.tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         al.addWidget(self.tbl)
-        sp.addWidget(aw)
+        lo.addWidget(aw, 1)
 
-        # --- Schedule + Log ---
-        bw = QGroupBox("Claim Schedule & Activity")
-        bl = QVBoxLayout(bw); bl.setContentsMargins(12,12,12,12); bl.setSpacing(6)
+        # Schedule + Log bottom
+        bw = QGroupBox("Schedule & Log")
+        bl = QVBoxLayout(bw); bl.setContentsMargins(6,6,6,6); bl.setSpacing(4)
         self.schtbl = QTableWidget()
         self.schtbl.setColumnCount(5)
         self.schtbl.setHorizontalHeaderLabels(["Casino","Last Claim","Next Claim","Status","Cooldown"])
@@ -571,16 +560,13 @@ class DailySCTab(QWidget):
         self.schtbl.verticalHeader().setVisible(False)
         self.schtbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.schtbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.schtbl.setMaximumHeight(100)
         bl.addWidget(self.schtbl)
-        bl.addWidget(QLabel("Activity Log"))
         self.logv = QTextEdit()
         self.logv.setReadOnly(True)
-        self.logv.setMaximumHeight(140)
+        self.logv.setMaximumHeight(50)
         bl.addWidget(self.logv)
-        sp.addWidget(bw)
-
-        sp.setSizes([300, 300])
-        lo.addWidget(sp)
+        lo.addWidget(bw)
         self.setLayout(lo)
 
         self.load()
@@ -800,7 +786,7 @@ class StreamerSniperTab(QWidget):
     def __init__(self):
         super().__init__()
         lo = QVBoxLayout()
-        lo.setContentsMargins(24,24,24,24); lo.setSpacing(14)
+        lo.setContentsMargins(16,16,16,16); lo.setSpacing(12)
 
         t = QLabel("Streamer Sniper")
         t.setObjectName("title"); lo.addWidget(t)
@@ -839,26 +825,28 @@ class StreamerSniperTab(QWidget):
         sl.addLayout(ab)
         sg.setLayout(sl); lo.addWidget(sg)
 
-        # Detection History
-        dg = QGroupBox("Detection History")
+        # Detection History + Log side by side
+        bot_row = QHBoxLayout()
+        dg = QGroupBox("Detections")
         dl = QVBoxLayout()
+        dl.setContentsMargins(6,6,6,6)
         self.detect_tbl = QTableWidget()
         self.detect_tbl.setColumnCount(3)
         self.detect_tbl.setHorizontalHeaderLabels(["Time","Platform","Username"])
         self.detect_tbl.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
         self.detect_tbl.verticalHeader().setVisible(False)
-        self.detect_tbl.setMaximumHeight(120)
         self.detect_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.detect_tbl.setSelectionMode(QTableWidget.SelectionMode.NoSelection)
         dl.addWidget(self.detect_tbl)
-        dg.setLayout(dl); lo.addWidget(dg)
-
-        lg = QGroupBox("Sniper Log")
+        dg.setLayout(dl); bot_row.addWidget(dg)
+        lg = QGroupBox("Log")
         ll = QVBoxLayout()
+        ll.setContentsMargins(6,6,6,6)
         self.sniper_log = QTextEdit()
         self.sniper_log.setReadOnly(True)
         ll.addWidget(self.sniper_log)
-        lg.setLayout(ll); lo.addWidget(lg)
+        lg.setLayout(ll); bot_row.addWidget(lg)
+        lo.addLayout(bot_row)
 
         lo.addStretch()
         self.setLayout(lo)
@@ -978,7 +966,7 @@ class LinkAutomationTab(QWidget):
     def __init__(self):
         super().__init__()
         lo = QVBoxLayout()
-        lo.setContentsMargins(24,24,24,24); lo.setSpacing(14)
+        lo.setContentsMargins(16,16,16,16); lo.setSpacing(12)
 
         t = QLabel("Link Automation")
         t.setObjectName("title"); lo.addWidget(t)
@@ -996,30 +984,16 @@ class LinkAutomationTab(QWidget):
             sl.addLayout(c)
         sg.setLayout(sl); lo.addWidget(sg)
 
-        # Last Result info
-        lrg = QGroupBox("Last Result")
-        lrl = QHBoxLayout()
-        self.last_result_lbl = QLabel("No links processed yet")
-        self.last_result_lbl.setStyleSheet("font-size:12px;color:#94a3b8;")
-        lrl.addWidget(self.last_result_lbl)
-        lrl.addStretch()
-        lrg.setLayout(lrl); lo.addWidget(lrg)
-
-        # Add URL
+        # Add URL + Last result inline
         ab = QHBoxLayout()
         self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Paste sweepstakes link to auto-process...")
+        self.url_input.setPlaceholderText("Paste sweepstakes link...")
         ab.addWidget(self.url_input)
-        val_btn = QPushButton("Validate")
-        val_btn.clicked.connect(self.validate_url)
-        ab.addWidget(val_btn)
-        self.add_btn = QPushButton("Add")
-        self.add_btn.setObjectName("gold")
-        self.add_btn.clicked.connect(self.add_link)
-        ab.addWidget(self.add_btn)
+        val_btn = QPushButton("Validate"); val_btn.clicked.connect(self.validate_url); ab.addWidget(val_btn)
+        self.add_btn = QPushButton("Add"); self.add_btn.setObjectName("gold"); self.add_btn.clicked.connect(self.add_link); ab.addWidget(self.add_btn)
         lo.addLayout(ab)
 
-        # Queue table
+        # Queue table (stretches)
         self.queue_tbl = QTableWidget()
         self.queue_tbl.setColumnCount(5)
         self.queue_tbl.setHorizontalHeaderLabels(["URL","Added","Status","Result",""])
@@ -1029,31 +1003,33 @@ class LinkAutomationTab(QWidget):
         self.queue_tbl.verticalHeader().setVisible(False)
         self.queue_tbl.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.queue_tbl.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
-        lo.addWidget(self.queue_tbl)
+        lo.addWidget(self.queue_tbl, 1)
 
-        tb = QHBoxLayout()
+        # Controls row
+        ctrl_row = QHBoxLayout()
         self.process_btn = QPushButton("Process All")
         self.process_btn.setObjectName("success")
         self.process_btn.clicked.connect(self.process_queue)
-        tb.addWidget(self.process_btn)
+        ctrl_row.addWidget(self.process_btn)
         self.auto_toggle = QPushButton("Auto")
         self.auto_toggle.setStyleSheet("QPushButton{background:#1e1e2a;color:#64748b;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;}QPushButton:hover{background:#2a2a36;}")
         self.auto_toggle.clicked.connect(self.toggle_auto)
-        tb.addWidget(self.auto_toggle)
-        cc_btn = QPushButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); tb.addWidget(cc_btn)
-        self.clear_btn = QPushButton("Clear")
-        self.clear_btn.clicked.connect(self.clear_queue)
-        tb.addWidget(self.clear_btn)
-        self.queue_counter = QLabel("")
-        self.queue_counter.setStyleSheet("font-size:12px;color:#64748b;padding:0 8px;")
-        tb.addWidget(self.queue_counter)
-        tb.addStretch()
-        lo.addLayout(tb)
+        ctrl_row.addWidget(self.auto_toggle)
+        cc_btn = QPushButton("Clear Done"); cc_btn.clicked.connect(self.clear_completed); ctrl_row.addWidget(cc_btn)
+        self.clear_btn = QPushButton("Clear"); self.clear_btn.clicked.connect(self.clear_queue); ctrl_row.addWidget(self.clear_btn)
+        ctrl_row.addStretch()
+        self.last_result_lbl = QLabel("No links processed yet")
+        self.last_result_lbl.setStyleSheet("font-size:11px;color:#64748b;")
+        ctrl_row.addWidget(self.last_result_lbl)
+        lo.addLayout(ctrl_row)
 
-        lg = QGroupBox("Automation Log")
+        # Log bottom
+        lg = QGroupBox("Log")
         ll = QVBoxLayout()
+        ll.setContentsMargins(6,6,6,6)
         self.link_log = QTextEdit()
         self.link_log.setReadOnly(True)
+        self.link_log.setMaximumHeight(80)
         ll.addWidget(self.link_log)
         lg.setLayout(ll); lo.addWidget(lg)
 
@@ -1087,8 +1063,6 @@ class LinkAutomationTab(QWidget):
         if done_items:
             last = done_items[-1]
             self.last_result_lbl.setText(f"{last.get('url','')[:50]} — {last.get('result','')}")
-        # Counter
-        self.queue_counter.setText(f"Showing {len(queue)} item{'s' if len(queue)!=1 else ''}")
         for i, item in enumerate(queue):
             self.queue_tbl.setItem(i,0,QTableWidgetItem(item.get("url","")[:60]))
             self.queue_tbl.setItem(i,1,QTableWidgetItem(item.get("added","")))
@@ -1194,77 +1168,79 @@ class SettingsTab(QWidget):
 
     def __init__(self):
         super().__init__()
-        lo = QVBoxLayout(); lo.setContentsMargins(24,24,24,24); lo.setSpacing(20)
+        lo = QVBoxLayout(); lo.setContentsMargins(16,16,16,16); lo.setSpacing(10)
         t = QLabel("Settings"); t.setObjectName("title"); lo.addWidget(t)
 
-        bg = QGroupBox("Bot Behavior")
-        bl = QFormLayout(); bl.setSpacing(8)
-        self.hc = QCheckBox("Headless mode (invisible browser)")
+        # Top row: Bot + Notifications
+        top_row = QHBoxLayout()
+        bg = QGroupBox("Bot")
+        bl = QFormLayout(); bl.setSpacing(6)
+        bl.setContentsMargins(6,6,6,6)
+        self.hc = QCheckBox("Headless mode")
         self.hc.setChecked(combined.HEADLESS_MODE); bl.addRow(self.hc)
-        self.sp = QSpinBox(); self.sp.setRange(10,600); self.sp.setValue(combined.CHECK_INTERVAL); self.sp.setSuffix(" sec")
-        bl.addRow("Check interval:",self.sp)
-        bg.setLayout(bl); lo.addWidget(bg)
+        self.sp = QSpinBox(); self.sp.setRange(10,600); self.sp.setValue(combined.CHECK_INTERVAL); self.sp.setSuffix("s")
+        bl.addRow("Interval:",self.sp)
+        bg.setLayout(bl); top_row.addWidget(bg)
 
-        s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.save); lo.addWidget(s)
-
-        # Data Management
-        dg = QGroupBox("Data")
-        dl = QHBoxLayout(); dl.setSpacing(10)
-        exp_btn = QPushButton("Export All"); exp_btn.clicked.connect(self.export_data)
-        imp_btn = QPushButton("Import All"); imp_btn.clicked.connect(self.import_data)
-        cc_btn = QPushButton("Clear Cache"); cc_btn.clicked.connect(self.clear_cache)
-        dl.addWidget(exp_btn); dl.addWidget(imp_btn); dl.addWidget(cc_btn); dl.addStretch()
-        dg.setLayout(dl); lo.addWidget(dg)
-
-        # Notifications
         ng = QGroupBox("Notifications")
         nl = QVBoxLayout()
-        whl = QHBoxLayout()
+        nl.setContentsMargins(6,6,6,6)
+        whl = QHBoxLayout(); whl.setSpacing(6)
         self.webhook_input = QLineEdit()
-        self.webhook_input.setPlaceholderText("Discord webhook URL (optional)")
+        self.webhook_input.setPlaceholderText("Discord webhook URL")
         whl.addWidget(self.webhook_input)
-        test_wh = QPushButton("Test"); test_wh.clicked.connect(self.test_webhook)
-        whl.addWidget(test_wh)
+        test_wh = QPushButton("Test"); test_wh.clicked.connect(self.test_webhook); whl.addWidget(test_wh)
         nl.addLayout(whl)
-        ng.setLayout(nl); lo.addWidget(ng)
+        ng.setLayout(nl); top_row.addWidget(ng)
+        lo.addLayout(top_row)
 
-        # Advanced
+        s = QPushButton("Save"); s.setObjectName("gold"); s.clicked.connect(self.save)
+        lo.addWidget(s)
+
+        # Data + Advanced row
+        mid_row = QHBoxLayout()
+        dg = QGroupBox("Data")
+        dl = QHBoxLayout(); dl.setSpacing(6)
+        dl.setContentsMargins(6,6,6,6)
+        exp_btn = QPushButton("Export All"); exp_btn.clicked.connect(self.export_data); dl.addWidget(exp_btn)
+        imp_btn = QPushButton("Import All"); imp_btn.clicked.connect(self.import_data); dl.addWidget(imp_btn)
+        cc_btn = QPushButton("Clear Cache"); cc_btn.clicked.connect(self.clear_cache); dl.addWidget(cc_btn)
+        dg.setLayout(dl); mid_row.addWidget(dg)
+
         ag2 = QGroupBox("Advanced")
-        al2 = QVBoxLayout()
-        self.debug_cb = QCheckBox("Debug logging")
-        self.debug_cb.setChecked(False)
-        al2.addWidget(self.debug_cb)
-        self.verbose_cb = QCheckBox("Verbose output")
-        self.verbose_cb.setChecked(False)
-        al2.addWidget(self.verbose_cb)
-        reset_btn = QPushButton("Reset All Data")
-        reset_btn.setObjectName("danger")
-        reset_btn.clicked.connect(self.reset_all)
-        al2.addWidget(reset_btn)
-        ag2.setLayout(al2); lo.addWidget(ag2)
+        al2 = QHBoxLayout(); al2.setSpacing(6)
+        al2.setContentsMargins(6,6,6,6)
+        self.debug_cb = QCheckBox("Debug"); self.debug_cb.setChecked(False); al2.addWidget(self.debug_cb)
+        self.verbose_cb = QCheckBox("Verbose"); self.verbose_cb.setChecked(False); al2.addWidget(self.verbose_cb)
+        reset_btn = QPushButton("Reset All"); reset_btn.setObjectName("danger"); reset_btn.clicked.connect(self.reset_all); al2.addWidget(reset_btn)
+        ag2.setLayout(al2); mid_row.addWidget(ag2)
+        lo.addLayout(mid_row)
 
-        ag = QGroupBox("About & License")
-        al = QVBoxLayout(); al.setSpacing(8)
+        # About + bottom buttons
+        bot_row = QHBoxLayout()
+        ag = QGroupBox("About")
+        al = QHBoxLayout(); al.setSpacing(10)
+        al.setContentsMargins(6,6,6,6)
         lf = BASE_DIR / "license.dat"
+        license_info = "No license"
         if lf.exists():
             try:
                 with open(lf) as f: ld = json.load(f)
-                al.addWidget(QLabel(f"Key: {ld.get('key','N/A')}  |  Tier: {ld.get('tier','Premium')}"))
-            except: al.addWidget(QLabel("Corrupted license file."))
-        else: al.addWidget(QLabel("No license activated."))
-        al.addWidget(QLabel("Claims Casino - Automation Suite v1.0.1"))
-        l = QLabel('<a href="https://claimscasino.com/terms" style="color:#FFD700;text-decoration:none;">Terms of Service</a>')
-        l.setOpenExternalLinks(True)
-        al.addWidget(l)
-        al.addWidget(QLabel("© 2026 Claims Casino Automation"))
-        ag.setLayout(al); lo.addWidget(ag)
+                license_info = f"{ld.get('key','N/A')}  |  {ld.get('tier','Premium')}"
+            except: license_info = "Corrupted"
+        al.addWidget(QLabel(f"v1.0.1  |  {license_info}"))
+        l = QLabel('<a href="https://claimscasino.com/terms" style="color:#FFD700;text-decoration:none;">Terms</a>')
+        l.setOpenExternalLinks(True); al.addWidget(l)
+        al.addWidget(QLabel("© 2026 Claims Casino"))
+        ag.setLayout(al); bot_row.addWidget(ag)
 
-        bb = QHBoxLayout(); bb.setSpacing(10)
-        cu = QPushButton("Check Updates"); cu.setObjectName("gold"); cu.clicked.connect(self.check_updates_requested.emit)
-        su = QPushButton("Community"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support"))
-        bb.addWidget(cu); bb.addWidget(su); bb.addStretch(); lo.addLayout(bb)
-
-        lo.addStretch(); self.setLayout(lo)
+        bb = QHBoxLayout(); bb.setSpacing(8)
+        cu = QPushButton("Check Updates"); cu.setObjectName("gold"); cu.clicked.connect(self.check_updates_requested.emit); bb.addWidget(cu)
+        su = QPushButton("Community"); su.clicked.connect(lambda: webbrowser.open("https://claimscasino.com/support")); bb.addWidget(su)
+        bot_row.addLayout(bb)
+        lo.addLayout(bot_row)
+        lo.addStretch()
+        self.setLayout(lo)
 
     def save(self):
         combined.HEADLESS_MODE = self.hc.isChecked()
@@ -1352,6 +1328,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Claims Casino - Automation Suite")
         self.setFixedSize(1200, 780)
 
+        logo_path = Path(getattr(sys, "_MEIPASS", BASE_DIR)) / "assets" / "logo.png"
+        if logo_path.exists():
+            self.setWindowIcon(QIcon(str(logo_path)))
+
         c = QWidget(); self.setCentralWidget(c)
         main_lo = QVBoxLayout(c); main_lo.setContentsMargins(0,0,0,0); main_lo.setSpacing(0)
 
@@ -1359,10 +1339,9 @@ class MainWindow(QMainWindow):
         tb = QFrame()
         tb.setObjectName("titleBar")
         tb.setFixedHeight(56)
-        tb.setStyleSheet("#titleBar{background:#1a1a1e;border-bottom:1px solid rgba(255,215,0,0.15);}")
+        tb.setStyleSheet("#titleBar{background:#0d0d14;}")
         tbl = QHBoxLayout(tb); tbl.setContentsMargins(12,0,8,0); tbl.setSpacing(8)
 
-        logo_path = Path(getattr(sys, "_MEIPASS", BASE_DIR)) / "assets" / "logo.png"
         logo_lbl = QLabel()
         if logo_path.exists():
             px = QPixmap(str(logo_path)).scaled(36,36,Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
@@ -1456,14 +1435,14 @@ class MainWindow(QMainWindow):
         sb.addPermanentWidget(vl)
 
         # Tray
-        ico = BASE_DIR / "assets/icon.ico"
         self.tray = QSystemTrayIcon(self)
-        if ico.exists():
-            self.tray.setIcon(QIcon(str(ico)))
+        if logo_path.exists():
+            px = QPixmap(str(logo_path)).scaled(32,32,Qt.AspectRatioMode.KeepAspectRatio,Qt.TransformationMode.SmoothTransformation)
+            self.tray.setIcon(QIcon(px))
         else:
-            px = QPixmap(32,32); px.fill(QColor("#111114"))
+            px = QPixmap(32,32); px.fill(QColor("#0d0d14"))
             p = QPainter(px); p.setBrush(QColor("#FFD700")); p.setPen(Qt.PenStyle.NoPen)
-            p.drawEllipse(2,2,28,28); p.setFont(QFont("Arial",16,700)); p.setPen(QColor("#111"))
+            p.drawEllipse(2,2,28,28); p.setFont(QFont("Arial",16,700)); p.setPen(QColor("#0d0d14"))
             p.drawText(px.rect(),Qt.AlignmentFlag.AlignCenter,"CC"); p.end()
             self.tray.setIcon(QIcon(px))
 
@@ -1491,16 +1470,6 @@ class MainWindow(QMainWindow):
         for i, btn in enumerate(self.nav_btns):
             btn.setChecked(i == idx)
         self.settings_btn.setChecked(idx == 4)
-        w = self.stack.currentWidget()
-        if w:
-            ef = QGraphicsOpacityEffect(w)
-            w.setGraphicsEffect(ef)
-            an = QPropertyAnimation(ef, b"opacity")
-            an.setDuration(200)
-            an.setStartValue(0.0)
-            an.setEndValue(1.0)
-            an.setEasingCurve(QEasingCurve.Type.OutCubic)
-            an.start()
 
     def refresh_st(self):
         with combined.state_lock: s = dict(combined.state)
